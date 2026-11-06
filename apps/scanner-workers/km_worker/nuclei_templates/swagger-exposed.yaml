@@ -1,0 +1,25 @@
+id: km-swagger-exposed
+info:
+  name: Interactive API Documentation Exposed
+  author: king-malhare
+  severity: medium
+  description: Interactive API documentation is publicly accessible and discloses endpoints and request schemas.
+  remediation: Require authentication for documentation endpoints or disable them in production.
+  tags: exposure,swagger,api
+  classification:
+    cwe-id: CWE-200
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/swagger-ui.html"
+      - "{{BaseURL}}/swagger/index.html"
+      - "{{BaseURL}}/openapi.json"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        regex:
+          - "(?i)(swagger|openapi)"
+        part: body

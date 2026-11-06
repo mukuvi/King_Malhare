@@ -1,0 +1,36 @@
+# Optional monitoring stack. Attach to the internal network so Prometheus can
+# scrape the API's internal listener and the worker heartbeat metrics.
+#   docker compose -f docker-compose.yml -f infrastructure/monitoring/compose.monitoring.yml up -d
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    networks: [internal]
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.25.0
+    restart: unless-stopped
+    command: ["--config.file=/etc/blackbox/blackbox.yml"]
+    volumes:
+      - ./infrastructure/monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    networks: [internal, edge]
+
+networks:
+  edge:
+    external: true
+    name: king-malhare_edge
+  internal:
+    external: true
+    name: king-malhare_internal
+
+volumes:
+  prometheus_data:

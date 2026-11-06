@@ -1,0 +1,152 @@
+name: king-malhare
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kingmalhare}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-kingmalhare}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks: [internal, devnet]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks: [internal, devnet]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_ORIGIN: ${SITE_ADDRESS:-http://localhost}
+      API_ADDR: ":8080"
+      INTERNAL_LISTEN_ADDR: ":8081"
+      DATABASE_URL: postgres://${POSTGRES_USER:-kingmalhare}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kingmalhare}?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_LOCAL_PATH: /data/storage
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+    volumes:
+      - storage:/data/storage
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [edge, internal]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/v1/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging: *logging
+
+  worker:
+    build:
+      context: apps/scanner-workers
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      API_INTERNAL_URL: http://api:8081
+      SCAN_WORK_DIR: /tmp/king-malhare-work
+      WORKER_HTTP_PORT: "8090"
+      HOME: /tmp
+    depends_on:
+      api: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [internal, egress]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    read_only: true
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 300
+    mem_limit: 2g
+    cpus: 2.0
+    ulimits:
+      nofile: { soft: 8192, hard: 8192 }
+    logging: *logging
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-security@example.com}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [edge]
+    logging: *logging
+
+  # Optional: OWASP ZAP daemon for the ZAP adapter.
+  # docker compose --profile zap up -d zap
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    profiles: ["zap"]
+    restart: unless-stopped
+    command: ["zap.sh", "-daemon", "-host", "0.0.0.0", "-port", "8080", "-config", "api.addrs.addr.name=.*", "-config", "api.addrs.addr.regex=true", "-config", "api.key=${ZAP_API_KEY:-}"]
+    networks: [internal, egress]
+    read_only: false
+    logging: *logging
+
+networks:
+  edge:
+    driver: bridge
+  devnet:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true
+  egress:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:
+  caddy_data:
+  caddy_config:

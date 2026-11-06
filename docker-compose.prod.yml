@@ -1,0 +1,31 @@
+# Production overrides.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+services:
+  postgres:
+    # Never publish the database on the host in production.
+    ports: !reset []
+    restart: always
+    logging:
+      driver: json-file
+      options: { max-size: "50m", max-file: "10" }
+
+  redis:
+    ports: !reset []
+    restart: always
+
+  api:
+    environment:
+      APP_ENV: production
+      COOKIE_SECURE: "true"
+      LOG_LEVEL: info
+    restart: always
+
+  worker:
+    restart: always
+
+  web:
+    restart: always
+
+  zap:
+    restart: always

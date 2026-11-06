@@ -1,0 +1,25 @@
+id: km-exposed-env
+info:
+  name: Exposed Environment File
+  author: king-malhare
+  severity: critical
+  description: An environment file is served publicly and may contain database passwords, API keys and signing secrets.
+  remediation: Remove the file from the web root, rotate every exposed secret and restrict static file serving.
+  tags: exposure,env,misconfig,secrets
+  classification:
+    cwe-id: CWE-538
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/.env.local"
+    stop-at-first-match: false
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: regex
+        regex:
+          - "(?m)^[A-Z0-9_]{2,}=[^\\n]{1,}"
+        part: body

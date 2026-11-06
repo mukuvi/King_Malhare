@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --sidebar-width: 248px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a31 transparent;
+}
+
+html {
+  background: #08080a;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 500px at 68% -10%, rgba(245, 176, 37, 0.055), transparent 62%),
+    radial-gradient(700px 420px at 105% 12%, rgba(246, 92, 27, 0.035), transparent 60%),
+    #0c0c0f;
+}
+
+::selection {
+  background: rgba(245, 176, 37, 0.28);
+  color: #fff8e6;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a31;
+  border-radius: 999px;
+  border: 2px solid #0c0c0f;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer base {
+  * {
+    @apply border-ink-600;
+  }
+  body {
+    @apply font-sans text-[14px] leading-relaxed text-ink-100;
+    font-feature-settings: "ss01" 1, "cv01" 1;
+  }
+  h1, h2, h3, h4 {
+    @apply text-ink-50;
+    text-wrap: balance;
+  }
+  ::placeholder {
+    @apply text-ink-400;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-amber-400/70 ring-offset-2 ring-offset-ink-900;
+  }
+  a {
+    @apply text-inherit;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-ink-650/80 bg-ink-850 shadow-card;
+  }
+  .panel-hover {
+    @apply transition-colors duration-200 hover:border-ink-500 hover:bg-ink-800;
+  }
+  .eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-300;
+  }
+  .mono {
+    @apply font-mono text-[12px] tracking-[-0.01em];
+  }
+  .input-base {
+    @apply h-10 w-full rounded-lg border border-ink-600 bg-ink-900 px-3 text-[13.5px] text-ink-50 placeholder:text-ink-400 transition-colors hover:border-ink-500 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-400/15;
+  }
+  .table-base {
+    @apply w-full border-collapse text-left text-[13px];
+  }
+  .table-base th {
+    @apply border-b border-ink-600 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-300;
+  }
+  .table-base td {
+    @apply border-b border-ink-700/70 px-4 py-3 align-middle;
+  }
+  .table-base tbody tr {
+    @apply transition-colors hover:bg-ink-800/70;
+  }
+  .dot-grid {
+    background-image: radial-gradient(rgba(246, 242, 233, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .hairline {
+    background: linear-gradient(90deg, transparent, rgba(246, 242, 233, 0.18), transparent);
+  }
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-ink-700/80;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.04] to-transparent;
+    animation: shimmer 1.8s infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

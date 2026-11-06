@@ -1,0 +1,23 @@
+id: km-exposed-git-config
+info:
+  name: Exposed Git Repository Configuration
+  author: king-malhare
+  severity: high
+  description: The Git configuration file is publicly readable. Repository metadata can expose source code, remotes and credentials.
+  remediation: Remove the .git directory from the deployed web root.
+  tags: exposure,git,misconfig
+  classification:
+    cwe-id: CWE-538
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.git/config"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "repositoryformatversion"
+        part: body

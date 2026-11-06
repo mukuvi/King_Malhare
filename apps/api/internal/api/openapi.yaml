@@ -1,0 +1,654 @@
+openapi: 3.1.0
+info:
+  title: King Malhare API
+  version: 1.0.0
+  description: |
+    Offensive security and vulnerability assessment platform API.
+
+    Authentication uses the `km_session` HttpOnly cookie for browser sessions plus a
+    `X-CSRF-Token` header on mutating requests, or a bearer API key (`km_...`) for
+    automation. All tenant data is scoped to the authenticated organization.
+
+    Every scan requires an active authorization record bound to the asset. Intrusive
+    scanners additionally require the `scans:intrusive` permission, an authorization
+    that permits intrusive testing, and `confirm_intrusive: true`.
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+  - bearerAuth: []
+tags:
+  - name: Authentication
+  - name: Assets
+  - name: Authorization
+  - name: Scans
+  - name: Findings
+  - name: Intelligence
+  - name: Reports
+  - name: Organization
+  - name: Operations
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Create the first organization and owner account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [org_name, name, email, password]
+              properties:
+                org_name: { type: string, minLength: 2, maxLength: 120 }
+                name: { type: string, minLength: 2, maxLength: 120 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 12 }
+      responses:
+        "200": { description: Session created }
+        "403": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Sign in and create a session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200": { description: Authenticated }
+        "401": { $ref: '#/components/responses/Error' }
+        "429": { $ref: '#/components/responses/Error' }
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Revoke the current session
+      responses:
+        "200": { description: Signed out }
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Current user, organization, role and permissions
+      responses:
+        "200":
+          description: Session context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { type: object }
+                  org: { type: object }
+                  role: { type: string, enum: [owner, admin, analyst, viewer, api] }
+                  permissions: { type: array, items: { type: string } }
+  /auth/change-password:
+    post:
+      tags: [Authentication]
+      summary: Change password and revoke other sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password: { type: string }
+                new_password: { type: string, minLength: 12 }
+      responses:
+        "200": { description: Password changed }
+        "403": { $ref: '#/components/responses/Error' }
+  /assets:
+    get:
+      tags: [Assets]
+      summary: List assets
+      parameters:
+        - { in: query, name: page, schema: { type: integer, minimum: 1 }, description: Page number }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { in: query, name: search, schema: { type: string } }
+        - { in: query, name: type, schema: { type: string, enum: [website, web_app, api, graphql_api, ip, network, cloud, server, container, internal] } }
+        - { in: query, name: environment, schema: { type: string, enum: [production, staging, development, lab, internal] } }
+        - { in: query, name: status, schema: { type: string, enum: [active, archived] } }
+        - { in: query, name: sort, schema: { type: string, enum: [name, created_at, last_assessed_at, risk, type] } }
+        - { in: query, name: order, schema: { type: string, enum: [asc, desc] } }
+      responses:
+        "200": { description: Paginated assets }
+    post:
+      tags: [Assets]
+      summary: Register an asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type, target]
+              properties:
+                name: { type: string }
+                type: { type: string, enum: [website, web_app, api, graphql_api, ip, network, cloud, server, container, internal] }
+                target: { type: string, description: URL, host, IP, CIDR, cloud account or image reference }
+                description: { type: string }
+                environment: { type: string, enum: [production, staging, development, lab, internal] }
+                owner_user_id: { type: string, format: uuid }
+                tags: { type: array, items: { type: string }, maxItems: 20 }
+                metadata: { type: object }
+      responses:
+        "201": { description: Asset created }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /assets/{assetId}:
+    parameters:
+      - { in: path, name: assetId, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Assets]
+      summary: Asset detail with ownership
+      responses:
+        "200": { description: Asset }
+        "404": { $ref: '#/components/responses/Error' }
+    patch:
+      tags: [Assets]
+      summary: Update asset fields
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                environment: { type: string, enum: [production, staging, development, lab, internal] }
+                owner_user_id: { type: string, format: uuid }
+                tags: { type: array, items: { type: string } }
+                status: { type: string, enum: [active, archived] }
+                target: { type: string }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Assets]
+      summary: Archive an asset
+      responses:
+        "200": { description: Archived }
+  /assets/{assetId}/authorizations:
+    parameters:
+      - { in: path, name: assetId, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Authorization]
+      summary: List authorization records for an asset
+      responses:
+        "200": { description: Authorization list }
+    post:
+      tags: [Authorization]
+      summary: Record written authorization for testing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reference, approved_by_name, expires_at]
+              properties:
+                reference: { type: string, description: Contract, ticket or written approval identifier }
+                approved_by_name: { type: string }
+                approved_by_email: { type: string }
+                scope_notes: { type: string }
+                intrusive_allowed: { type: boolean, default: false }
+                allow_private: { type: boolean, default: false }
+                valid_from: { type: string, format: date-time }
+                expires_at: { type: string, format: date-time }
+      responses:
+        "201": { description: Authorization created }
+        "422": { $ref: '#/components/responses/Error' }
+  /authorizations/{authorizationId}:
+    patch:
+      tags: [Authorization]
+      summary: Revoke an authorization
+      parameters:
+        - { in: path, name: authorizationId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [revoked] }
+                reason: { type: string }
+      responses:
+        "200": { description: Revoked }
+  /scanners:
+    get:
+      tags: [Scans]
+      summary: Scanner catalogue and live worker availability
+      responses:
+        "200": { description: Scanner status, worker heartbeats and queue depth }
+  /scan-profiles:
+    get:
+      tags: [Scans]
+      summary: List system and organization scan profiles
+      responses:
+        "200": { description: Profiles }
+    post:
+      tags: [Scans]
+      summary: Create a custom scan profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, scanner]
+              properties:
+                name: { type: string }
+                category: { type: string, enum: [web, network, cloud, authentication, infrastructure] }
+                scanner: { type: string }
+                description: { type: string }
+                config: { type: object }
+                key: { type: string }
+      responses:
+        "201": { description: Created }
+        "422": { $ref: '#/components/responses/Error' }
+  /scans:
+    get:
+      tags: [Scans]
+      summary: List assessments
+      parameters:
+        - { in: query, name: status, schema: { type: string, enum: [active, pending, queued, initializing, running, completed, failed, cancelled] } }
+        - { in: query, name: category, schema: { type: string, enum: [web, network, cloud, authentication, infrastructure] } }
+        - { in: query, name: scanner, schema: { type: string } }
+        - { in: query, name: asset_id, schema: { type: string, format: uuid } }
+        - { in: query, name: page, schema: { type: integer } }
+      responses:
+        "200": { description: Paginated assessments }
+    post:
+      tags: [Scans]
+      summary: Start an assessment
+      description: |
+        The target is checked against the asset and authorization record. Private
+        targets require an authorization with `allow_private`. Intrusive scanners
+        require `scans:intrusive`, an intrusive authorization and
+        `confirm_intrusive: true`. Jobs are queued in Redis for a scanner worker.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [asset_id, authorization_id, scanner]
+              properties:
+                asset_id: { type: string, format: uuid }
+                authorization_id: { type: string, format: uuid }
+                scanner: { type: string, enum: [http-baseline, nmap, nuclei, zap, nikto, gobuster, testssl, sqlmap, trivy, prowler, scoutsuite, checkov, aws-posture, auth-baseline] }
+                category: { type: string, enum: [web, network, cloud, authentication, infrastructure] }
+                profile_id: { type: string, format: uuid }
+                params: { type: object }
+                confirm_intrusive: { type: boolean, default: false }
+                cloud_connection_id: { type: string, format: uuid }
+                idempotency_key: { type: string }
+      responses:
+        "202": { description: Queued }
+        "403": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+        "429": { $ref: '#/components/responses/Error' }
+  /scans/{scanId}:
+    get:
+      tags: [Scans]
+      summary: Assessment detail, scope, config, executions and severity counts
+      parameters:
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Assessment }
+        "404": { $ref: '#/components/responses/Error' }
+  /scans/{scanId}/cancel:
+    post:
+      tags: [Scans]
+      summary: Request cancellation
+      parameters:
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "202": { description: Cancellation requested }
+  /scans/{scanId}/events:
+    get:
+      tags: [Scans]
+      summary: Server-Sent Events stream of live progress
+      parameters:
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200":
+          description: text/event-stream with `update` events
+          content:
+            text/event-stream:
+              schema: { type: string }
+  /scans/{scanId}/results:
+    get:
+      tags: [Scans]
+      summary: Normalized raw results for a scan
+      parameters:
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Results }
+  /scans/compare:
+    get:
+      tags: [Scans]
+      summary: Compare two assessments by finding fingerprint
+      parameters:
+        - { in: query, name: base, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: compare, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: New, resolved and persisting findings }
+  /scans/emergency-stop:
+    post:
+      tags: [Scans]
+      summary: Cancel every queued and running assessment and block new ones
+      responses:
+        "200": { description: Emergency stop active }
+  /emergency-stop:
+    delete:
+      tags: [Scans]
+      summary: Clear the organization emergency stop
+      responses:
+        "200": { description: Cleared }
+  /findings:
+    get:
+      tags: [Findings]
+      summary: List deduplicated findings
+      parameters:
+        - { in: query, name: severity, schema: { type: string, enum: [critical, high, medium, low, info] } }
+        - { in: query, name: status, schema: { type: string, enum: [open, confirmed, in_progress, fixed, retest_required, accepted_risk, false_positive] } }
+        - { in: query, name: asset_id, schema: { type: string, format: uuid } }
+        - { in: query, name: assigned_to, schema: { type: string, format: uuid } }
+        - { in: query, name: search, schema: { type: string } }
+        - { in: query, name: page, schema: { type: integer } }
+        - { in: query, name: sort, schema: { type: string, enum: [last_seen, first_seen, severity, status, title] } }
+      responses:
+        "200": { description: Paginated findings }
+  /findings/{findingId}:
+    get:
+      tags: [Findings]
+      summary: Finding detail with evidence and lifecycle events
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Finding }
+        "404": { $ref: '#/components/responses/Error' }
+    patch:
+      tags: [Findings]
+      summary: Triage a finding
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status: { type: string, enum: [open, confirmed, in_progress, fixed, retest_required, accepted_risk, false_positive] }
+                severity: { type: string, enum: [critical, high, medium, low, info] }
+                assigned_to: { type: string, format: uuid }
+                description: { type: string }
+                reproduction: { type: string }
+                business_impact: { type: string }
+                technical_impact: { type: string }
+                remediation: { type: string }
+                note: { type: string }
+      responses:
+        "200": { description: Updated }
+  /findings/{findingId}/verify:
+    post:
+      tags: [Findings]
+      summary: Mark a finding confirmed and verified
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Verified }
+  /findings/{findingId}/evidence:
+    get:
+      tags: [Findings]
+      summary: List evidence attachments
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Evidence metadata }
+    post:
+      tags: [Findings]
+      summary: Upload evidence (PNG, JPEG, WEBP, GIF, PDF, TXT, LOG, JSON, CSV; 25 MB)
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "201": { description: Stored with SHA-256 }
+        "422": { $ref: '#/components/responses/Error' }
+  /evidence/{evidenceId}/download:
+    get:
+      tags: [Findings]
+      summary: Download evidence (organization scoped)
+      parameters:
+        - { in: path, name: evidenceId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: File }
+  /intel/cve/{cveId}:
+    get:
+      tags: [Intelligence]
+      summary: CVE lookup via CIRCL with a local seven-day cache
+      parameters:
+        - { in: path, name: cveId, required: true, schema: { type: string, pattern: '^CVE-[0-9]{4}-[0-9]{4,7}$' } }
+      responses:
+        "200": { description: Normalized CVE record }
+        "502": { $ref: '#/components/responses/Error' }
+  /intel/recent:
+    get:
+      tags: [Intelligence]
+      summary: Recently looked up CVEs from the local cache
+      parameters:
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100 } }
+      responses:
+        "200": { description: CVE records }
+  /intel/cwes:
+    get:
+      tags: [Intelligence]
+      summary: CWE reference catalogue
+      responses:
+        "200": { description: CWE list }
+  /reports:
+    get:
+      tags: [Reports]
+      summary: List generated reports
+      responses:
+        "200": { description: Paginated reports }
+    post:
+      tags: [Reports]
+      summary: Generate an HTML and PDF penetration test report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                client_name: { type: string }
+                assessor_name: { type: string }
+                scan_id: { type: string, format: uuid }
+                finding_ids: { type: array, items: { type: string, format: uuid } }
+                period_start: { type: string, format: date-time }
+                period_end: { type: string, format: date-time }
+      responses:
+        "201": { description: Report ready }
+        "422": { $ref: '#/components/responses/Error' }
+  /reports/{reportId}/html:
+    get:
+      tags: [Reports]
+      summary: Render the HTML report inline
+      parameters:
+        - { in: path, name: reportId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: HTML report }
+  /reports/{reportId}/pdf:
+    get:
+      tags: [Reports]
+      summary: Download the PDF report
+      parameters:
+        - { in: path, name: reportId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: PDF report }
+  /stats/overview:
+    get:
+      tags: [Operations]
+      summary: Dashboard statistics computed from PostgreSQL
+      responses:
+        "200": { description: Asset, scan, finding and posture statistics }
+  /stats/trends:
+    get:
+      tags: [Operations]
+      summary: Daily finding and scan trends
+      parameters:
+        - { in: query, name: days, schema: { type: integer, minimum: 7, maximum: 180, default: 30 } }
+      responses:
+        "200": { description: Daily series }
+  /notifications:
+    get:
+      tags: [Operations]
+      summary: List notifications
+      responses:
+        "200": { description: Notifications and unread count }
+  /audit-events:
+    get:
+      tags: [Operations]
+      summary: Organization audit trail
+      responses:
+        "200": { description: Paginated audit events }
+  /integrations:
+    get:
+      tags: [Operations]
+      summary: Scanner availability, workers, queue depth and cloud connections
+      responses:
+        "200": { description: Integration status }
+  /cloud-connections:
+    get:
+      tags: [Operations]
+      summary: List cloud connections (credentials are never returned)
+      responses:
+        "200": { description: Connections }
+    post:
+      tags: [Operations]
+      summary: Store encrypted read-only cloud credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [provider, name, credentials]
+              properties:
+                provider: { type: string, enum: [aws, azure, gcp] }
+                name: { type: string }
+                account_id: { type: string }
+                credentials:
+                  type: object
+                  additionalProperties: { type: string }
+      responses:
+        "201": { description: Stored encrypted }
+        "422": { $ref: '#/components/responses/Error' }
+  /api-keys:
+    get:
+      tags: [Operations]
+      summary: List API key metadata
+      responses:
+        "200": { description: Keys }
+    post:
+      tags: [Operations]
+      summary: Issue an API key (token shown once)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                scopes: { type: array, items: { type: string } }
+                expires_in_days: { type: integer, maximum: 730 }
+      responses:
+        "201": { description: Token issued }
+  /schedules:
+    get:
+      tags: [Operations]
+      summary: List scheduled assessments
+      responses:
+        "200": { description: Schedules }
+    post:
+      tags: [Operations]
+      summary: Schedule a non-intrusive assessment (five-field cron, UTC)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [asset_id, authorization_id, scanner, cron]
+              properties:
+                asset_id: { type: string, format: uuid }
+                authorization_id: { type: string, format: uuid }
+                scanner: { type: string }
+                category: { type: string }
+                profile_id: { type: string, format: uuid }
+                config: { type: object }
+                cron: { type: string, example: "0 3 * * 1" }
+      responses:
+        "201": { description: Scheduled }
+        "422": { $ref: '#/components/responses/Error' }
+  /health:
+    get:
+      summary: Liveness
+      security: []
+      responses:
+        "200": { description: OK }
+  /ready:
+    get:
+      summary: Readiness (PostgreSQL and Redis)
+      security: []
+      responses:
+        "200": { description: Ready }
+        "503": { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: km_session
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: "API key prefixed with km_, created under Integrations."
+  responses:
+    Error:
+      description: Typed error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  details: { type: object }

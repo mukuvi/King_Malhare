@@ -1,0 +1,23 @@
+id: km-spring-actuator-env
+info:
+  name: Spring Boot Actuator Environment Exposed
+  author: king-malhare
+  severity: high
+  description: The Spring Boot actuator environment endpoint is publicly accessible and may expose configuration and secrets.
+  remediation: Restrict actuator endpoints to the management network and disable sensitive exposures.
+  tags: exposure,spring,misconfig
+  classification:
+    cwe-id: CWE-200
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/actuator/env"
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+      - type: word
+        words:
+          - "propertySources"
+        part: body

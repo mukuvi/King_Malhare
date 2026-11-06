@@ -1,0 +1,47 @@
+groups:
+  - name: king-malhare
+    rules:
+      - alert: KingMalhareAPIDown
+        expr: up{job="king-malhare-api-internal"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "King Malhare API is unreachable"
+          description: "Prometheus has failed to scrape the internal API for 2 minutes."
+
+      - alert: KingMalhareReadinessFailing
+        expr: probe_success{job="king-malhare-public"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "King Malhare readiness probe failing"
+          description: "{{ $labels.instance }} has failed for 3 minutes. Check PostgreSQL and Redis."
+
+      - alert: KingMalhareQueueBacklog
+        expr: km_scan_queue_depth > 25
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Scan queue backlog"
+          description: "More than 25 jobs have been waiting for 15 minutes. Check worker health and concurrency."
+
+      - alert: KingMalhareWorkerOffline
+        expr: km_worker_online == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No scanner worker heartbeat"
+          description: "Assessments cannot execute until a worker reports a heartbeat."
+
+      - alert: KingMalhareHighScanFailureRate
+        expr: km_scans_failed_24h > 0 and km_scans_failed_24h / clamp_min(km_scans_total_24h, 1) > 0.5
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High assessment failure rate"
+          description: "More than half of assessments in the last 24 hours failed."

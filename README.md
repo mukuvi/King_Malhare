@@ -24,6 +24,7 @@ King Malhare does not ship fabricated scans, mock findings or hardcoded dashboar
 | Nuclei template scanning | Implemented (requires `nuclei` + templates) |
 | HTTP baseline assessment (headers, cookies, CORS, TLS, exposure, directory discovery) | Implemented |
 | Nikto, Gobuster, testssl.sh, SQLMap, Trivy integrations | Implemented as guarded adapters; report "unavailable" when the binary is absent |
+| Burp Suite, ffuf, WhatWeb, WAFW00F, httpx, Subfinder, SSLyze, Grype, Syft, Semgrep, Gitleaks, tfsec, Schemathesis | Implemented as guarded adapters; report "unavailable" when the binary or service is absent |
 | OWASP ZAP | Implemented via ZAP daemon API; unavailable unless `ZAP_URL` is configured |
 | Prowler, ScoutSuite, Checkov | Implemented as guarded CLI adapters; unavailable unless installed and configured |
 | AWS posture checks | Implemented read-only checks (boto3) |
@@ -36,6 +37,14 @@ King Malhare does not ship fabricated scans, mock findings or hardcoded dashboar
 | Docker/Compose deployment, Caddy TLS, CI | Implemented |
 
 Unavailable scanner binaries are detected at worker startup and shown as **Unavailable** in Integrations. They are never faked. External cloud CLIs (Azure/GCP) remain a documented next step.
+
+## Tool integrations
+
+The optional Kali worker image (`apps/scanner-workers/Dockerfile.kali`) is built on Kali Linux and installs the major assessment metapackages: information gathering, vulnerability analysis, web, database, reporting, fuzzing, sniffing/spoofing and the top 10 toolset. It includes real tools such as Nmap, Nuclei, Burp Suite, OWASP ZAP, Nikto, SQLMap, ffuf, Gobuster, WhatWeb, WAFW00F, httpx, Subfinder, SSLyze, SSLScan, Amass, theHarvester, DNSRecon, DNSEnum, Fierce, Sublist3r, Assetfinder, Masscan, Netdiscover, arp-scan, Enum4linux, SMBMap, DIRB, dirsearch, feroxbuster, Wfuzz, Arjun, Commix, Dalfox, WPScan, JoomScan, Droopescan, Skipfish, Wapiti, SearchSploit, Trivy, Grype, Syft, Prowler, ScoutSuite, Checkov, tfsec, Semgrep, Gitleaks, Bandit, TruffleHog, Schemathesis and more.
+
+A generic catalog adapter runs each tool through an argument vector, never a shell string. Tools marked intrusive require an authorization that explicitly permits intrusive testing. Missing binaries are reported as unavailable at worker startup instead of being simulated. Burp Suite connects to a `burp-rest-api` endpoint through `BURP_URL` and `BURP_API_KEY`.
+
+Each finding includes remediation guidance, technical and business impact, evidence, CVE/CWE identifiers where available, and a remediation history. Reports embed the same recommendations in the HTML and PDF outputs. The API exposes the same data through `GET /findings/{id}` and `POST /findings/{id}/remediation`.
 
 ## Architecture at a glance
 
@@ -140,6 +149,18 @@ scripts/
 ```
 
 Shared contracts live in the OpenAPI document served by the API (`apps/api/internal/api/openapi.yaml`) and the JSON job envelope documented in [scanner execution](docs/architecture/scanner-execution.md). There is no separate `packages/` directory in this repository: the Go types, Python adapters and OpenAPI schema are the authoritative contracts, and duplicating them in another package would create drift.
+
+## Offline and air-gapped use
+
+The console and scanner workers are self-hosted. The web app bundles its fonts and icons and registers a service worker that caches the app shell, so the console can open without internet access. Local assessments against local lab targets work when the API, PostgreSQL, Redis and worker are running. External CVE intelligence, passive DNS sources and some cloud checks require outbound internet; the platform reports those failures honestly instead of inventing results.
+
+## Edge hardening
+
+The production nginx configuration adds rate limits for login, registration and the API, security headers (CSP, HSTS, frame denial, referrer policy and permissions policy), dotfile and secret-file blocking, and noindex on authenticated routes. The temporary IP-based host is marked noindex and serves a disallow-all robots.txt. The intended public domain is the canonical SEO origin.
+
+## Privacy and terms
+
+The public site includes Privacy Policy and Terms of Service pages at `/privacy` and `/terms`. Replace them with your organization's legal text before production use.
 
 ## Safety and legal
 

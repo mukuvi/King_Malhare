@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import logging
+import re
 import shutil
 import subprocess
 
@@ -11,6 +12,7 @@ from ..config import config
 from ..runner import JobContext
 
 log = logging.getLogger("km_worker.adapters")
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 VERSION_ARGS = {
     "nuclei": ["-version"],
@@ -22,6 +24,18 @@ VERSION_ARGS = {
     "scoutsuite": ["--version"],
     "checkov": ["--version"],
     "gobuster": ["version"],
+    "ffuf": ["-V"],
+    "whatweb": ["--version"],
+    "wafw00f": ["--version"],
+    "httpx": ["-version"],
+    "subfinder": ["-version"],
+    "sslyze": ["--version"],
+    "grype": ["version"],
+    "semgrep": ["--version"],
+    "gitleaks": ["version"],
+    "tfsec": ["--version"],
+    "syft": ["version"],
+    "schemathesis": ["--version"],
 }
 
 
@@ -60,7 +74,7 @@ class Adapter:
                 timeout=10,
                 env={"PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/tmp", "LANG": "C.UTF-8"},
             )
-            raw = (proc.stdout or "") + (proc.stderr or "")
+            raw = ANSI_RE.sub("", (proc.stdout or "") + (proc.stderr or ""))
             version = next((line.strip() for line in raw.splitlines() if line.strip()), "")
             if len(version) > 160:
                 version = version[:160]

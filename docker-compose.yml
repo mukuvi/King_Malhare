@@ -74,8 +74,10 @@ services:
     logging: *logging
 
   worker:
+    image: king-malhare-worker:${WORKER_TAG:-latest}
     build:
       context: apps/scanner-workers
+      dockerfile: ${WORKER_DOCKERFILE:-Dockerfile}
     restart: unless-stopped
     env_file: .env
     environment:
@@ -94,6 +96,9 @@ services:
     tmpfs:
       - /tmp:size=1g,mode=1777
     cap_drop: [ALL]
+    # NET_RAW is required by real network tools such as masscan, arp-scan and
+    # netdiscover. It is still constrained by scope checks and intrusive gates.
+    cap_add: [NET_RAW]
     security_opt:
       - no-new-privileges:true
     pids_limit: 300
@@ -107,6 +112,9 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        VITE_SITE_URL: ${VITE_SITE_URL:-https://kingmalhare.mukuvi.tech}
+        VITE_API_BASE: ${VITE_API_BASE:-/api/v1}
     restart: unless-stopped
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}

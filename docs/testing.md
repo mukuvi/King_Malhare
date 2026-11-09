@@ -2,6 +2,14 @@
 
 ## Automated tests
 
+### Source hygiene
+
+```bash
+make check-dashes
+```
+
+This fails if a long dash or long-dash HTML entity appears in source, documentation, configuration or templates. The same check runs in CI and in the `quality` job.
+
 ### Backend (Go)
 
 ```bash
@@ -24,9 +32,10 @@ Covered:
 - AES-256-GCM round trip and AAD binding.
 - Token hashing with a server pepper.
 - Target normalization, metadata rejection, private/link-local policy, CIDR limits.
-- Scanner parameter allowlists and intrusive classification.
+- Scanner parameter allowlists, intrusive classification and expanded catalog metadata.
 - HTML/PDF report generation, escaping and PDF header validity.
 - End-to-end HTTP: registration, session/CSRF, asset creation, authorization, queued scan, cross-tenant 404s, revoked-authorization rejection, real Redis job presence.
+- Scoped API-key authentication: bearer requests, queued scans, and read-only scope enforcement without CSRF.
 
 ### Scanner workers (Python)
 
@@ -41,6 +50,7 @@ Covered:
 - Secret redaction.
 - Exposure signature matching and risky-port conservatism.
 - Adapter availability probes.
+- Generic Kali catalog: argument-vector construction, JSON record mapping, raw output evidence, missing-binary detection and intrusive gating.
 
 ### Frontend (Vitest + Testing Library)
 

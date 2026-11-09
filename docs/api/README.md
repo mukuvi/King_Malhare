@@ -134,6 +134,40 @@ Authorization is checked in the HTTP layer via middleware (`requirePermission`),
 
 Unknown scanner, parameter, or scope combination returns `422 validation_error` with field details. Running without a valid authorization returns `403 authorization_required`.
 
+## API key quickstart
+
+Create a scoped key under **Integrations** or with `POST /api-keys`. API-key requests use `Authorization: Bearer km_<prefix>_<secret>` and do not require a CSRF token.
+
+```bash
+# Check worker-detected scanner availability.
+curl -s -H "Authorization: Bearer km_prefix_secret" \
+  https://your-host/api/v1/scanners
+
+# Queue a scoped web assessment.
+curl -s -X POST https://your-host/api/v1/scans \
+  -H "Authorization: Bearer km_prefix_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "asset_id": "uuid",
+    "authorization_id": "uuid",
+    "scanner": "ffuf",
+    "category": "web",
+    "params": {"wordlist": "common", "threads": 10}
+  }'
+
+# Poll the assessment and read normalized findings.
+curl -s -H "Authorization: Bearer km_prefix_secret" \
+  https://your-host/api/v1/scans/{scanId}
+curl -s -H "Authorization: Bearer km_prefix_secret" \
+  https://your-host/api/v1/scans/{scanId}/findings
+```
+
+The same key can be used with the OpenAPI document at `/api/v1/openapi.yaml`, the interactive reference at `/api/v1/docs`, or any HTTP client. Scopes mirror permission names; a read-only key cannot create assets or queue scans.
+
+## Findings and recommendations
+
+Every normalized finding includes a description, technical impact, business impact, remediation guidance, evidence, CVE/CWE identifiers where available, and lifecycle status. `GET /findings/{id}` returns the recommendation and the remediation history. `POST /findings/{id}/remediation` records an action, owner and optional deadline. Reports include the same recommendation text in the HTML and PDF outputs.
+
 ## Versioning
 
 `/v1` is stable within minor releases. Additive fields are non-breaking. Removing or changing a field requires `/v2`. Deprecations appear in the OpenAPI description and response `Deprecation` header for at least one minor cycle.

@@ -46,6 +46,8 @@ export function AuditPage() {
             {(query.data?.items.length ?? 0) === 0 ? (
               <EmptyState icon={<ScrollText className="h-4 w-4" />} title="No audit events" description="Events appear as members sign in, register assets, record authorizations and run assessments." />
             ) : (
+              <>
+              <div className="hidden md:block">
               <table className="table-base">
                 <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Resource</th><th>Context</th></tr></thead>
                 <tbody>
@@ -73,6 +75,29 @@ export function AuditPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
+              <div className="divide-y divide-ink-700/70 md:hidden">
+                {query.data?.items.map((event) => (
+                  <div key={event.id} className="px-4 py-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11.5px] font-medium text-ink-100">{event.actor ?? "System"}</p>
+                        <p className="mt-0.5 text-[10px] text-ink-400">{formatDateTime(event.created_at)}</p>
+                      </div>
+                      <Badge>{event.resource_type.replace(/_/g, " ")}</Badge>
+                    </div>
+                    <p className="mt-1 break-words font-mono text-[10.5px] text-amber-700">{event.action}</p>
+                    {event.resource_id ? <p className="mt-1 break-all font-mono text-[9px] text-ink-400">{event.resource_id}</p> : null}
+                    {event.metadata && Object.keys(event.metadata).length ? (
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-[10px] text-ink-400">View metadata</summary>
+                        <pre className="mt-1 max-h-40 overflow-auto rounded border border-ink-700 bg-ink-950 p-2 font-mono text-[9px] leading-relaxed text-ink-400">{JSON.stringify(event.metadata, null, 2)}</pre>
+                      </details>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+              </>
             )}
           </TableShell>
         </QueryState>

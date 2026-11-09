@@ -13,7 +13,8 @@ storage/
 reports/
 evidence/
 apps/api/king-malhare-api
-apps/scanner-workers/__pycache__/
+**/__pycache__/
+*.pyc
 apps/scanner-workers/.venv/
 apps/scanner-workers/.pytest_cache/
 apps/scanner-workers/.ruff_cache/

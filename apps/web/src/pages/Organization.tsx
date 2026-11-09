@@ -120,7 +120,7 @@ function MemberRow({ member, canManage, currentUserId }: { member: Member; canMa
             {self ? <Badge className="text-[9px]">you</Badge> : null}
             {member.role === "owner" ? <Badge className="border-amber-500/25 bg-amber-500/10 text-[9px] text-amber-700">owner</Badge> : null}
           </div>
-          <p className="truncate text-[10.5px] text-ink-400">{member.email} · joined {formatDateTime(member.joined_at)}</p>
+          <p className="break-all text-[10.5px] text-ink-400">{member.email} · joined {formatDateTime(member.joined_at)}</p>
           <p className="mt-0.5 text-[9.5px] text-ink-400">{member.open_findings} open findings assigned · last sign-in {member.last_login_at ? formatDateTime(member.last_login_at) : "never"}</p>
         </div>
       </div>
@@ -222,7 +222,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-ink-700/50 pb-2">
       <span className="text-ink-400">{label}</span>
-      <span className="max-w-[60%] truncate text-right text-ink-200">{value}</span>
+      <span className="max-w-[65%] break-all text-right text-ink-200">{value}</span>
     </div>
   );
 }

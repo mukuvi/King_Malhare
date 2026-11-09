@@ -64,6 +64,23 @@ func TestBuildHTMLContainsRequiredSections(t *testing.T) {
 	}
 }
 
+func TestBuildHTMLHasNoLongDashes(t *testing.T) {
+	out, err := BuildHTML(sampleData())
+	if err != nil {
+		t.Fatalf("BuildHTML: %v", err)
+	}
+	for _, code := range []rune{0x2012, 0x2013, 0x2014, 0x2015, 0x2011, 0x2212} {
+		if bytes.ContainsRune(out, code) {
+			t.Fatalf("report HTML contains a long dash (U+%04X)", code)
+		}
+	}
+	for _, entity := range []string{"&" + "mdash;", "&" + "ndash;", "&#" + "8212;", "&#" + "8211;"} {
+		if bytes.Contains(out, []byte(entity)) {
+			t.Fatalf("report HTML contains long-dash entity %s", entity)
+		}
+	}
+}
+
 func TestBuildHTMLEscapesContent(t *testing.T) {
 	data := sampleData()
 	data.Findings[0].Title = `<script>alert(1)</script>`

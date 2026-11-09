@@ -140,6 +140,48 @@ func TestEndToEndTenantIsolation(t *testing.T) {
 		t.Fatalf("scan status = %v, want queued", detail["status"])
 	}
 
+	// API keys provide scoped bearer automation without CSRF.
+	status, keyBody := doJSON(t, clientA, http.MethodPost, ts.URL+"/api/v1/api-keys", map[string]any{
+		"name": "Automation", "scopes": []string{"assets:read", "assets:write", "scans:read", "scans:write", "findings:read"},
+	}, csrfA)
+	if status != http.StatusCreated {
+		t.Fatalf("create api key status = %d body=%v", status, keyBody)
+	}
+	apiToken := stringField(keyBody, "token")
+	if apiToken == "" {
+		t.Fatal("api key response did not include a token")
+	}
+	bearer := &http.Client{Timeout: 30 * time.Second}
+	status, bearerAssets := doJSONBearer(t, bearer, http.MethodGet, ts.URL+"/api/v1/assets", nil, apiToken)
+	if status != http.StatusOK {
+		t.Fatalf("bearer asset list status = %d body=%v", status, bearerAssets)
+	}
+	status, bearerScan := doJSONBearer(t, bearer, http.MethodPost, ts.URL+"/api/v1/scans", map[string]any{
+		"asset_id": assetID, "authorization_id": authID, "scanner": "http-baseline", "category": "web",
+	}, apiToken)
+	if status != http.StatusAccepted {
+		t.Fatalf("bearer scan status = %d body=%v", status, bearerScan)
+	}
+	bearerScanID := stringField(bearerScan, "id")
+	status, bearerDetail := doJSONBearer(t, bearer, http.MethodGet, ts.URL+"/api/v1/scans/"+bearerScanID, nil, apiToken)
+	if status != http.StatusOK || bearerDetail["status"] != "queued" {
+		t.Fatalf("bearer scan detail status = %d body=%v", status, bearerDetail)
+	}
+
+	// A read-only key cannot perform a write.
+	status, readKeyBody := doJSON(t, clientA, http.MethodPost, ts.URL+"/api/v1/api-keys", map[string]any{
+		"name": "Read only", "scopes": []string{"assets:read"},
+	}, csrfA)
+	if status != http.StatusCreated {
+		t.Fatalf("create read-only key status = %d body=%v", status, readKeyBody)
+	}
+	status, _ = doJSONBearer(t, bearer, http.MethodPost, ts.URL+"/api/v1/assets", map[string]any{
+		"name": "Forbidden write", "type": "website", "target": "http://127.0.0.1:9",
+	}, stringField(readKeyBody, "token"))
+	if status != http.StatusForbidden {
+		t.Fatalf("read-only key write status = %d, want 403", status)
+	}
+
 	// Tenant B cannot read tenant A's asset or scan.
 	status, meB := doJSON(t, clientB, http.MethodPost, ts.URL+"/api/v1/auth/register", map[string]any{
 		"org_name": "Org B", "name": "Analyst B", "email": "b@example.test", "password": "CorrectHorse9Battery",
@@ -220,6 +262,38 @@ func doJSON(t *testing.T, client *http.Client, method, url string, body any, csr
 	}
 	if csrf != "" {
 		req.Header.Set("X-CSRF-Token", csrf)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
+	var decoded map[string]any
+	if len(raw) > 0 {
+		_ = json.Unmarshal(raw, &decoded)
+	}
+	return resp.StatusCode, decoded
+}
+
+func doJSONBearer(t *testing.T, client *http.Client, method, url string, body any, token string) (int, map[string]any) {
+	t.Helper()
+	var reader io.Reader
+	if body != nil {
+		raw, err := json.Marshal(body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		reader = bytes.NewReader(raw)
+	}
+	req, err := http.NewRequest(method, url, reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	resp, err := client.Do(req)
 	if err != nil {

@@ -39,27 +39,16 @@ const categoryIcons: Record<Category, typeof Globe2> = {
 function scannerFitsAsset(asset: Asset | undefined, scanner: ScannerInfo): boolean {
   if (!asset) return false;
   const web = ["website", "web_app", "api", "graphql_api"].includes(asset.type);
-  switch (scanner.name) {
-    case "http-baseline":
-    case "nuclei":
-    case "nikto":
-    case "gobuster":
-    case "zap":
-    case "sqlmap":
-    case "auth-baseline":
+  switch (scanner.category) {
+    case "web":
+    case "authentication":
       return web;
-    case "nmap":
-      return ["ip", "network", "server", "internal"].includes(asset.type);
-    case "testssl":
-      return web || ["server", "internal"].includes(asset.type);
-    case "aws-posture":
-    case "prowler":
-    case "scoutsuite":
+    case "network":
+      return web || ["ip", "network", "server", "internal"].includes(asset.type);
+    case "infrastructure":
+      return ["container", "server", "internal"].includes(asset.type);
+    case "cloud":
       return asset.type === "cloud";
-    case "trivy":
-      return ["container", "server"].includes(asset.type);
-    case "checkov":
-      return ["container", "internal"].includes(asset.type);
     default:
       return false;
   }
@@ -127,7 +116,7 @@ export function ScanNewPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAuths, assetId]);
 
-  const isIntrusive = Boolean(selection?.intrusive) || (scannerName === "zap" && config.mode === "active");
+  const isIntrusive = Boolean(selection?.intrusive) || (scannerName === "zap" && config.mode === "active") || (scannerName === "burp" && config.mode === "audit");
   const canIntrusive = Boolean(me.data?.permissions.includes("scans:intrusive")) && Boolean(activeAuths.find((auth) => auth.id === authId)?.intrusive_allowed);
 
   const chooseScanner = (scanner: ScannerInfo) => {
@@ -191,7 +180,16 @@ export function ScanNewPage() {
       </Link>
       <PageHeader eyebrow="New assessment" title="Configure an assessment" description="Scope is validated when the job is queued and again inside the worker before execution." />
 
-      <div className="mt-7 flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="mt-7 sm:hidden">
+        <div className="flex items-center justify-between text-[11px] text-ink-400">
+          <span>Step {step + 1} of {steps.length}</span>
+          <span className="font-medium text-ink-100">{steps[step]}</span>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-700">
+          <div className="h-full rounded-full bg-amber-400 transition-[width]" style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
+        </div>
+      </div>
+      <div className="mt-4 hidden items-center gap-2 overflow-x-auto pb-1 sm:flex">
         {steps.map((label, index) => (
           <div key={label} className="flex shrink-0 items-center gap-2">
             <button

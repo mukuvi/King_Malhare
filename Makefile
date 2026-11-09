@@ -33,7 +33,10 @@ dev-worker: ## Run one scanner worker on the host
 	.venv/bin/pip install -q -r requirements.txt; \
 	.venv/bin/python -m km_worker.main
 
-test: ## Run all tests
+check-dashes: ## Fail if long dashes appear in source or documentation
+	python3 scripts/check_no_long_dashes.py
+
+test: check-dashes ## Run all tests
 	cd apps/api && go test ./...
 	cd apps/web && npm run test -- --run
 	cd apps/scanner-workers && .venv/bin/python -m pytest -q

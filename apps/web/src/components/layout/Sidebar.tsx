@@ -104,17 +104,24 @@ export function Sidebar() {
                     to={item.to}
                     className={({ isActive }) =>
                       cn(
-                        "group flex items-center gap-2.5 rounded-xl px-2.5 py-[7px] text-[12.5px] transition-all",
-                        isActive ? "bg-ink-750 font-medium text-ink-50 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset]" : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100",
+                        "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-[7px] text-[12.5px] transition-colors",
+                        isActive ? "font-medium text-ink-50" : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100",
                       )
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        <Icon className={cn("h-[15px] w-[15px] shrink-0", isActive ? "text-amber-700" : "text-ink-400 group-hover:text-teal-700")} strokeWidth={1.8} />
-                        <span className="flex-1">{item.label}</span>
+                        {isActive ? (
+                          <motion.span
+                            layoutId="sidebar-active"
+                            className="absolute inset-0 rounded-xl bg-ink-750 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset]"
+                            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                          />
+                        ) : null}
+                        <Icon className={cn("relative z-10 h-[15px] w-[15px] shrink-0", isActive ? "text-amber-700" : "text-ink-400 group-hover:text-teal-700")} strokeWidth={1.8} />
+                        <span className="relative z-10 flex-1">{item.label}</span>
                         {item.to === "/notifications" && notifications?.unread ? (
-                          <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-ink-50">{notifications.unread}</span>
+                          <span className="relative z-10 rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-ink-50">{notifications.unread}</span>
                         ) : null}
                       </>
                     )}

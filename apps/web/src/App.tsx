@@ -1,10 +1,14 @@
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MotionConfig } from "framer-motion";
 import { Toaster } from "sonner";
 import { RequireAuth } from "@/components/layout/AppShell";
+import { SeoManager } from "@/components/layout/Seo";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { LandingPage } from "@/pages/Landing";
 import { LoginPage, RegisterPage } from "@/pages/Auth";
+import { PrivacyPage, TermsPage } from "@/pages/Legal";
 import { DashboardPage } from "@/pages/Dashboard";
 import { AssetsPage } from "@/pages/Assets";
 import { AssetDetailPage } from "@/pages/AssetDetail";
@@ -51,12 +55,17 @@ function ScrollToTop() {
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <ScrollToTop />
+        <SeoManager />
+        <OfflineBanner />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route element={<RequireAuth />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/assets" element={<AssetsPage />} />
@@ -101,6 +110,7 @@ export function App() {
           }}
         />
       </BrowserRouter>
+      </MotionConfig>
     </QueryClientProvider>
   );
 }

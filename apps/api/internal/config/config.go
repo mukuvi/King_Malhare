@@ -11,6 +11,7 @@ import (
 type Config struct {
 	Env                 string
 	AppOrigin           string
+	AppOrigins          []string
 	PublicAPIURL        string
 	APIAddr             string
 	InternalAddr        string
@@ -74,6 +75,14 @@ func Load() (*Config, error) {
 		ScanStale:           envDuration("SCAN_STALE_MINUTES", 30*time.Minute),
 		DataRetention:       envInt("DATA_RETENTION_DAYS", 365),
 	}
+	c.AppOrigins = []string{c.AppOrigin}
+	for _, origin := range strings.Split(env("APP_ORIGINS", ""), ",") {
+		origin = strings.TrimRight(strings.TrimSpace(origin), "/")
+		if origin == "" || containsString(c.AppOrigins, origin) {
+			continue
+		}
+		c.AppOrigins = append(c.AppOrigins, origin)
+	}
 	if d, err := time.ParseDuration(env("SESSION_TTL_HOURS", "12") + "h"); err == nil {
 		c.SessionTTL = d
 	} else {
@@ -106,6 +115,19 @@ func Load() (*Config, error) {
 }
 
 func IsProduction(c *Config) bool { return c.Env == "production" }
+
+func (c *Config) AllowsOrigin(origin string) bool {
+	return containsString(c.AppOrigins, strings.TrimRight(origin, "/"))
+}
+
+func containsString(values []string, value string) bool {
+	for _, item := range values {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
 
 func env(k, def string) string {
 	if v := strings.TrimSpace(os.Getenv(k)); v != "" {

@@ -94,6 +94,37 @@ func TestIntrusiveClassification(t *testing.T) {
 	if !IsIntrusive("zap", map[string]any{"mode": "active"}) {
 		t.Fatal("zap active mode should be intrusive")
 	}
+	if !IsIntrusive("burp", map[string]any{"mode": "audit"}) {
+		t.Fatal("burp audit mode should be intrusive")
+	}
+	if IsIntrusive("burp", map[string]any{"mode": "crawl"}) {
+		t.Fatal("burp crawl mode should be non-intrusive")
+	}
+	if !IsIntrusive("schemathesis", nil) {
+		t.Fatal("schemathesis should require intrusive approval")
+	}
+}
+
+func TestExpandedScannerCatalog(t *testing.T) {
+	for _, name := range []string{"burp", "ffuf", "whatweb", "wafw00f", "httpx", "subfinder", "sslyze", "grype", "semgrep", "gitleaks", "tfsec", "syft", "schemathesis"} {
+		meta, ok := Find(name)
+		if !ok {
+			t.Fatalf("scanner %s missing from catalog", name)
+		}
+		if meta.Label == "" || meta.Category == "" || meta.Description == "" {
+			t.Fatalf("scanner %s has incomplete metadata", name)
+		}
+	}
+	params, err := ValidateParams("ffuf", map[string]any{"wordlist": "small", "threads": float64(4)})
+	if err != nil {
+		t.Fatalf("valid ffuf params rejected: %v", err)
+	}
+	if params["wordlist"] != "small" {
+		t.Fatalf("ffuf wordlist not preserved: %v", params["wordlist"])
+	}
+	if _, err := ValidateParams("grype", map[string]any{"severity": []any{"critical", "unknown"}}); err == nil {
+		t.Fatal("invalid grype severity accepted")
+	}
 }
 
 func TestNetworkTargetValidation(t *testing.T) {

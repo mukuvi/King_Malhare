@@ -8,7 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       ca-certificates curl unzip git openssl nmap sqlmap gobuster \
+       ca-certificates curl unzip git openssl nmap sqlmap gobuster whatweb \
        perl libnet-ssleay-perl libjson-perl libxml-writer-perl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,6 +33,31 @@ RUN curl -fsSL https://codeload.github.com/testssl/testssl.sh/tar.gz/refs/tags/v
     && ln -s /opt/testssl/testssl.sh /usr/local/bin/testssl.sh \
     && chmod 0755 /opt/testssl/testssl.sh
 
+# Additional web, network, container and IaC scanners.
+ARG FFUF_VERSION=2.3.0
+ARG HTTPX_VERSION=1.12.0
+ARG SUBFINDER_VERSION=2.17.0
+ARG GRYPE_VERSION=0.121.2
+ARG GITLEAKS_VERSION=8.30.1
+ARG TFSEC_VERSION=1.28.14
+ARG SYFT_VERSION=1.57.0
+
+RUN curl -fsSL "https://github.com/ffuf/ffuf/releases/download/v${FFUF_VERSION}/ffuf_${FFUF_VERSION}_linux_amd64.tar.gz" \
+      | tar -xz -C /usr/local/bin ffuf \
+    && curl -fsSL -o /tmp/httpx.zip "https://github.com/projectdiscovery/httpx/releases/download/v${HTTPX_VERSION}/httpx_${HTTPX_VERSION}_linux_amd64.zip" \
+    && unzip -q /tmp/httpx.zip -d /usr/local/bin httpx \
+    && curl -fsSL -o /tmp/subfinder.zip "https://github.com/projectdiscovery/subfinder/releases/download/v${SUBFINDER_VERSION}/subfinder_${SUBFINDER_VERSION}_linux_amd64.zip" \
+    && unzip -q /tmp/subfinder.zip -d /usr/local/bin subfinder \
+    && curl -fsSL "https://github.com/anchore/grype/releases/download/v${GRYPE_VERSION}/grype_${GRYPE_VERSION}_linux_amd64.tar.gz" \
+      | tar -xz -C /usr/local/bin grype \
+    && curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+      | tar -xz -C /usr/local/bin gitleaks \
+    && curl -fsSL -o /usr/local/bin/tfsec "https://github.com/aquasecurity/tfsec/releases/download/v${TFSEC_VERSION}/tfsec-linux-amd64" \
+    && chmod 0755 /usr/local/bin/tfsec \
+    && curl -fsSL "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz" \
+      | tar -xz -C /usr/local/bin syft \
+    && rm -f /tmp/httpx.zip /tmp/subfinder.zip
+
 # Nuclei templates that ship with the product (safe, deterministic checks).
 COPY km_worker/nuclei_templates /opt/nuclei-templates/king-malhare
 ENV NUCLEI_TEMPLATES=/opt/nuclei-templates/king-malhare
@@ -41,7 +66,7 @@ ENV DIR_WORDLIST=/opt/wordlists/common.txt
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt wafw00f sslyze semgrep schemathesis
 
 COPY km_worker ./km_worker
 

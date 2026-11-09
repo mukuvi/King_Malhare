@@ -4,7 +4,7 @@ import { AlertTriangle, Filter, Search, ShieldAlert, UserRound } from "lucide-re
 import { useAssets, useFindings, useOverview } from "@/hooks/queries";
 import { formatDate, severityOrder } from "@/lib/utils";
 import type { FindingStatus } from "@/types";
-import { Badge, Button, EmptyState, FindingStatusBadge, Input, PageHeader, PageTransition, Pagination, QueryState, Select, SeverityBadge, SkeletonTable, StatCard, TableShell, Tabs } from "@/components/ui";
+import { Badge, Button, EmptyState, FindingStatusBadge, Input, PageHeader, PageTransition, Pagination, QueryState, Select, SeverityBadge, SkeletonTable, Stagger, StaggerItem, StatCard, TableShell, Tabs } from "@/components/ui";
 
 export function FindingsPage() {
   const [params, setParams] = useSearchParams();
@@ -93,6 +93,8 @@ export function FindingsPage() {
                 action={<Link to="/scans/new"><Button size="sm">Start an assessment</Button></Link>}
               />
             ) : (
+              <>
+              <div className="hidden md:block">
               <table className="table-base">
                 <thead><tr><th>Finding</th><th>Asset</th><th>Severity</th><th>Status</th><th>Assignee</th><th>Last seen</th></tr></thead>
                 <tbody>
@@ -119,6 +121,36 @@ export function FindingsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
+              <Stagger className="divide-y divide-ink-700/70 md:hidden">
+                {items.map((finding) => (
+                  <StaggerItem key={finding.id}>
+                  <Link to={`/findings/${finding.id}`} className="block px-4 py-3.5 transition-colors hover:bg-ink-800/50">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[12.5px] font-medium text-ink-100">{finding.title}</p>
+                        <p className="mt-0.5 break-all font-mono text-[10px] text-ink-400">{finding.endpoint}</p>
+                      </div>
+                      <SeverityBadge severity={finding.severity} />
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <FindingStatusBadge status={finding.status} />
+                      <span className="text-[10.5px] text-ink-400">{finding.asset_name}</span>
+                      <span className="ml-auto text-[10px] text-ink-400">{formatDate(finding.last_seen)}</span>
+                    </div>
+                    {(finding.cve || finding.cwe || finding.cvss || finding.evidence_count > 0) ? (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {finding.cve ? <Badge className="text-[9px]">{finding.cve}</Badge> : null}
+                        {finding.cwe ? <Badge className="text-[9px]">{finding.cwe}</Badge> : null}
+                        {finding.cvss ? <Badge className="text-[9px]">CVSS {finding.cvss}</Badge> : null}
+                        {finding.evidence_count > 0 ? <Badge className="text-[9px]">{finding.evidence_count} evidence</Badge> : null}
+                      </div>
+                    ) : null}
+                  </Link>
+                  </StaggerItem>
+                ))}
+              </Stagger>
+              </>
             )}
           </TableShell>
         </QueryState>

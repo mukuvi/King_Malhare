@@ -96,6 +96,17 @@ jobs:
       - run: ruff check --select E9,F .
       - run: python -m pytest -q
 
+  quality:
+    name: Source hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Reject long dashes
+        run: python scripts/check_no_long_dashes.py
+
   containers:
     name: Container builds
     runs-on: ubuntu-latest

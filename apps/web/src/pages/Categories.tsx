@@ -19,6 +19,9 @@ export function WebSecurityPage() {
         { title: "Server misconfiguration", text: "Nikto observations are recorded as tentative until verified.", scanner: "nikto" },
         { title: "Content discovery", text: "Bounded directory discovery against a curated wordlist with status and size evidence.", scanner: "gobuster" },
         { title: "SQL injection verification", text: "Guarded, single-parameter boolean/error testing. Requires intrusive approval; no shell or data dump.", scanner: "sqlmap" },
+        { title: "Burp Suite integration", text: "Crawl and audit scans through a Burp REST API endpoint. Audit mode requires intrusive approval.", scanner: "burp" },
+        { title: "Discovery and fingerprinting", text: "ffuf, WhatWeb, WAFW00F, httpx and Subfinder expand content, technology and hostname discovery with JSON evidence.", scanner: "ffuf" },
+        { title: "API contract testing", text: "Schemathesis exercises an OpenAPI schema with generated requests and reports contract failures.", scanner: "schemathesis" },
       ]}
       warning="Active web scanning and SQLMap send attack traffic. Only run them with an authorization that permits intrusive testing and within an agreed window."
     />
@@ -38,6 +41,7 @@ export function NetworkSecurityPage() {
         { title: "Risky service exposure", text: "Telnet, SMB, RDP, Redis, MongoDB, Elasticsearch, exposed databases and Docker API are flagged.", scanner: "nmap" },
         { title: "OS fingerprint hints", text: "OS detection runs only when the worker has the required privilege; otherwise the summary says it was skipped.", scanner: "nmap" },
         { title: "TLS protocol and certificate", text: "testssl.sh findings include protocol, cipher and certificate weaknesses.", scanner: "testssl" },
+        { title: "TLS analysis with SSLyze", text: "SSLyze adds protocol, cipher and certificate checks with structured JSON evidence.", scanner: "sslyze" },
       ]}
       warning="Private ranges are reachable only when the asset authorization explicitly allows internal targets. Scope the worker deployment to an isolated assessment network."
     />
@@ -75,6 +79,8 @@ export function CloudSecurityPage() {
         { title: "Prowler controls", text: "Prowler runs read-only checks and its failed controls are normalized into findings.", scanner: "prowler" },
         { title: "ScoutSuite configuration", text: "ScoutSuite results are parsed into per-control findings when the tool is installed.", scanner: "scoutsuite" },
         { title: "Checkov IaC", text: "Static analysis of an allowlisted infrastructure path mounted into the worker.", scanner: "checkov" },
+        { title: "Container and supply chain", text: "Grype and Syft scan container images and generate an SBOM for vulnerability review.", scanner: "grype" },
+        { title: "Code and IaC", text: "Semgrep, Gitleaks and tfsec add SAST, secret scanning and Terraform misconfiguration checks.", scanner: "semgrep" },
       ]}
       warning="Use read-only credentials scoped to the minimum required permissions. The platform does not validate that the credential itself is read-only; review it before saving."
       extra={

@@ -117,7 +117,7 @@ func (s *Server) securityHeaders(next http.Handler) http.Handler {
 func (s *Server) cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin != "" && origin == s.cfg.AppOrigin {
+		if origin != "" && s.cfg.AllowsOrigin(origin) {
 			h := w.Header()
 			h.Set("Access-Control-Allow-Origin", origin)
 			h.Set("Access-Control-Allow-Credentials", "true")
@@ -169,7 +169,7 @@ func (s *Server) authenticate(next http.Handler) http.Handler {
 				writeError(w, http.StatusForbidden, "csrf_failed", "The request could not be verified. Refresh the page and try again.", nil)
 				return
 			}
-			if origin := r.Header.Get("Origin"); origin != "" && origin != s.cfg.AppOrigin {
+			if origin := r.Header.Get("Origin"); origin != "" && !s.cfg.AllowsOrigin(origin) {
 				writeError(w, http.StatusForbidden, "origin_rejected", "Request origin is not allowed.", nil)
 				return
 			}

@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Activity, ArrowRight, Plus, Radar, Search, ShieldAlert } from "lucide-react";
 import { useOverview, useScans, useMe } from "@/hooks/queries";
 import { categoryLabel, formatDateTime, scannerLabel } from "@/lib/utils";
-import { Badge, Button, EmptyState, Input, PageHeader, PageTransition, Pagination, Progress, QueryState, ScanStatusBadge, SkeletonTable, StatCard, TableShell, Tabs } from "@/components/ui";
+import { Badge, Button, EmptyState, Input, PageHeader, PageTransition, Pagination, Progress, QueryState, ScanStatusBadge, SkeletonTable, Stagger, StaggerItem, StatCard, TableShell, Tabs } from "@/components/ui";
 
 type Tab = "all" | "active" | "completed" | "failed";
 
@@ -112,6 +112,8 @@ export function ScanCenterPage() {
             {scans.length === 0 ? (
               <EmptyState icon={<Radar className="h-4 w-4" />} title={tab === "all" ? "No assessments found" : `No ${tab} assessments`} description={tab === "all" ? "Queue a scan against an authorized asset. Nothing runs until an authorization record is active." : "Try another tab, or adjust the search and filters."} action={<Link to="/scans/new"><Button size="sm">New assessment</Button></Link>} />
             ) : (
+              <>
+              <div className="hidden md:block">
               <table className="table-base">
                 <thead><tr><th>Assessment</th><th>Status</th><th>Progress</th><th>Findings</th><th>Queued</th><th /></tr></thead>
                 <tbody>
@@ -150,6 +152,42 @@ export function ScanCenterPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
+              <Stagger className="divide-y divide-ink-700/70 md:hidden">
+                {scans.map((scan) => (
+                  <StaggerItem key={scan.id}>
+                  <Link to={`/scans/${scan.id}`} className="block px-4 py-3.5 transition-colors hover:bg-ink-800/50">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[12.5px] font-medium text-ink-100">{scan.asset_name}</span>
+                          {scan.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-[9px] text-orange-700">intrusive</Badge> : null}
+                        </div>
+                        <p className="mt-0.5 break-all font-mono text-[10px] text-ink-400">{scan.target}</p>
+                        <p className="mt-1 text-[10px] text-ink-400">{scannerLabel(scan.scanner)} · {categoryLabel(scan.category)}</p>
+                      </div>
+                      <ScanStatusBadge status={scan.status} />
+                    </div>
+                    <div className="mt-2 flex items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <Progress value={scan.progress} tone={scan.status === "failed" ? "red" : scan.status === "completed" ? "lime" : "amber"} />
+                        <span className="mt-1 block truncate text-[9.5px] text-ink-400">{scan.phase}{scan.status === "running" ? ` · ${scan.progress}%` : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 font-mono text-[11.5px]">
+                        <span className="text-ink-100">{scan.findings}</span>
+                        {scan.critical > 0 ? <span className="text-red-700">· {scan.critical}C</span> : null}
+                        {scan.high > 0 ? <span className="text-orange-700">· {scan.high}H</span> : null}
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-[10px] text-ink-400">
+                      <span>{formatDateTime(scan.created_at)}</span>
+                      <span className="inline-flex items-center gap-1 text-amber-700">Open <ArrowRight className="h-3 w-3" /></span>
+                    </div>
+                  </Link>
+                  </StaggerItem>
+                ))}
+              </Stagger>
+              </>
             )}
           </TableShell>
         </QueryState>

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useMe, useOrganization } from "@/hooks/queries";
 import { useAuthStore } from "@/stores/ui";
 import { Logo } from "./Logo";
@@ -58,7 +58,12 @@ function AppShell() {
         </main>
         <footer className="mx-auto flex w-full max-w-[1400px] flex-col gap-2 px-4 pb-8 pt-4 text-[10.5px] text-ink-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <span>King Malhare · Authorized security testing only</span>
-          <span className="font-mono text-[10px] text-ink-400">v1.0.0</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/privacy" className="hover:text-ink-100">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-ink-100">Terms of Service</Link>
+            <Link to="/api-docs" className="hover:text-ink-100">API</Link>
+            <span className="font-mono text-[10px]">v1.0.0</span>
+          </div>
         </footer>
       </div>
     </div>

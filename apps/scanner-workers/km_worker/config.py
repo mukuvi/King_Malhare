@@ -68,6 +68,8 @@ class Config:
     NUCLEI_TEMPLATES = _env("NUCLEI_TEMPLATES")
     ZAP_URL = _env("ZAP_URL").rstrip("/")
     ZAP_API_KEY = _env("ZAP_API_KEY")
+    BURP_URL = _env("BURP_URL").rstrip("/")
+    BURP_API_KEY = _env("BURP_API_KEY")
     CHECKOV_ALLOWED_ROOT = _env("CHECKOV_ALLOWED_ROOT")
     LOG_LEVEL = _env("LOG_LEVEL", "info")
 
@@ -82,6 +84,18 @@ class Config:
         "prowler": _env("PROWLER_PATH", "prowler"),
         "scoutsuite": _env("SCOUTSUITE_PATH", "scoutsuite"),
         "checkov": _env("CHECKOV_PATH", "checkov"),
+        "ffuf": _env("FFUF_PATH", "ffuf"),
+        "whatweb": _env("WHATWEB_PATH", "whatweb"),
+        "wafw00f": _env("WAFW00F_PATH", "wafw00f"),
+        "httpx": _env("HTTPX_PATH", "httpx"),
+        "subfinder": _env("SUBFINDER_PATH", "subfinder"),
+        "sslyze": _env("SSLYZE_PATH", "sslyze"),
+        "grype": _env("GRYPE_PATH", "grype"),
+        "semgrep": _env("SEMGREP_PATH", "semgrep"),
+        "gitleaks": _env("GITLEAKS_PATH", "gitleaks"),
+        "tfsec": _env("TFSEC_PATH", "tfsec"),
+        "syft": _env("SYFT_PATH", "syft"),
+        "schemathesis": _env("SCHEMATHESIS_PATH", "schemathesis"),
     }
     NMAP_PATH = _env("NMAP_PATH", "nmap")
     NUCLEI_PATH = _env("NUCLEI_PATH", "nuclei")

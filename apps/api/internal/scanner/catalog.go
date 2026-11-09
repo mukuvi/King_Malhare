@@ -169,6 +169,104 @@ var Catalog = []Meta{
 		},
 		DefaultParams: map[string]any{"login_path": "/login", "username_field": "username", "password_field": "password", "attempts": 5, "delay_ms": 500},
 	},
+	{
+		Name: "burp", Label: "Burp Suite", Category: "web", Binary: "",
+		Description: "Burp Suite REST API integration for crawl and audit scans. Set BURP_URL and BURP_API_KEY in the worker environment.",
+		Params: map[string]ParamSchema{
+			"mode":                 {Type: "enum", Enum: []string{"crawl", "audit"}, Description: "Crawl or active audit"},
+			"max_duration_minutes": {Type: "int", Min: ptr(1), Max: ptr(30), Description: "Time budget"},
+		},
+		DefaultParams: map[string]any{"mode": "crawl", "max_duration_minutes": 5},
+	},
+	{
+		Name: "ffuf", Label: "ffuf", Category: "web", Binary: "ffuf",
+		Description: "Fast web content discovery with a curated wordlist and JSON output.",
+		Params: map[string]ParamSchema{
+			"wordlist":   {Type: "enum", Enum: []string{"common", "small"}, Description: "Wordlist preset"},
+			"threads":    {Type: "int", Min: ptr(1), Max: ptr(20), Description: "Concurrency"},
+			"extensions": {Type: "string_list", Enum: []string{"php", "asp", "aspx", "jsp", "json", "bak", "old", "txt"}, MaxItems: 8, Description: "Extensions"},
+		},
+		DefaultParams: map[string]any{"wordlist": "common", "threads": 10},
+	},
+	{
+		Name: "whatweb", Label: "WhatWeb", Category: "web", Binary: "whatweb",
+		Description: "Technology fingerprinting and CMS detection.",
+		Params:       map[string]ParamSchema{},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "wafw00f", Label: "WAFW00F", Category: "web", Binary: "wafw00f",
+		Description: "Web application firewall detection.",
+		Params:       map[string]ParamSchema{},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "httpx", Label: "httpx", Category: "web", Binary: "httpx",
+		Description: "HTTP probing with status, title, technology, server and TLS metadata.",
+		Params:       map[string]ParamSchema{},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "subfinder", Label: "Subfinder", Category: "web", Binary: "subfinder",
+		Description: "Passive subdomain enumeration for a domain asset.",
+		Params: map[string]ParamSchema{
+			"all_sources": {Type: "bool", Description: "Use all passive sources"},
+		},
+		DefaultParams: map[string]any{"all_sources": true},
+	},
+	{
+		Name: "sslyze", Label: "SSLyze", Category: "network", Binary: "sslyze",
+		Description: "TLS protocol, cipher and certificate assessment.",
+		Params:       map[string]ParamSchema{},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "grype", Label: "Grype", Category: "infrastructure", Binary: "grype",
+		Description: "Container image and filesystem vulnerability scanning.",
+		Params: map[string]ParamSchema{
+			"severity": {Type: "string_list", Enum: []string{"critical", "high", "medium", "low"}, MaxItems: 4, Description: "Severities to include"},
+		},
+		DefaultParams: map[string]any{"severity": []string{"critical", "high", "medium"}},
+	},
+	{
+		Name: "semgrep", Label: "Semgrep", Category: "infrastructure", Binary: "semgrep",
+		Description: "Static application security testing for an allowlisted repository path.",
+		Params: map[string]ParamSchema{
+			"ruleset":   {Type: "enum", Enum: []string{"auto", "owasp-top-ten", "security-audit"}, Description: "Ruleset"},
+			"scan_path": {Type: "string", Description: "Absolute path inside CHECKOV_ALLOWED_ROOT"},
+		},
+		DefaultParams: map[string]any{"ruleset": "auto"},
+	},
+	{
+		Name: "gitleaks", Label: "Gitleaks", Category: "infrastructure", Binary: "gitleaks",
+		Description: "Secret scanning for an allowlisted repository path.",
+		Params: map[string]ParamSchema{
+			"scan_path": {Type: "string", Description: "Absolute path inside CHECKOV_ALLOWED_ROOT"},
+		},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "tfsec", Label: "tfsec", Category: "infrastructure", Binary: "tfsec",
+		Description: "Infrastructure-as-code misconfiguration scanning for Terraform.",
+		Params: map[string]ParamSchema{
+			"scan_path": {Type: "string", Description: "Absolute path inside CHECKOV_ALLOWED_ROOT"},
+		},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "syft", Label: "Syft", Category: "infrastructure", Binary: "syft",
+		Description: "Software bill of materials generation for container images and filesystems.",
+		Params:       map[string]ParamSchema{},
+		DefaultParams: map[string]any{},
+	},
+	{
+		Name: "schemathesis", Label: "Schemathesis", Category: "web", Binary: "schemathesis", Intrusive: true,
+		Description: "Property-based API testing from an OpenAPI schema. Requires intrusive approval because it sends generated requests.",
+		Params: map[string]ParamSchema{
+			"max_examples": {Type: "int", Min: ptr(5), Max: ptr(100), Description: "Maximum examples per operation"},
+		},
+		DefaultParams: map[string]any{"max_examples": 10},
+	},
 }
 
 func ptr(f float64) *float64 { return &f }
@@ -192,6 +290,11 @@ func IsIntrusive(scanner string, config map[string]any) bool {
 	}
 	if scanner == "zap" {
 		if mode, _ := config["mode"].(string); mode == "active" {
+			return true
+		}
+	}
+	if scanner == "burp" {
+		if mode, _ := config["mode"].(string); mode == "audit" {
 			return true
 		}
 	}

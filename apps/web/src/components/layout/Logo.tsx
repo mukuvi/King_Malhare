@@ -51,14 +51,9 @@ export function Logo({ compact = false, className }: { compact?: boolean; classN
     <div className={cn("flex items-center gap-2.5", className)}>
       <LogoMark />
       {!compact ? (
-        <div className="leading-none">
-          <div className="flex items-baseline gap-1 text-[14px] font-semibold tracking-[-0.02em] text-ink-50">
-            King Malhare
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-          </div>
-          <div className="mt-1 text-[8px] font-semibold uppercase tracking-[0.2em] text-teal-700">
-            Offensive security
-          </div>
+        <div className="flex items-baseline gap-1 text-[14px] font-semibold tracking-[-0.02em] text-ink-50">
+          King Malhare
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
         </div>
       ) : null}
     </div>

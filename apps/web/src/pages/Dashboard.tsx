@@ -16,9 +16,9 @@ import {
   Target,
 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
-import { useMe, useOverview, useTrends } from "@/hooks/queries";
+import { useFinding, useFindings, useMe, useOverview, useTrends } from "@/hooks/queries";
 import { categoryLabel, formatDate, formatDateTime, relativeTime, scannerLabel, severityOrder } from "@/lib/utils";
-import { Button, Card, CardContent, CardHeader, CardTitle, EmptyState, Input, Modal, PageHeader, PageTransition, Progress, QueryState, ScanStatusBadge, Skeleton, StatCard, TableShell } from "@/components/ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, EmptyState, Input, Modal, PageHeader, PageTransition, Progress, QueryState, ScanStatusBadge, SeverityBadge, Skeleton, Stagger, StaggerItem, StatCard, TableShell } from "@/components/ui";
 import { PostureGauge, SeverityDonut, TrendChart } from "@/components/domain/charts";
 
 function humanizeAction(action: string): string {
@@ -28,6 +28,9 @@ function humanizeAction(action: string): string {
 export function DashboardPage() {
   const overview = useOverview();
   const trends = useTrends(30);
+  const topFindings = useFindings({ status: "open", sort: "severity", order: "asc", per_page: 3 });
+  const topFinding = topFindings.data?.items?.[0];
+  const topFindingDetail = useFinding(topFinding?.id);
   const me = useMe();
   const canStop = me.data?.permissions.includes("org:manage");
   const canScan = me.data?.permissions.includes("scans:write");
@@ -140,12 +143,42 @@ export function DashboardPage() {
               </Link>
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <StatCard label="Posture score" value={`${data.posture_score}/100`} hint="Weighted by severity against active assets" icon={<ShieldCheck className="h-4 w-4" />} tone={data.posture_score >= 70 ? "good" : data.posture_score >= 50 ? "warn" : "danger"} />
-              <StatCard label="Active assets" value={data.assets.active} hint={`${data.assets.without_authorization} without authorization`} icon={<Boxes className="h-4 w-4" />} to="/assets" />
-              <StatCard label="Critical findings" value={critical} hint={`${high} high · ${openFindings} open in total`} icon={<ShieldAlert className="h-4 w-4" />} tone={critical > 0 ? "danger" : "default"} to="/findings?severity=critical" />
-              <StatCard label="Active assessments" value={data.scans.active} hint={`${data.scans.last_24h} started in the last 24 hours`} icon={<Radar className="h-4 w-4" />} tone={data.scans.failed_24h > 0 ? "warn" : "default"} to="/scans" />
-            </div>
+            <Stagger className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StaggerItem className="h-full"><StatCard label="Posture score" value={`${data.posture_score}/100`} hint="Weighted by severity against active assets" icon={<ShieldCheck className="h-4 w-4" />} tone={data.posture_score >= 70 ? "good" : data.posture_score >= 50 ? "warn" : "danger"} /></StaggerItem>
+              <StaggerItem className="h-full"><StatCard label="Active assets" value={data.assets.active} hint={`${data.assets.without_authorization} without authorization`} icon={<Boxes className="h-4 w-4" />} to="/assets" /></StaggerItem>
+              <StaggerItem className="h-full"><StatCard label="Critical findings" value={critical} hint={`${high} high · ${openFindings} open in total`} icon={<ShieldAlert className="h-4 w-4" />} tone={critical > 0 ? "danger" : "default"} to="/findings?severity=critical" /></StaggerItem>
+              <StaggerItem className="h-full"><StatCard label="Active assessments" value={data.scans.active} hint={`${data.scans.last_24h} started in the last 24 hours`} icon={<Radar className="h-4 w-4" />} tone={data.scans.failed_24h > 0 ? "warn" : "default"} to="/scans" /></StaggerItem>
+            </Stagger>
+
+            {openFindings > 0 ? (
+              <Card className="border-amber-500/25 bg-amber-500/[0.035]">
+                <CardHeader>
+                  <CardTitle subtitle="The highest-severity open finding and its recommended fix">Recommended action</CardTitle>
+                  <Link to="/findings" className="text-[11px] text-ink-400 hover:text-ink-100">All findings</Link>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {topFindings.isLoading || topFindingDetail.isLoading ? (
+                    <Skeleton className="h-16 w-full" />
+                  ) : topFinding ? (
+                    <>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <SeverityBadge severity={topFinding.severity} />
+                        <Link to={`/findings/${topFinding.id}`} className="break-words text-[13px] font-medium text-ink-50 hover:text-amber-700">{topFinding.title}</Link>
+                      </div>
+                      <div className="break-all font-mono text-[10px] text-ink-400">{topFinding.endpoint}</div>
+                      <p className="max-w-3xl text-[12px] leading-relaxed text-ink-300">
+                        {topFindingDetail.data?.remediation || "Open the finding to review the recommendation and record a remediation action."}
+                      </p>
+                      <Link to={`/findings/${topFinding.id}`} className="inline-flex items-center gap-1 text-[11.5px] font-medium text-amber-700 hover:text-amber-800">
+                        Review and assign <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </>
+                  ) : (
+                    <p className="text-[12px] text-ink-400">No open findings. Keep the register current as new assessments complete.</p>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
 
             <div className="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
               <Card>
@@ -186,6 +219,8 @@ export function DashboardPage() {
                   {data.recent_scans.length === 0 ? (
                     <EmptyState icon={<Radar className="h-4 w-4" />} title="No assessments yet" description="Once an authorized scan runs, its real progress and findings appear here." action={<Link to="/scans/new"><Button size="sm">Start an assessment</Button></Link>} />
                   ) : (
+                    <>
+                    <div className="hidden md:block">
                     <table className="table-base">
                       <thead><tr><th>Assessment</th><th>Status</th><th>Findings</th><th className="hidden sm:table-cell">Started</th></tr></thead>
                       <tbody>
@@ -207,6 +242,30 @@ export function DashboardPage() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
+                    <Stagger className="divide-y divide-ink-700/70 md:hidden">
+                      {data.recent_scans.map((scan) => (
+                        <StaggerItem key={scan.id}>
+                        <Link to={`/scans/${scan.id}`} className="block px-4 py-3.5 transition-colors hover:bg-ink-800/50">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-[12.5px] font-medium text-ink-100">{scan.asset_name}</p>
+                              <p className="mt-0.5 text-[10px] text-ink-400">{scannerLabel(scan.scanner)} · {categoryLabel(scan.category)}</p>
+                            </div>
+                            <ScanStatusBadge status={scan.status} />
+                          </div>
+                          <div className="mt-2 flex items-center gap-3">
+                            <div className="min-w-0 flex-1">
+                              <Progress value={scan.progress} />
+                              <span className="mt-1 block text-[9.5px] text-ink-400">{relativeTime(scan.created_at)}</span>
+                            </div>
+                            <span className="font-mono text-[11.5px] text-ink-200">{scan.findings}</span>
+                          </div>
+                        </Link>
+                        </StaggerItem>
+                      ))}
+                    </Stagger>
+                    </>
                   )}
                 </TableShell>
               </div>

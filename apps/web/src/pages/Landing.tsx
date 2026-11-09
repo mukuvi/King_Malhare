@@ -17,14 +17,30 @@ import {
   Network,
   Radar,
   ShieldCheck,
-  Sparkles,
   Terminal,
   TriangleAlert,
 } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";
 import { buttonStyles, SeverityBadge } from "@/components/ui";
 
-const scanners = ["Nmap", "Nuclei", "OWASP ZAP", "Nikto", "SQLMap", "testssl.sh", "Gobuster", "Trivy", "Prowler", "Checkov"];
+const toolGroups = [
+  {
+    label: "Information gathering",
+    tools: ["Amass", "theHarvester", "DNSRecon", "DNSEnum", "Fierce", "Sublist3r", "Assetfinder", "Whois", "Subfinder", "httpx"],
+  },
+  {
+    label: "Web and API",
+    tools: ["Burp Suite", "OWASP ZAP", "Nikto", "SQLMap", "ffuf", "Gobuster", "WhatWeb", "WAFW00F", "DIRB", "dirsearch", "feroxbuster", "Wfuzz", "Arjun", "ParamSpider", "Commix", "Dalfox", "XSStrike", "WPScan", "JoomScan", "Droopescan", "Skipfish", "Wapiti", "Schemathesis"],
+  },
+  {
+    label: "Network and TLS",
+    tools: ["Nmap", "Masscan", "Netdiscover", "arp-scan", "NBTscan", "Enum4linux", "SMBMap", "onesixtyone", "SNMPWalk", "LDAPSearch", "testssl.sh", "SSLyze", "SSLScan", "Kube-hunter"],
+  },
+  {
+    label: "Cloud, container and code",
+    tools: ["Trivy", "Grype", "Syft", "Prowler", "ScoutSuite", "Checkov", "tfsec", "Semgrep", "Gitleaks", "Bandit", "TruffleHog", "SearchSploit"],
+  },
+];
 
 const capabilities = [
   { icon: Boxes, title: "Asset inventory", text: "Domains, APIs, IPs, ranges, cloud accounts and containers with ownership, environment and authorization records." },
@@ -35,6 +51,8 @@ const capabilities = [
   { icon: KeyRound, title: "Authentication testing", text: "Bounded rate-limit and lockout verification against explicit test accounts. No credential stuffing." },
   { icon: FileSearch, title: "Finding lifecycle", text: "Deduplicated findings with CVSS, CVE/CWE, evidence, ownership, status, remediation and retest history." },
   { icon: FileText, title: "Client-ready reports", text: "Fourteen-section HTML and PDF reports with scope, methodology, evidence, risk analysis and remediation guidance." },
+  { icon: BadgeCheck, title: "Guided remediation", text: "Every finding carries technical impact, business impact and a concrete recommendation. Track actions, owners and deadlines." },
+  { icon: Code2, title: "API automation", text: "Scoped bearer keys and an OpenAPI 3.1 document let CI, scripts and external platforms run the same authorized workflow." },
 ];
 
 const steps = [
@@ -72,13 +90,9 @@ export function LandingPage() {
           </div>
           <div className="pointer-events-none absolute inset-0 dot-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_70%)]" />
           <div className="relative mx-auto grid max-w-6xl gap-14 px-5 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
-            <div>
+            <div className="min-w-0">
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/25 bg-teal-500/[0.08] px-3 py-1">
-                  <Sparkles className="h-3 w-3 text-butter-600" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-teal-700">Authorized offensive security</span>
-                </div>
-                <h1 className="max-w-[620px] text-[44px] font-semibold leading-[0.98] tracking-[-0.045em] text-ink-50 sm:text-[58px] lg:text-[64px]">
+                <h1 className="max-w-[620px] break-words text-[38px] font-semibold leading-[1.02] tracking-[-0.045em] text-ink-50 sm:text-[58px] lg:text-[64px]">
                   Know your weaknesses <span className="text-gradient-teal">before attackers do.</span>
                 </h1>
                 <p className="mt-6 max-w-[520px] text-[15px] leading-relaxed text-ink-300">
@@ -107,7 +121,7 @@ export function LandingPage() {
               initial={{ opacity: 0, y: 24, rotate: -0.6 }}
               animate={{ opacity: 1, y: 0, rotate: 0 }}
               transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="relative"
+              className="relative min-w-0"
             >
               <div className="absolute -inset-6 rounded-3xl bg-amber-500/[0.05] blur-2xl" />
               <div className="relative overflow-hidden rounded-xl border border-ink-600 bg-ink-950 shadow-lift">
@@ -178,9 +192,25 @@ export function LandingPage() {
         </section>
 
         <section className="border-b border-ink-700/70 bg-ink-850/70">
-          <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-            <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[10.5px] font-medium uppercase tracking-[0.14em] text-ink-400">
-              {scanners.map((scanner) => <span key={scanner}>{scanner}</span>)}
+          <div className="mx-auto max-w-6xl px-5 py-10 lg:px-8">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div>
+                <div className="eyebrow">The Kali toolbelt</div>
+                <h2 className="mt-2 text-[24px] font-semibold tracking-[-0.03em] sm:text-[30px]">Real tools across every assessment layer.</h2>
+              </div>
+              <span className="hidden rounded-full border border-ink-700 bg-ink-850 px-3 py-1 text-[10px] text-ink-400 sm:inline-flex">Availability is detected, never faked</span>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {toolGroups.map((group) => (
+                <div key={group.label}>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700">{group.label}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {group.tools.map((tool) => (
+                      <span key={tool} className="rounded-full border border-ink-700 bg-ink-850 px-2.5 py-1 text-[10px] text-ink-300">{tool}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -192,16 +222,23 @@ export function LandingPage() {
             <p className="mt-4 text-[14px] leading-relaxed text-ink-300">Not another dashboard layered over a script runner. King Malhare models authorization, execution, evidence and remediation as first-class data.</p>
           </div>
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-ink-650 bg-ink-650 shadow-soft sm:grid-cols-2 lg:grid-cols-4">
-            {capabilities.map((capability) => {
+            {capabilities.map((capability, index) => {
               const Icon = capability.icon;
               return (
-                <div key={capability.title} className="group bg-ink-850 p-5 transition-colors hover:bg-ink-800">
+                <motion.div
+                  key={capability.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
+                  className="group bg-ink-850 p-5 transition-colors hover:bg-ink-800"
+                >
                   <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-xl border border-ink-600 bg-ink-900 text-amber-700 transition-colors group-hover:border-amber-500/30">
                     <Icon className="h-4 w-4" strokeWidth={1.8} />
                   </div>
                   <h3 className="text-[13px] font-semibold text-ink-50">{capability.title}</h3>
                   <p className="mt-2 text-[11.5px] leading-relaxed text-ink-400">{capability.text}</p>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -217,14 +254,21 @@ export function LandingPage() {
                 <Link to="/register" className={buttonStyles("outline", "md", "mt-7")}>Start with an authorized asset <ArrowRight className="h-3.5 w-3.5" /></Link>
               </div>
               <div className="divide-y divide-ink-700/70 border-y border-ink-700/70">
-                {steps.map((step) => (
-                  <div key={step.number} className="grid gap-3 py-6 sm:grid-cols-[48px_1fr]">
+                {steps.map((step, index) => (
+                  <motion.div
+                    key={step.number}
+                    initial={{ opacity: 0, x: 18 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.4, delay: index * 0.06 }}
+                    className="grid gap-3 py-6 sm:grid-cols-[48px_1fr]"
+                  >
                     <span className="font-mono text-[11px] text-amber-700/80">{step.number}</span>
                     <div>
                       <h3 className="text-[14px] font-semibold text-ink-50">{step.title}</h3>
                       <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-ink-400">{step.text}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -243,14 +287,21 @@ export function LandingPage() {
                   [LockKeyhole, "Credentials stay server-side", "AES-256-GCM at rest. Cloud keys are never serialized to the browser."],
                   [Terminal, "No shell execution", "Scanners run from allowlisted argument vectors with timeouts and output caps."],
                   [Fingerprint, "Evidence integrity", "SHA-256 hashes on evidence files and generated report artefacts."],
-                ].map(([Icon, title, text]) => {
+                ].map(([Icon, title, text], index) => {
                   const Component = Icon as typeof ShieldCheck;
                   return (
-                    <div key={String(title)} className="rounded-lg border border-ink-700 bg-ink-850/70 p-3.5">
+                    <motion.div
+                      key={String(title)}
+                      initial={{ opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.2 }}
+                      transition={{ duration: 0.4, delay: index * 0.06 }}
+                      className="rounded-lg border border-ink-700 bg-ink-850/70 p-3.5"
+                    >
                       <Component className="mb-2 h-4 w-4 text-amber-700" />
                       <p className="text-[12px] font-medium text-ink-100">{String(title)}</p>
                       <p className="mt-1 text-[11px] leading-relaxed text-ink-400">{String(text)}</p>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -287,7 +338,13 @@ queue.enqueue(job)  # worker repeats every check`}
 
         <section className="border-t border-ink-700/70">
           <div className="mx-auto max-w-6xl px-5 py-16 lg:px-8">
-            <div className="grid gap-6 rounded-3xl border border-ink-650 bg-gradient-to-br from-amber-100/80 via-ink-850 to-mint-100/70 p-7 shadow-soft sm:p-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5 }}
+              className="grid gap-6 rounded-3xl border border-ink-650 bg-gradient-to-br from-amber-100/80 via-ink-850 to-mint-100/70 p-7 shadow-soft sm:p-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-center"
+            >
               <div>
                 <div className="mb-3 flex items-center gap-2">
                   <TriangleAlert className="h-4 w-4 text-amber-700" />
@@ -300,7 +357,7 @@ queue.enqueue(job)  # worker repeats every check`}
                 <Link to="/register" className={buttonStyles("primary", "lg", "w-full")}>Create your workspace <ChevronRight className="h-4 w-4" /></Link>
                 <Link to="/login" className={buttonStyles("secondary", "lg", "w-full")}>Sign in</Link>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
       </main>
@@ -309,9 +366,11 @@ queue.enqueue(job)  # worker repeats every check`}
         <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div className="flex items-center gap-3">
             <Logo compact />
-            <span className="text-[11px] text-ink-400">Offensive security, under control.</span>
+            <span className="text-[11px] text-ink-400">Security testing, under control.</span>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-ink-400">
+            <Link to="/privacy" className="hover:text-ink-200">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-ink-200">Terms of Service</Link>
             <Link to="/api-docs" className="hover:text-ink-200">API</Link>
             <Link to="/login" className="hover:text-ink-200">Sign in</Link>
             <span>Authorized testing only</span>

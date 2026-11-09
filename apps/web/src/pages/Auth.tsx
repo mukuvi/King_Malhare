@@ -39,10 +39,10 @@ function AuthPanel({ children }: { children: React.ReactNode }) {
               <LogoMark className="h-10 w-10" />
               <div>
                 <div className="text-[13px] font-semibold text-ink-50">King Malhare</div>
-                <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-teal-700">Offensive security</div>
+                <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-teal-700">Security assessment</div>
               </div>
             </div>
-            <div className="eyebrow">Offensive security workstation</div>
+            <div className="eyebrow">Security assessment workstation</div>
             <h2 className="mt-4 max-w-md text-[40px] font-semibold leading-[1.02] tracking-[-0.04em] text-ink-50">
               Evidence, not intuition.
             </h2>
@@ -186,7 +186,7 @@ export function RegisterPage() {
         </Field>
         <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="Your name">
-            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Alex Mwangi" autoComplete="name" required />
+            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Mukuvi Ngandu" autoComplete="name" required />
           </Field>
           <Field label="Email">
             <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required />

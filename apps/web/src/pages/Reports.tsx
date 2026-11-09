@@ -51,6 +51,8 @@ export function ReportsPage() {
             {(reports.data?.items.length ?? 0) === 0 ? (
               <EmptyState icon={<FileText className="h-4 w-4" />} title={search || status ? "No reports match" : "No reports generated"} description="Generate a report from a completed assessment. The report preserves scope, methodology, evidence and findings at that point in time." action={<Button size="sm" onClick={() => setCreateOpen(true)}>Generate report</Button>} />
             ) : (
+              <>
+              <div className="hidden md:block">
               <table className="table-base">
                 <thead><tr><th>Report</th><th>Assessment</th><th>State</th><th>Findings</th><th>Created</th><th /></tr></thead>
                 <tbody>
@@ -81,6 +83,35 @@ export function ReportsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
+              <div className="divide-y divide-ink-700/70 md:hidden">
+                {reports.data?.items.map((report) => (
+                  <div key={report.id} className="px-4 py-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <Link to={`/reports/${report.id}`} className="text-[12.5px] font-medium text-ink-100">{report.title}</Link>
+                        <p className="mt-0.5 text-[10px] text-ink-400">{report.client_name || "Internal"} · {report.created_by ?? "Unknown"}</p>
+                      </div>
+                      <Badge className={report.status === "ready" ? "border-lime-500/25 bg-lime-500/10 text-lime-700" : report.status === "failed" ? "border-red-500/25 bg-red-500/10 text-red-700" : "border-amber-500/25 bg-amber-500/10 text-amber-700"}>{report.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-[11px] text-ink-300">{report.asset_name ?? "Finding set"}{report.scanner ? ` · ${scannerLabel(report.scanner)}` : ""}</p>
+                    <div className="mt-2 flex items-center justify-between text-[10px] text-ink-400">
+                      <span>{formatDateTime(report.created_at)}</span>
+                      <span className="font-mono">{report.summary?.findings ?? "-"} findings</span>
+                    </div>
+                    <div className="mt-2 flex items-center justify-end gap-2">
+                      {report.status === "ready" ? (
+                        <>
+                          <a href={downloadUrl(`/reports/${report.id}/pdf`)} className="rounded-lg border border-ink-600 px-2.5 py-1.5 text-[10px] text-ink-300" aria-label="Download PDF">PDF</a>
+                          <a href={downloadUrl(`/reports/${report.id}/html`)} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-ink-600 px-2.5 py-1.5 text-[10px] text-ink-300" aria-label="Open HTML report">HTML</a>
+                        </>
+                      ) : null}
+                      <Link to={`/reports/${report.id}`} className="rounded-lg border border-ink-600 px-2.5 py-1.5 text-[10px] text-ink-300">Open</Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              </>
             )}
           </TableShell>
         </QueryState>

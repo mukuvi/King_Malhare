@@ -286,7 +286,7 @@ paths:
               properties:
                 asset_id: { type: string, format: uuid }
                 authorization_id: { type: string, format: uuid }
-                scanner: { type: string, enum: [http-baseline, nmap, nuclei, zap, nikto, gobuster, testssl, sqlmap, trivy, prowler, scoutsuite, checkov, aws-posture, auth-baseline] }
+                scanner: { type: string, enum: [http-baseline, nmap, nuclei, zap, nikto, gobuster, testssl, sqlmap, trivy, prowler, scoutsuite, checkov, aws-posture, auth-baseline, burp, ffuf, whatweb, wafw00f, httpx, subfinder, sslyze, grype, semgrep, gitleaks, tfsec, syft, schemathesis] }
                 category: { type: string, enum: [web, network, cloud, authentication, infrastructure] }
                 profile_id: { type: string, format: uuid }
                 params: { type: object }

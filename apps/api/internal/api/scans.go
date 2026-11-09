@@ -392,22 +392,20 @@ func validateIPTarget(target string, allowPrivate bool) error {
 }
 
 func assetSupportsScanner(assetType, sc string) bool {
+	meta, ok := scanner.Find(sc)
+	if !ok {
+		return false
+	}
 	web := assetType == "website" || assetType == "web_app" || assetType == "api" || assetType == "graphql_api"
-	switch sc {
-	case "http-baseline", "nuclei", "nikto", "gobuster", "zap", "sqlmap":
+	switch meta.Category {
+	case "web", "authentication":
 		return web
-	case "nmap":
-		return assetType == "ip" || assetType == "network" || assetType == "server" || assetType == "internal"
-	case "testssl":
-		return web || assetType == "server" || assetType == "internal"
-	case "aws-posture", "prowler", "scoutsuite":
+	case "network":
+		return web || assetType == "ip" || assetType == "network" || assetType == "server" || assetType == "internal"
+	case "infrastructure":
+		return assetType == "container" || assetType == "server" || assetType == "internal"
+	case "cloud":
 		return assetType == "cloud"
-	case "trivy":
-		return assetType == "container" || assetType == "server"
-	case "checkov":
-		return assetType == "internal" || assetType == "container"
-	case "auth-baseline":
-		return web
 	}
 	return false
 }

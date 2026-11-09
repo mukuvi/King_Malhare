@@ -485,7 +485,7 @@ export function Progress({ value, className, tone = "amber" }: { value: number; 
 
 export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: Array<{ label: string; value: T; count?: number }>; value: T; onChange: (value: T) => void }) {
   return (
-    <div className="flex gap-1 overflow-x-auto border-b border-ink-700 no-scrollbar">
+    <div className="flex flex-wrap gap-1 border-b border-ink-700">
       {tabs.map((tab) => (
         <button
           key={tab.value}
@@ -540,7 +540,42 @@ export function TableShell({ children, footer }: { children: ReactNode; footer?:
 
 export function PageTransition({ children }: { children: ReactNode }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}>
+    <motion.div
+      initial={{ opacity: 0, x: 18 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -12 }}
+      transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.6 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function Stagger({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: { transition: { staggerChildren: 0.055, delayChildren: delay } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        hidden: { opacity: 0, y: 14 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 280, damping: 28 } },
+      }}
+    >
       {children}
     </motion.div>
   );

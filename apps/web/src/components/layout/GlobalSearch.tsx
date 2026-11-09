@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { api, queryString } from "@/lib/api";
 import { useMe } from "@/hooks/queries";
+import { useUIStore } from "@/stores/ui";
 import { cn } from "@/lib/utils";
 import type { Asset, Finding, PlatformOrganization, PlatformUser, Report } from "@/types";
 
@@ -100,6 +101,8 @@ export function GlobalSearch() {
   const navigate = useNavigate();
   const { data: me } = useMe();
   const platformAdmin = Boolean(me?.platform_admin);
+  const viewMode = useUIStore((state) => state.viewMode);
+  const adminMode = Boolean(platformAdmin && viewMode === "admin");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -111,31 +114,31 @@ export function GlobalSearch() {
   const assets = useQuery({
     queryKey: ["global-search", "assets", term],
     queryFn: () => api.get<{ items: Asset[] }>(`/assets${queryString({ search: term, per_page: 4 })}`),
-    enabled,
+    enabled: enabled && !adminMode,
     staleTime: 15_000,
   });
   const findings = useQuery({
     queryKey: ["global-search", "findings", term],
     queryFn: () => api.get<{ items: Finding[] }>(`/findings${queryString({ search: term, per_page: 4 })}`),
-    enabled,
+    enabled: enabled && !adminMode,
     staleTime: 15_000,
   });
   const reports = useQuery({
     queryKey: ["global-search", "reports", term],
     queryFn: () => api.get<{ items: Report[] }>(`/reports${queryString({ search: term, per_page: 3 })}`),
-    enabled,
+    enabled: enabled && !adminMode,
     staleTime: 15_000,
   });
   const platformOrganizations = useQuery({
     queryKey: ["global-search", "platform-organizations"],
     queryFn: () => api.get<{ items: PlatformOrganization[] }>("/platform/organizations"),
-    enabled: enabled && platformAdmin,
+    enabled: enabled && adminMode,
     staleTime: 60_000,
   });
   const platformUsers = useQuery({
     queryKey: ["global-search", "platform-users"],
     queryFn: () => api.get<{ items: PlatformUser[] }>("/platform/users"),
-    enabled: enabled && platformAdmin,
+    enabled: enabled && adminMode,
     staleTime: 60_000,
   });
 
@@ -143,7 +146,7 @@ export function GlobalSearch() {
     const out: Result[] = [];
     const trimmed = term.trim();
     const pageMatches = pages
-      .filter((page) => !page.platformOnly || platformAdmin)
+      .filter((page) => adminMode ? page.platformOnly : !page.platformOnly)
       .filter((page) => !trimmed || matches(`${page.label} ${page.keywords}`, trimmed))
       .sort((a, b) => {
         if (!trimmed) return 0;
@@ -157,7 +160,7 @@ export function GlobalSearch() {
     }
     if (!trimmed) return out;
 
-    if (CVE_PATTERN.test(trimmed)) {
+    if (!adminMode && CVE_PATTERN.test(trimmed)) {
       out.push({
         id: "cve-lookup",
         group: "Intelligence",
@@ -167,37 +170,39 @@ export function GlobalSearch() {
         icon: BookOpenCheck,
       });
     }
-    for (const asset of assets.data?.items ?? []) {
-      out.push({
-        id: `asset-${asset.id}`,
-        group: "Assets",
-        label: asset.name,
-        sublabel: `${asset.type.replace(/_/g, " ")} - ${asset.target}`,
-        to: `/assets/${asset.id}`,
-        icon: Boxes,
-      });
+    if (!adminMode) {
+      for (const asset of assets.data?.items ?? []) {
+        out.push({
+          id: `asset-${asset.id}`,
+          group: "Assets",
+          label: asset.name,
+          sublabel: `${asset.type.replace(/_/g, " ")} - ${asset.target}`,
+          to: `/assets/${asset.id}`,
+          icon: Boxes,
+        });
+      }
+      for (const finding of findings.data?.items ?? []) {
+        out.push({
+          id: `finding-${finding.id}`,
+          group: "Findings",
+          label: finding.title,
+          sublabel: `${finding.severity} - ${finding.asset_name}`,
+          to: `/findings/${finding.id}`,
+          icon: ShieldAlert,
+        });
+      }
+      for (const report of reports.data?.items ?? []) {
+        out.push({
+          id: `report-${report.id}`,
+          group: "Reports",
+          label: report.title,
+          sublabel: `${report.status}${report.client_name ? ` - ${report.client_name}` : ""}`,
+          to: `/reports/${report.id}`,
+          icon: FileText,
+        });
+      }
     }
-    for (const finding of findings.data?.items ?? []) {
-      out.push({
-        id: `finding-${finding.id}`,
-        group: "Findings",
-        label: finding.title,
-        sublabel: `${finding.severity} - ${finding.asset_name}`,
-        to: `/findings/${finding.id}`,
-        icon: ShieldAlert,
-      });
-    }
-    for (const report of reports.data?.items ?? []) {
-      out.push({
-        id: `report-${report.id}`,
-        group: "Reports",
-        label: report.title,
-        sublabel: `${report.status}${report.client_name ? ` - ${report.client_name}` : ""}`,
-        to: `/reports/${report.id}`,
-        icon: FileText,
-      });
-    }
-    if (platformAdmin) {
+    if (adminMode) {
       for (const org of (platformOrganizations.data?.items ?? []).filter((item) => matches(`${item.name} ${item.slug} ${item.owner_name} ${item.owner_email}`, trimmed)).slice(0, 3)) {
         out.push({
           id: `platform-org-${org.id}`,
@@ -220,7 +225,7 @@ export function GlobalSearch() {
       }
     }
     return out;
-  }, [term, platformAdmin, assets.data, findings.data, reports.data, platformOrganizations.data, platformUsers.data]);
+  }, [term, adminMode, assets.data, findings.data, reports.data, platformOrganizations.data, platformUsers.data]);
 
   useEffect(() => {
     setActive(0);
@@ -296,7 +301,7 @@ export function GlobalSearch() {
           onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="Search anything: assets, findings, pages, APIs"
+          placeholder={adminMode ? "Search platform organizations and users" : "Search anything: assets, findings, pages, APIs"}
           className="h-9 w-full rounded-xl border border-ink-700 bg-ink-850/90 pl-9 pr-16 text-[12.5px] text-ink-100 placeholder:text-ink-400 transition-all hover:border-ink-500 focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
           role="combobox"
           aria-expanded={open}

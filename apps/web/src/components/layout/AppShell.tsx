@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useMe, useOrganization } from "@/hooks/queries";
-import { useAuthStore } from "@/stores/ui";
+import { useAuthStore, useUIStore } from "@/stores/ui";
+import { setReadOnlyView } from "@/lib/api";
 import { Logo } from "./Logo";
 import { Sidebar, SidebarEmergencyBanner } from "./Sidebar";
 import { Topbar } from "./Topbar";
@@ -46,6 +47,23 @@ export function RequireAuth() {
 
 function AppShell() {
   const org = useOrganization();
+  const me = useMe();
+  const viewMode = useUIStore((state) => state.viewMode);
+  const setViewMode = useUIStore((state) => state.setViewMode);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const readOnly = Boolean(me.data?.platform_admin && viewMode === "user");
+  const adminMode = Boolean(me.data?.platform_admin && viewMode === "admin");
+
+  useEffect(() => {
+    setReadOnlyView(readOnly);
+  }, [readOnly]);
+
+  useEffect(() => {
+    if (!adminMode) return;
+    const allowed = location.pathname === "/platform" || location.pathname.startsWith("/platform/") || location.pathname === "/settings";
+    if (!allowed) navigate("/platform", { replace: true });
+  }, [adminMode, location.pathname, navigate]);
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -53,6 +71,17 @@ function AppShell() {
       <div className="lg:pl-[248px]">
         <Topbar />
         <SidebarEmergencyBanner active={Boolean(org.data?.emergency_stop)} />
+        {readOnly ? (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/25 bg-amber-500/10 px-4 py-2 text-[11.5px] text-amber-800 sm:px-6">
+            <span>Read-only user view. You can see the workspace, but changes are blocked.</span>
+            <button
+              onClick={() => { setViewMode("admin"); navigate("/platform"); }}
+              className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10.5px] font-medium text-amber-800 hover:bg-amber-500/15"
+            >
+              Switch to Admin view
+            </button>
+          </div>
+        ) : null}
         <main className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>

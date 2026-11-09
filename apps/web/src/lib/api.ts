@@ -2,6 +2,12 @@ import type { ApiErrorShape } from "@/types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "/api/v1";
 
+let readOnlyView = false;
+
+export function setReadOnlyView(value: boolean) {
+  readOnlyView = value;
+}
+
 export class ApiError extends Error {
   status: number;
   code: string;
@@ -28,6 +34,9 @@ type RequestOptions = Omit<RequestInit, "body"> & {
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = (options.method ?? "GET").toUpperCase();
+  if (readOnlyView && !["GET", "HEAD", "OPTIONS"].includes(method) && !path.startsWith("/auth/")) {
+    throw new ApiError(403, "read_only_view", "You are viewing as a user. Switch to Admin view to make changes.");
+  }
   const headers = new Headers(options.headers);
   headers.set("Accept", "application/json");
   if (options.body !== undefined) headers.set("Content-Type", "application/json");

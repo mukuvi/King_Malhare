@@ -1,11 +1,23 @@
 import { create } from "zustand";
 
+export type ViewMode = "admin" | "user";
+
+function initialViewMode(): ViewMode {
+  try {
+    return window.localStorage.getItem("km-view-mode") === "user" ? "user" : "admin";
+  } catch {
+    return "admin";
+  }
+}
+
 interface UIState {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
   commandOpen: boolean;
   setCommandOpen: (open: boolean) => void;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -14,6 +26,15 @@ export const useUIStore = create<UIState>((set) => ({
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   commandOpen: false,
   setCommandOpen: (commandOpen) => set({ commandOpen }),
+  viewMode: initialViewMode(),
+  setViewMode: (viewMode) => {
+    try {
+      window.localStorage.setItem("km-view-mode", viewMode);
+    } catch {
+      // Ignore storage failures.
+    }
+    set({ viewMode });
+  },
 }));
 
 interface AuthState {

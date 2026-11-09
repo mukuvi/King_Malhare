@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { Bell, ChevronDown, LogOut, Menu, Plus, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Bell, ChevronDown, Crown, Eye, LogOut, Menu, Plus, Settings } from "lucide-react";
 import { useMe, useLogout, useNotifications } from "@/hooks/queries";
 import { useUIStore } from "@/stores/ui";
 import { initials } from "@/lib/utils";
@@ -10,8 +10,12 @@ import { Logo } from "./Logo";
 
 export function Topbar() {
   const { toggleSidebar } = useUIStore();
+  const viewMode = useUIStore((state) => state.viewMode);
+  const setViewMode = useUIStore((state) => state.setViewMode);
+  const navigate = useNavigate();
   const { data: me } = useMe();
-  const canScan = Boolean(me?.permissions.includes("scans:write"));
+  const readOnly = Boolean(me?.platform_admin && viewMode === "user");
+  const canScan = Boolean(me?.permissions.includes("scans:write")) && !readOnly;
   const { data: notifications } = useNotifications();
   const logout = useLogout();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,6 +39,23 @@ export function Topbar() {
       </Link>
 
       <GlobalSearch />
+
+      {me?.platform_admin ? (
+        <div className="hidden items-center rounded-lg border border-ink-700 bg-ink-850 p-0.5 sm:flex">
+          <button
+            onClick={() => { setViewMode("admin"); navigate("/platform"); }}
+            className={viewMode === "admin" ? "rounded-md bg-amber-400 px-2.5 py-1 text-[10.5px] font-semibold text-ink-50" : "rounded-md px-2.5 py-1 text-[10.5px] text-ink-300 hover:text-ink-100"}
+          >
+            Admin
+          </button>
+          <button
+            onClick={() => { setViewMode("user"); navigate("/dashboard"); }}
+            className={viewMode === "user" ? "rounded-md bg-ink-700 px-2.5 py-1 text-[10.5px] font-semibold text-ink-50" : "rounded-md px-2.5 py-1 text-[10.5px] text-ink-300 hover:text-ink-100"}
+          >
+            User
+          </button>
+        </div>
+      ) : null}
 
       <div className="ml-auto flex items-center gap-2">
         {canScan ? (
@@ -75,6 +96,21 @@ export function Topbar() {
                 </div>
               </div>
               <div className="p-1.5">
+                {me?.platform_admin ? (
+                  <button
+                    onClick={() => {
+                      const next = viewMode === "admin" ? "user" : "admin";
+                      setViewMode(next);
+                      navigate(next === "admin" ? "/platform" : "/dashboard");
+                      setMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12.5px] text-ink-200 hover:bg-ink-800"
+                    role="menuitem"
+                  >
+                    {viewMode === "admin" ? <Eye className="h-3.5 w-3.5" /> : <Crown className="h-3.5 w-3.5" />}
+                    {viewMode === "admin" ? "View as user (read-only)" : "Switch to Admin view"}
+                  </button>
+                ) : null}
                 <Link to="/settings" className="flex items-center gap-2 rounded-md px-2.5 py-2 text-[12.5px] text-ink-200 hover:bg-ink-800" onClick={() => setMenuOpen(false)} role="menuitem">
                   <Settings className="h-3.5 w-3.5" /> Account settings
                 </Link>

@@ -336,6 +336,14 @@ paths:
       responses:
         "200": { description: Active sessions with user, organization, IP and device }
         "403": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Platform]
+      summary: Revoke every active session
+      parameters:
+        - { in: query, name: keep_current, schema: { type: boolean, default: false }, description: Keep the calling administrator signed in }
+      responses:
+        "200": { description: Sessions revoked }
+        "403": { $ref: '#/components/responses/Error' }
   /platform/sessions/{sessionId}:
     delete:
       tags: [Platform]
@@ -359,6 +367,20 @@ paths:
         - { in: query, name: search, schema: { type: string } }
       responses:
         "200": { description: Paginated activity items }
+        "403": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Platform]
+      summary: Clear audit events matching the filters
+      description: |
+        Deletes matching audit events across the deployment and records a
+        platform.activity_cleared marker so the action remains visible.
+      parameters:
+        - { in: query, name: org_id, schema: { type: string, format: uuid } }
+        - { in: query, name: user_id, schema: { type: string, format: uuid } }
+        - { in: query, name: action, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
+      responses:
+        "200": { description: Number of events deleted }
         "403": { $ref: '#/components/responses/Error' }
   /stats/overview:
     get:
@@ -1028,6 +1050,17 @@ paths:
         - { in: query, name: search, schema: { type: string } }
       responses:
         "200": { description: Paginated audit events }
+    delete:
+      tags: [Operations]
+      summary: Clear organization audit events matching the filters
+      description: Requires the org:manage permission. Records an audit.cleared marker.
+      parameters:
+        - { in: query, name: action, schema: { type: string } }
+        - { in: query, name: resource_type, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
+      responses:
+        "200": { description: Number of events deleted }
+        "403": { $ref: '#/components/responses/Error' }
   /integrations:
     get:
       tags: [Operations]

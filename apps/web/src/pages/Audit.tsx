@@ -1,8 +1,12 @@
 import { useDeferredValue, useState } from "react";
-import { ScrollText, Search, ShieldCheck } from "lucide-react";
-import { useAuditEvents } from "@/hooks/queries";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { ScrollText, Search, ShieldCheck, Trash2 } from "lucide-react";
+import { api, ApiError, queryString } from "@/lib/api";
+import { useAuditEvents, useMe } from "@/hooks/queries";
+import { useUIStore } from "@/stores/ui";
 import { formatDateTime } from "@/lib/utils";
-import { Badge, EmptyState, Input, PageHeader, PageTransition, Pagination, QueryState, Select, SkeletonTable, StatCard, TableShell } from "@/components/ui";
+import { Badge, Button, EmptyState, Input, PageHeader, PageTransition, Pagination, QueryState, Select, SkeletonTable, StatCard, TableShell } from "@/components/ui";
 
 export function AuditPage() {
   const [action, setAction] = useState("");
@@ -11,13 +15,27 @@ export function AuditPage() {
   const searchValue = useDeferredValue(search);
   const [page, setPage] = useState(1);
   const query = useAuditEvents({ action, resource_type: resourceType, search: searchValue, page, per_page: 30 });
+  const me = useMe();
+  const viewMode = useUIStore((state) => state.viewMode);
+  const readOnly = Boolean(me.data?.platform_admin && viewMode === "user");
+  const canClear = Boolean(me.data?.permissions.includes("org:manage")) && !readOnly;
+  const client = useQueryClient();
+  const clear = useMutation({
+    mutationFn: (params: Record<string, string | undefined>) => api.delete<{ deleted: number }>(`/audit-events${queryString(params)}`),
+    onSuccess: (data) => {
+      toast.success(`${data.deleted} events cleared`);
+      setPage(1);
+      void client.invalidateQueries({ queryKey: ["audit"] });
+    },
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not clear audit events."),
+  });
 
   return (
     <PageTransition>
       <PageHeader
         eyebrow="Accountability"
         title="Audit log"
-        description="Authentication, authorization, scan, finding, report and settings events with actor, resource and request context. Entries are append-only."
+        description="Authentication, authorization, scan, finding, report and settings events with actor, resource and request context. Owners and admins can clear filtered history."
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -37,6 +55,12 @@ export function AuditPage() {
             <option value="">All resources</option>
             {["user", "organization", "asset", "authorization", "scan", "finding", "evidence", "report", "cloud_connection", "api_credential", "scan_schedule", "scan_profile"].map((item) => <option key={item} value={item}>{item.replace(/_/g, " ")}</option>)}
           </Select>
+          {canClear ? (
+            <>
+              <Button variant="secondary" size="sm" onClick={() => { if (window.confirm("Clear all sign-in events for this organization?")) clear.mutate({ action: "auth.login" }); }} loading={clear.isPending}><Trash2 className="h-3.5 w-3.5" /> Clear login events</Button>
+              <Button variant="danger" size="sm" onClick={() => { if (window.confirm(`Clear ${query.data?.total ?? 0} events matching the current filters?`)) clear.mutate({ action, resource_type: resourceType, search: searchValue }); }} loading={clear.isPending}><Trash2 className="h-3.5 w-3.5" /> Clear filtered</Button>
+            </>
+          ) : null}
         </div>
       </div>
 

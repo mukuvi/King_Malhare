@@ -307,6 +307,30 @@ func (s *Server) handleAuditEvents(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, page{Items: items, Page: pageNo, PerPage: perPage, Total: total})
 }
 
+func (s *Server) handleClearAuditEvents(w http.ResponseWriter, r *http.Request) {
+	ac := actor(r)
+	action := r.URL.Query().Get("action")
+	resourceType := r.URL.Query().Get("resource_type")
+	search := r.URL.Query().Get("search")
+	where := `e.org_id=$1 AND ($2='' OR e.action ILIKE '%'||$2||'%') AND ($3='' OR e.resource_type=$3)
+		AND ($4='' OR e.resource_id=$4 OR u.name ILIKE '%'||$4||'%')`
+	tag, err := s.db.Exec(r.Context(), `
+		DELETE FROM audit_events WHERE id IN (
+			SELECT e.id FROM audit_events e
+			LEFT JOIN users u ON u.id=e.actor_user_id
+			WHERE `+where+`
+		)`, ac.OrgID, action, resourceType, search)
+	if err != nil {
+		s.dbError(w, err, "audit")
+		return
+	}
+	deleted := tag.RowsAffected()
+	s.audit(r, "audit.cleared", "audit_event", "", map[string]any{
+		"deleted": deleted, "action": action, "resource_type": resourceType, "search": search,
+	})
+	writeJSON(w, http.StatusOK, map[string]any{"deleted": deleted})
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a

@@ -10,6 +10,13 @@ import (
 	"github.com/kingmalhare/api/internal/security"
 )
 
+const platformActivityFilter = `($1='' OR e.org_id::text=$1)
+	AND ($2='' OR e.actor_user_id::text=$2)
+	AND ($3='' OR e.action ILIKE '%'||$3||'%')
+	AND ($4='' OR e.action ILIKE '%'||$4||'%' OR COALESCE(u.name,'') ILIKE '%'||$4||'%'
+	     OR COALESCE(u.email,'') ILIKE '%'||$4||'%' OR COALESCE(o.name,'') ILIKE '%'||$4||'%'
+	     OR COALESCE(e.resource_id,'') ILIKE '%'||$4||'%')`
+
 func (s *Server) handlePlatformOverview(w http.ResponseWriter, r *http.Request) {
 	count := func(sql string) int {
 		var n int
@@ -700,18 +707,12 @@ func (s *Server) handlePlatformActivity(w http.ResponseWriter, r *http.Request) 
 	userID := strings.TrimSpace(r.URL.Query().Get("user_id"))
 	action := strings.TrimSpace(r.URL.Query().Get("action"))
 	search := strings.TrimSpace(r.URL.Query().Get("search"))
-	where := `($1='' OR e.org_id::text=$1)
-		AND ($2='' OR e.actor_user_id::text=$2)
-		AND ($3='' OR e.action ILIKE '%'||$3||'%')
-		AND ($4='' OR e.action ILIKE '%'||$4||'%' OR COALESCE(u.name,'') ILIKE '%'||$4||'%'
-		     OR COALESCE(u.email,'') ILIKE '%'||$4||'%' OR COALESCE(o.name,'') ILIKE '%'||$4||'%'
-		     OR COALESCE(e.resource_id,'') ILIKE '%'||$4||'%')`
 	var total int
 	if err := s.db.QueryRow(r.Context(), `
 		SELECT count(*) FROM audit_events e
 		LEFT JOIN organizations o ON o.id=e.org_id
 		LEFT JOIN users u ON u.id=e.actor_user_id
-		WHERE `+where, orgID, userID, action, search).Scan(&total); err != nil {
+		WHERE `+platformActivityFilter, orgID, userID, action, search).Scan(&total); err != nil {
 		s.dbError(w, err, "activity")
 		return
 	}
@@ -722,7 +723,7 @@ func (s *Server) handlePlatformActivity(w http.ResponseWriter, r *http.Request) 
 		FROM audit_events e
 		LEFT JOIN organizations o ON o.id=e.org_id
 		LEFT JOIN users u ON u.id=e.actor_user_id
-		WHERE `+where+`
+		WHERE `+platformActivityFilter+`
 		ORDER BY e.created_at DESC LIMIT $5 OFFSET $6`,
 		orgID, userID, action, search, perPage, (pageNo-1)*perPage)
 	if err != nil {
@@ -748,4 +749,50 @@ func (s *Server) handlePlatformActivity(w http.ResponseWriter, r *http.Request) 
 		})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items, "total": total, "page": pageNo, "per_page": perPage})
+}
+
+func (s *Server) handlePlatformClearActivity(w http.ResponseWriter, r *http.Request) {
+	orgID := strings.TrimSpace(r.URL.Query().Get("org_id"))
+	userID := strings.TrimSpace(r.URL.Query().Get("user_id"))
+	action := strings.TrimSpace(r.URL.Query().Get("action"))
+	search := strings.TrimSpace(r.URL.Query().Get("search"))
+	tag, err := s.db.Exec(r.Context(), `
+		DELETE FROM audit_events WHERE id IN (
+			SELECT e.id FROM audit_events e
+			LEFT JOIN organizations o ON o.id=e.org_id
+			LEFT JOIN users u ON u.id=e.actor_user_id
+			WHERE `+platformActivityFilter+`
+		)`, orgID, userID, action, search)
+	if err != nil {
+		s.dbError(w, err, "activity")
+		return
+	}
+	deleted := tag.RowsAffected()
+	s.auditSystem(r.Context(), "", "platform.activity_cleared", "audit_event", "", map[string]any{
+		"deleted": deleted, "org_id": orgID, "user_id": userID, "action": action, "search": search,
+	})
+	writeJSON(w, http.StatusOK, map[string]any{"deleted": deleted})
+}
+
+func (s *Server) handlePlatformRevokeAllSessions(w http.ResponseWriter, r *http.Request) {
+	ac := actor(r)
+	keepCurrent := r.URL.Query().Get("keep_current") == "true"
+	var revoked int64
+	if keepCurrent {
+		tag, err := s.db.Exec(r.Context(), `UPDATE sessions SET revoked_at=now() WHERE revoked_at IS NULL AND expires_at>now() AND id<>$1`, ac.SessionID)
+		if err != nil {
+			s.dbError(w, err, "sessions")
+			return
+		}
+		revoked = tag.RowsAffected()
+	} else {
+		tag, err := s.db.Exec(r.Context(), `UPDATE sessions SET revoked_at=now() WHERE revoked_at IS NULL AND expires_at>now()`)
+		if err != nil {
+			s.dbError(w, err, "sessions")
+			return
+		}
+		revoked = tag.RowsAffected()
+	}
+	s.auditSystem(r.Context(), "", "platform.sessions_revoked", "session", "", map[string]any{"revoked": revoked, "keep_current": keepCurrent})
+	writeJSON(w, http.StatusOK, map[string]any{"revoked": revoked})
 }

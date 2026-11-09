@@ -18,7 +18,8 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, queryString } from "@/lib/api";
+import { useUIStore } from "@/stores/ui";
 import {
   useMe,
   usePlatformActivity,
@@ -61,6 +62,7 @@ export function PlatformPage() {
   );
   const openOrgId = params.get("org") ?? "";
   const me = useMe();
+  const viewMode = useUIStore((state) => state.viewMode);
   const overview = usePlatformOverview();
   const organizations = usePlatformOrganizations();
   const users = usePlatformUsers();
@@ -69,9 +71,10 @@ export function PlatformPage() {
   const [editingOrg, setEditingOrg] = useState<PlatformOrganization | null>(null);
   const [search, setSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
   const [orgFilter, setOrgFilter] = useState("");
   const [page, setPage] = useState(1);
-  const activity = usePlatformActivity({ search: searchTerm, org_id: orgFilter, page, per_page: 30 });
+  const activity = usePlatformActivity({ search: searchTerm, org_id: orgFilter, action: actionFilter, page, per_page: 30 });
   const client = useQueryClient();
 
   useEffect(() => {
@@ -97,8 +100,28 @@ export function PlatformPage() {
     onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not revoke the session."),
   });
 
+  const revokeAllSessions = useMutation({
+    mutationFn: () => api.delete<{ revoked: number }>("/platform/sessions?keep_current=true"),
+    onSuccess: (data) => {
+      toast.success(`${data.revoked} other sessions revoked`);
+      void client.invalidateQueries({ queryKey: ["platform"] });
+    },
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not revoke the sessions."),
+  });
+
+  const clearActivity = useMutation({
+    mutationFn: (params: Record<string, string | undefined>) => api.delete<{ deleted: number }>(`/platform/activity${queryString(params)}`),
+    onSuccess: (data) => {
+      toast.success(`${data.deleted} events cleared`);
+      setPage(1);
+      void client.invalidateQueries({ queryKey: ["platform"] });
+    },
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not clear activity."),
+  });
+
   if (me.isLoading) return null;
   if (!me.data?.platform_admin) return <Navigate to="/dashboard" replace />;
+  if (viewMode === "user") return <Navigate to="/dashboard" replace />;
 
   return (
     <PageTransition>
@@ -188,7 +211,17 @@ export function PlatformPage() {
       ) : null}
 
       {tab === "sessions" ? (
-        <div className="mt-4">
+        <div className="mt-4 space-y-3">
+          <div className="flex justify-end">
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => { if (window.confirm("Revoke every active session except yours?")) revokeAllSessions.mutate(); }}
+              loading={revokeAllSessions.isPending}
+            >
+              Revoke all others
+            </Button>
+          </div>
           <QueryState
             loading={sessions.isLoading}
             error={sessions.error}
@@ -241,15 +274,20 @@ export function PlatformPage() {
 
       {tab === "activity" ? (
         <div className="mt-4 space-y-3">
-          <div className="flex flex-col gap-2 rounded-xl border border-ink-650 bg-ink-850 p-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-2 rounded-xl border border-ink-650 bg-ink-850 p-3 xl:flex-row xl:items-center">
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-400" />
               <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search action, actor, email, organization or resource" className="border-ink-700 bg-ink-900 pl-9" />
             </div>
-            <Select value={orgFilter} onChange={(event) => { setOrgFilter(event.target.value); setPage(1); }} className="w-auto border-ink-700 bg-ink-900">
-              <option value="">All organizations</option>
-              {organizations.data?.items.map((org) => <option key={org.id} value={org.id}>{org.name}</option>)}
-            </Select>
+            <div className="flex flex-wrap gap-2">
+              <Input value={actionFilter} onChange={(event) => { setActionFilter(event.target.value); setPage(1); }} placeholder="Action, e.g. auth.login" className="w-auto border-ink-700 bg-ink-900" />
+              <Select value={orgFilter} onChange={(event) => { setOrgFilter(event.target.value); setPage(1); }} className="w-auto border-ink-700 bg-ink-900">
+                <option value="">All organizations</option>
+                {organizations.data?.items.map((org) => <option key={org.id} value={org.id}>{org.name}</option>)}
+              </Select>
+              <Button variant="secondary" size="sm" onClick={() => { if (window.confirm("Clear all sign-in events across the deployment?")) clearActivity.mutate({ action: "auth.login" }); }} loading={clearActivity.isPending}>Clear login events</Button>
+              <Button variant="danger" size="sm" onClick={() => { if (window.confirm(`Clear ${activity.data?.total ?? 0} events matching the current filters?`)) clearActivity.mutate({ search: searchTerm, org_id: orgFilter, action: actionFilter }); }} loading={clearActivity.isPending}>Clear filtered</Button>
+            </div>
           </div>
           <QueryState
             loading={activity.isLoading}

@@ -82,8 +82,13 @@ export function Sidebar() {
     setSidebarOpen(false);
   }, [location.pathname, setSidebarOpen]);
 
-  const navigation = me?.platform_admin
-    ? [{ label: "Platform", items: [{ to: "/platform", label: "Super admin", icon: Crown }] }, ...groups]
+  const viewMode = useUIStore((state) => state.viewMode);
+  const adminMode = Boolean(me?.platform_admin && viewMode === "admin");
+  const navigation = adminMode
+    ? [
+        { label: "Platform", items: [{ to: "/platform", label: "Super admin", icon: Crown }] },
+        { label: "Account", items: [{ to: "/settings", label: "Settings", icon: Settings }] },
+      ]
     : groups;
 
   const content = (

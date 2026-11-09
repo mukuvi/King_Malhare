@@ -121,6 +121,7 @@ func (s *Server) PublicRouter() http.Handler {
 			r.Post("/notifications/read", s.handleReadNotifications)
 			r.Delete("/notifications", s.handleClearNotifications)
 			r.Get("/audit-events", s.requirePerm("audit:read", s.handleAuditEvents))
+			r.Delete("/audit-events", s.requirePerm("org:manage", s.handleClearAuditEvents))
 
 			r.Get("/cloud-connections", s.requirePerm("integrations:manage", s.handleListCloud))
 			r.Post("/cloud-connections", s.requirePerm("integrations:manage", s.handleCreateCloud))
@@ -153,8 +154,10 @@ func (s *Server) PublicRouter() http.Handler {
 				r.Post("/users/{userID}/reset-password", s.handlePlatformResetPassword)
 				r.Post("/users/{userID}/sign-out", s.handlePlatformSignOutUser)
 				r.Get("/sessions", s.handlePlatformSessions)
+				r.Delete("/sessions", s.handlePlatformRevokeAllSessions)
 				r.Delete("/sessions/{sessionID}", s.handlePlatformRevokeSession)
 				r.Get("/activity", s.handlePlatformActivity)
+				r.Delete("/activity", s.handlePlatformClearActivity)
 			})
 		})
 	})

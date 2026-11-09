@@ -139,8 +139,7 @@ export function ScanStatusBadge({ status }: { status: ScanStatus }) {
     cancelled: "border-ink-500 bg-ink-800 text-ink-300",
   };
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]", tone[status])}>
-      <span className={cn("h-1.5 w-1.5 rounded-full", status === "running" && "animate-pulse bg-amber-500", status === "queued" && "bg-sky-500", status === "completed" && "bg-lime-500", status === "failed" && "bg-red-500", status === "cancelled" && "bg-ink-400", status === "initializing" && "bg-sky-500")} />
+    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]", tone[status])}>
       {scanStatusLabel[status]}
     </span>
   );

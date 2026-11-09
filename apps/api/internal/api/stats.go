@@ -174,13 +174,15 @@ func (s *Server) handleListNotifications(w http.ResponseWriter, r *http.Request)
 	ac := actor(r)
 	pageNo, perPage := pagination(r)
 	unreadOnly := r.URL.Query().Get("unread") == "true"
+	visible := `n.org_id=$1 AND (n.user_id=$2 OR n.user_id IS NULL)
+		AND NOT EXISTS (SELECT 1 FROM notification_dismissals d WHERE d.notification_id=n.id AND d.user_id=$2)`
 	var total, unread int
-	_ = s.db.QueryRow(r.Context(), `SELECT count(*) FROM notifications WHERE org_id=$1 AND (user_id=$2 OR user_id IS NULL)`, ac.OrgID, ac.UserID).Scan(&total)
-	_ = s.db.QueryRow(r.Context(), `SELECT count(*) FROM notifications WHERE org_id=$1 AND (user_id=$2 OR user_id IS NULL) AND read_at IS NULL`, ac.OrgID, ac.UserID).Scan(&unread)
+	_ = s.db.QueryRow(r.Context(), `SELECT count(*) FROM notifications n WHERE `+visible, ac.OrgID, ac.UserID).Scan(&total)
+	_ = s.db.QueryRow(r.Context(), `SELECT count(*) FROM notifications n WHERE `+visible+` AND n.read_at IS NULL`, ac.OrgID, ac.UserID).Scan(&unread)
 	rows, err := s.db.Query(r.Context(), `
-		SELECT id::text, type, title, body, link, read_at, created_at
-		FROM notifications WHERE org_id=$1 AND (user_id=$2 OR user_id IS NULL) AND ($3=false OR read_at IS NULL)
-		ORDER BY created_at DESC LIMIT $4 OFFSET $5`, ac.OrgID, ac.UserID, unreadOnly, perPage, (pageNo-1)*perPage)
+		SELECT n.id::text, n.type, n.title, n.body, n.link, n.read_at, n.created_at
+		FROM notifications n WHERE `+visible+` AND ($3=false OR n.read_at IS NULL)
+		ORDER BY n.created_at DESC LIMIT $4 OFFSET $5`, ac.OrgID, ac.UserID, unreadOnly, perPage, (pageNo-1)*perPage)
 	if err != nil {
 		s.dbError(w, err, "notifications")
 		return
@@ -233,6 +235,35 @@ func (s *Server) handleReadNotifications(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+}
+
+func (s *Server) handleClearNotifications(w http.ResponseWriter, r *http.Request) {
+	ac := actor(r)
+	tx, err := s.db.Begin(r.Context())
+	if err != nil {
+		s.dbError(w, err, "notifications")
+		return
+	}
+	defer tx.Rollback(r.Context())
+	// Organization-wide notifications are shared, so clear them for this user by
+	// recording a dismissal instead of deleting the row for every member.
+	if _, err := tx.Exec(r.Context(), `
+		INSERT INTO notification_dismissals (notification_id, user_id)
+		SELECT n.id, $2 FROM notifications n WHERE n.org_id=$1 AND n.user_id IS NULL
+		ON CONFLICT DO NOTHING`, ac.OrgID, ac.UserID); err != nil {
+		s.dbError(w, err, "notifications")
+		return
+	}
+	if _, err := tx.Exec(r.Context(), `DELETE FROM notifications WHERE org_id=$1 AND user_id=$2`, ac.OrgID, ac.UserID); err != nil {
+		s.dbError(w, err, "notifications")
+		return
+	}
+	if err := tx.Commit(r.Context()); err != nil {
+		s.dbError(w, err, "notifications")
+		return
+	}
+	s.audit(r, "notifications.cleared", "notification", "", nil)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 

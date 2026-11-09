@@ -121,7 +121,6 @@ export function ScanCenterPage() {
                     <tr key={scan.id} className="cursor-pointer" onClick={() => navigate(`/scans/${scan.id}`)}>
                       <td>
                         <div className="flex items-start gap-2.5">
-                          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/70" />
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-[12.5px] font-medium text-ink-100">{scan.asset_name}</span>

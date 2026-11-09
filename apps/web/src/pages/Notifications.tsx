@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, CheckCheck, FileText, Radio, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Bell, CheckCheck, FileText, Radio, ShieldAlert, ShieldCheck, Trash2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useNotifications } from "@/hooks/queries";
 import { formatDateTime, relativeTime } from "@/lib/utils";
@@ -32,6 +32,15 @@ export function NotificationsPage() {
     },
   });
 
+  const clear = useMutation({
+    mutationFn: () => api.delete("/notifications"),
+    onSuccess: () => {
+      setPage(1);
+      void client.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Inbox cleared");
+    },
+  });
+
   const openNotification = (notification: Notification) => {
     if (!notification.read) mark.mutate({ ids: [notification.id] });
     if (notification.link) navigate(notification.link);
@@ -43,7 +52,25 @@ export function NotificationsPage() {
         eyebrow="Inbox"
         title="Notifications"
         description="Scan outcomes, report readiness, authorization records and system events for this organization."
-        actions={notifications.data?.unread ? <Button variant="secondary" size="sm" onClick={() => mark.mutate({ all: true })} loading={mark.isPending}><CheckCheck className="h-3.5 w-3.5" /> Mark all read</Button> : null}
+        actions={
+          notifications.data?.total ? (
+            <div className="flex items-center gap-2">
+              {notifications.data.unread ? (
+                <Button variant="secondary" size="sm" onClick={() => mark.mutate({ all: true })} loading={mark.isPending}>
+                  <CheckCheck className="h-3.5 w-3.5" /> Mark all read
+                </Button>
+              ) : null}
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => { if (window.confirm("Clear your inbox? This removes every notification from your view.")) clear.mutate(); }}
+                loading={clear.isPending}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Clear inbox
+              </Button>
+            </div>
+          ) : null
+        }
       />
 
       <div className="mt-6">
@@ -74,7 +101,6 @@ export function NotificationsPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="text-[12.5px] font-medium text-ink-100">{notification.title}</p>
-                          {!notification.read ? <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> : null}
                         </div>
                         <p className="mt-1 text-[11.5px] leading-relaxed text-ink-400">{notification.body}</p>
                         <p className="mt-1.5 text-[9.5px] text-ink-400">{formatDateTime(notification.created_at)} · {relativeTime(notification.created_at)}</p>

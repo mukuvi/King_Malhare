@@ -282,7 +282,6 @@ export function DashboardPage() {
                     <div className="divide-y divide-ink-700/60">
                       {data.activity.slice(0, 7).map((event) => (
                         <div key={event.id} className="flex gap-2.5 px-4 py-2.5">
-                          <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-400/70" />
                           <div className="min-w-0">
                             <p className="truncate text-[11.5px] text-ink-200">{humanizeAction(event.action)}</p>
                             <p className="mt-0.5 text-[10px] text-ink-400">{event.actor ?? "System"} · {relativeTime(event.created_at)}</p>

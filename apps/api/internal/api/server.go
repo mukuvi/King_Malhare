@@ -119,6 +119,7 @@ func (s *Server) PublicRouter() http.Handler {
 
 			r.Get("/notifications", s.handleListNotifications)
 			r.Post("/notifications/read", s.handleReadNotifications)
+			r.Delete("/notifications", s.handleClearNotifications)
 			r.Get("/audit-events", s.requirePerm("audit:read", s.handleAuditEvents))
 
 			r.Get("/cloud-connections", s.requirePerm("integrations:manage", s.handleListCloud))

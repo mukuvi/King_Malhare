@@ -126,10 +126,7 @@ export function LandingPage() {
               <div className="absolute -inset-6 rounded-3xl bg-amber-500/[0.05] blur-2xl" />
               <div className="relative overflow-hidden rounded-xl border border-ink-600 bg-ink-950 shadow-lift">
                 <div className="flex h-9 items-center gap-1.5 border-b border-ink-700 bg-ink-900 px-3">
-                  <span className="h-2 w-2 rounded-full bg-ink-600" />
-                  <span className="h-2 w-2 rounded-full bg-ink-600" />
-                  <span className="h-2 w-2 rounded-full bg-ink-600" />
-                  <span className="ml-3 font-mono text-[9px] text-ink-400">king-malhare / operations</span>
+                  <span className="font-mono text-[9px] text-ink-400">king-malhare / operations</span>
                   <span className="ml-auto rounded border border-ink-700 px-1.5 py-0.5 font-mono text-[8px] text-ink-400">interface preview</span>
                 </div>
                 <div className="grid grid-cols-[118px_1fr]">
@@ -139,8 +136,7 @@ export function LandingPage() {
                       <span className="text-[8px] font-semibold text-ink-200">King Malhare</span>
                     </div>
                     {["Overview", "Assets", "Scans", "Web", "Network", "Cloud", "Findings", "Reports"].map((item, index) => (
-                      <div key={item} className={`mb-0.5 flex items-center gap-1.5 rounded px-1.5 py-1 text-[8px] ${index === 0 ? "bg-ink-800 text-ink-100" : "text-ink-400"}`}>
-                        <span className={`h-1 w-1 rounded-full ${index === 0 ? "bg-amber-400" : "bg-ink-600"}`} />
+                      <div key={item} className={`mb-0.5 flex items-center rounded px-1.5 py-1 text-[8px] ${index === 0 ? "bg-ink-800 text-ink-100" : "text-ink-400"}`}>
                         {item}
                       </div>
                     ))}

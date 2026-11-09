@@ -208,7 +208,7 @@ export function RegisterPage() {
             ["digit", "Number"],
           ].map(([key, label]) => (
             <div key={key} className={`flex items-center gap-1.5 text-[10.5px] ${checks[key as keyof typeof checks] ? "text-lime-700" : "text-ink-400"}`}>
-              <span className={`h-1 w-1 rounded-full ${checks[key as keyof typeof checks] ? "bg-lime-400" : "bg-ink-600"}`} /> {label}
+              {checks[key as keyof typeof checks] ? <Check className="h-3 w-3 shrink-0" /> : <span className="h-3 w-3 shrink-0" aria-hidden="true" />} {label}
             </div>
           ))}
         </div>

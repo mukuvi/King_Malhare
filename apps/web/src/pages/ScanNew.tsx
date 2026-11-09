@@ -325,7 +325,6 @@ export function ScanNewPage() {
                         >
                           <div className="flex items-start justify-between gap-2">
                             <span className="text-[12px] font-medium text-ink-100">{scanner.label}</span>
-                            <span className={cn("mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full", scanner.status === "available" ? "bg-lime-400" : scanner.status === "offline" ? "bg-ink-500" : "bg-orange-400")} />
                           </div>
                           <p className="mt-1.5 line-clamp-2 text-[10.5px] leading-relaxed text-ink-400">{scanner.description}</p>
                           <div className="mt-2 flex items-center gap-1.5">

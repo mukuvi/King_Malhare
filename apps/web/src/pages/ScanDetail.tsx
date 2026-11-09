@@ -281,7 +281,6 @@ export function ScanDetailPage() {
                   ) : (
                     data.executions.map((execution) => (
                       <div key={execution.id} className="flex gap-2.5">
-                        <span className={cn("mt-1 h-1.5 w-1.5 shrink-0 rounded-full", execution.status === "completed" ? "bg-lime-400" : execution.status === "failed" ? "bg-red-400" : "bg-amber-400")} />
                         <div className="min-w-0">
                           <p className="text-[11.5px] font-medium text-ink-200">{execution.scanner}</p>
                           <p className="truncate text-[10px] text-ink-400">{execution.status} · {relativeTime(execution.started_at)}{execution.exit_code !== undefined && execution.exit_code !== null ? ` · exit ${execution.exit_code}` : ""}</p>

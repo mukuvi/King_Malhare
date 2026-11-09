@@ -99,8 +99,7 @@ export function CategoryPage({
                   <div key={scanner.name} className="px-5 py-3">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-[12px] font-medium text-ink-100">{scanner.label}</span>
-                      <span className={`inline-flex items-center gap-1.5 text-[9.5px] uppercase tracking-wider ${scanner.status === "available" ? "text-lime-700" : scanner.status === "offline" ? "text-ink-400" : "text-orange-700"}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${scanner.status === "available" ? "bg-lime-400" : scanner.status === "offline" ? "bg-ink-500" : "bg-orange-400"}`} />
+                      <span className={`inline-flex items-center text-[9.5px] uppercase tracking-wider ${scanner.status === "available" ? "text-lime-700" : scanner.status === "offline" ? "text-ink-400" : "text-orange-700"}`}>
                         {scanner.status}
                       </span>
                     </div>

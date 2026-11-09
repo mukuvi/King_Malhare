@@ -128,8 +128,7 @@ function ScannersTab() {
                       <p className="text-[12px] font-medium text-ink-100">{scanner.label}</p>
                       <p className="mt-0.5 font-mono text-[9px] text-ink-400">{scanner.name}</p>
                     </div>
-                    <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[8.5px] uppercase tracking-wider ${scanner.status === "available" ? "border-lime-500/25 bg-lime-500/10 text-lime-700" : scanner.status === "offline" ? "border-ink-500 bg-ink-800 text-ink-400" : "border-orange-500/25 bg-orange-500/10 text-orange-700"}`}>
-                      <span className={`h-1 w-1 rounded-full ${scanner.status === "available" ? "bg-lime-400" : scanner.status === "offline" ? "bg-ink-500" : "bg-orange-400"}`} />
+                    <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[8.5px] uppercase tracking-wider ${scanner.status === "available" ? "border-lime-500/25 bg-lime-500/10 text-lime-700" : scanner.status === "offline" ? "border-ink-500 bg-ink-800 text-ink-400" : "border-orange-500/25 bg-orange-500/10 text-orange-700"}`}>
                       {scanner.status}
                     </span>
                   </div>

@@ -11,7 +11,7 @@ ARG TESTSSL_VERSION=3.2.5
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       ca-certificates curl unzip git openssl \
+       ca-certificates curl unzip git openssl bsdextrautils \
        python3 python3-pip python3-venv python3-dev build-essential \
        kali-tools-information-gathering \
        kali-tools-vulnerability \

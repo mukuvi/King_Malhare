@@ -125,12 +125,12 @@ export function LandingPage() {
             >
               <div className="absolute -inset-6 rounded-3xl bg-amber-500/[0.05] blur-2xl" />
               <div className="relative overflow-hidden rounded-xl border border-ink-600 bg-ink-950 shadow-lift">
-                <div className="flex h-9 items-center gap-1.5 border-b border-ink-700 bg-ink-900 px-3">
-                  <span className="font-mono text-[9px] text-ink-400">king-malhare / operations</span>
-                  <span className="ml-auto rounded border border-ink-700 px-1.5 py-0.5 font-mono text-[8px] text-ink-400">interface preview</span>
+                <div className="flex h-9 min-w-0 items-center gap-1.5 border-b border-ink-700 bg-ink-900 px-3">
+                  <span className="min-w-0 truncate font-mono text-[9px] text-ink-400">king-malhare / operations</span>
+                  <span className="ml-auto shrink-0 rounded border border-ink-700 px-1.5 py-0.5 font-mono text-[8px] text-ink-400">interface preview</span>
                 </div>
-                <div className="grid grid-cols-[118px_1fr]">
-                  <div className="border-r border-ink-800 p-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-[118px_1fr]">
+                  <div className="hidden border-r border-ink-800 p-2.5 sm:block">
                     <div className="mb-3 flex items-center gap-1.5">
                       <span className="flex h-5 w-5 items-center justify-center rounded bg-amber-400 text-[10px] font-bold text-ink-50">K</span>
                       <span className="text-[8px] font-semibold text-ink-200">King Malhare</span>
@@ -141,8 +141,8 @@ export function LandingPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="p-3.5">
-                    <div className="mb-3 flex items-center justify-between">
+                  <div className="min-w-0 p-3 sm:p-3.5">
+                    <div className="mb-3 flex items-center justify-between gap-2">
                       <div>
                         <p className="text-[8px] uppercase tracking-[0.14em] text-ink-400">Security overview</p>
                         <p className="mt-1 text-[13px] font-medium text-ink-100">Posture at a glance</p>
@@ -168,17 +168,17 @@ export function LandingPage() {
                           ["Exposed service", "high"],
                           ["TLS configuration", "low"],
                         ].map(([title, sev]) => (
-                          <div key={title} className="flex items-center gap-2 rounded border border-ink-800 bg-ink-850 px-2 py-1.5">
-                            <SeverityBadge severity={sev as "medium" | "high" | "low"} />
-                            <span className="flex-1 truncate text-[8px] text-ink-300">{title}</span>
-                            <span className="font-mono text-[7px] text-ink-400">open</span>
+                          <div key={title} className="flex min-w-0 items-center gap-2 rounded border border-ink-800 bg-ink-850 px-2 py-1.5">
+                            <span className="shrink-0"><SeverityBadge severity={sev as "medium" | "high" | "low"} /></span>
+                            <span className="min-w-0 flex-1 truncate text-[8px] text-ink-300">{title}</span>
+                            <span className="shrink-0 font-mono text-[7px] text-ink-400">open</span>
                           </div>
                         ))}
                       </div>
                     </div>
                     <div className="mt-2.5 rounded border border-amber-500/20 bg-amber-500/[0.04] p-2 font-mono text-[7px] leading-relaxed text-amber-700/80">
-                      <div className="flex items-center gap-1.5"><Terminal className="h-2.5 w-2.5" /> worker → nmap · nuclei · http-baseline</div>
-                      <div className="mt-1 text-ink-400">scope revalidated · authorization active</div>
+                      <div className="flex items-start gap-1.5"><Terminal className="mt-0.5 h-2.5 w-2.5 shrink-0" /> <span className="min-w-0 break-words">worker → nmap · nuclei · http-baseline</span></div>
+                      <div className="mt-1 break-words text-ink-400">scope revalidated · authorization active</div>
                     </div>
                   </div>
                 </div>
@@ -302,12 +302,12 @@ export function LandingPage() {
                 })}
               </div>
             </div>
-            <div className="overflow-hidden rounded-xl border border-ink-650 bg-ink-950 shadow-lift">
+            <div className="min-w-0 overflow-hidden rounded-xl border border-ink-650 bg-ink-950 shadow-lift">
               <div className="flex items-center gap-2 border-b border-ink-700 bg-ink-900 px-4 py-2.5">
                 <Code2 className="h-3.5 w-3.5 text-ink-400" />
                 <span className="font-mono text-[10px] text-ink-400">authorization policy</span>
               </div>
-              <pre className="overflow-x-auto p-5 font-mono text-[10.5px] leading-[1.8] text-ink-300">
+              <pre className="whitespace-pre-wrap break-words p-3.5 font-mono text-[9.5px] leading-[1.7] text-ink-300 sm:p-5 sm:text-[10.5px] sm:leading-[1.8]">
 {`assert asset.org_id == actor.org_id
 assert authorization.status == "active"
 assert authorization.expires_at > now()

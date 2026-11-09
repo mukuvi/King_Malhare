@@ -85,15 +85,18 @@ export function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster
-          theme="dark"
+          theme="light"
           position="bottom-right"
           closeButton
+          richColors
           toastOptions={{
             style: {
-              background: "#18181c",
-              border: "1px solid #2a2a31",
-              color: "#e9e4d8",
+              background: "#FFFDF9",
+              border: "1px solid #E7DED0",
+              color: "#2E2923",
               fontSize: "12.5px",
+              borderRadius: "14px",
+              boxShadow: "0 18px 40px -28px rgba(31,27,22,0.45)",
             },
           }}
         />

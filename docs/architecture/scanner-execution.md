@@ -51,11 +51,11 @@ class ScannerAdapter:
 | Field | Rules |
 | --- | --- |
 | `fingerprint` | sha256 of scanner/title/endpoint/cve-or-cwe, stable across runs |
-| `title` | 8–200 characters |
+| `title` | 8-200 characters |
 | `severity` | critical, high, medium, low, info |
 | `confidence` | certain, firm, tentative |
 | `cve` / `cwe` | optional, validated format |
-| `cvss` | optional 0.0–10.0 |
+| `cvss` | optional 0.0-10.0 |
 | `endpoint` | normalized URL or host:port, no credentials |
 | `description`, `remediation` | plain text |
 | `evidence` | dict of concrete request/response excerpts, counts, versions |

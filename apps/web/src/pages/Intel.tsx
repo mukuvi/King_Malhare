@@ -50,8 +50,8 @@ export function IntelPage() {
                 </div>
                 <Button type="submit" loading={lookup.isPending} disabled={!query.trim()}>Look up CVE</Button>
               </form>
-              <p className="mt-2 text-[10.5px] text-ink-500">Requires outbound HTTPS from the API. Cached records remain available during provider outages and are marked stale.</p>
-              {lookup.isError ? <p className="mt-3 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11.5px] text-red-200">{lookup.error instanceof ApiError ? lookup.error.message : "Lookup failed."}</p> : null}
+              <p className="mt-2 text-[10.5px] text-ink-400">Requires outbound HTTPS from the API. Cached records remain available during provider outages and are marked stale.</p>
+              {lookup.isError ? <p className="mt-3 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11.5px] text-red-700">{lookup.error instanceof ApiError ? lookup.error.message : "Lookup failed."}</p> : null}
             </CardContent>
           </Card>
 
@@ -83,14 +83,14 @@ export function IntelPage() {
                     <button key={cve.id} onClick={() => submit(cve.id)} className="flex w-full items-start justify-between gap-3 px-5 py-3 text-left transition-colors hover:bg-ink-800/60">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-[11.5px] text-amber-300">{cve.id}</span>
+                          <span className="font-mono text-[11.5px] text-amber-700">{cve.id}</span>
                           <SeverityBadge severity={normalizeSeverity(cve.severity)} />
                         </div>
                         <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-ink-400">{cve.summary}</p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <span className="font-mono text-[11px] text-ink-300">{cve.cvss ?? "—"}</span>
-                        <p className="mt-0.5 text-[9px] text-ink-500">{cve.fetched_at ? formatDate(cve.fetched_at) : ""}</p>
+                        <span className="font-mono text-[11px] text-ink-300">{cve.cvss ?? "-"}</span>
+                        <p className="mt-0.5 text-[9px] text-ink-400">{cve.fetched_at ? formatDate(cve.fetched_at) : ""}</p>
                       </div>
                     </button>
                   ))}
@@ -110,11 +110,11 @@ export function IntelPage() {
               {filteredCWEs.map((cwe) => (
                 <div key={cwe.id} className="px-4 py-2.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[10.5px] text-amber-300">{cwe.id}</span>
+                    <span className="font-mono text-[10.5px] text-amber-700">{cwe.id}</span>
                     <Badge className="text-[9px]">{cwe.category}</Badge>
                   </div>
                   <p className="mt-1 text-[11px] font-medium text-ink-200">{cwe.name}</p>
-                  <p className="mt-1 text-[10px] leading-relaxed text-ink-500">{cwe.description}</p>
+                  <p className="mt-1 text-[10px] leading-relaxed text-ink-400">{cwe.description}</p>
                 </div>
               ))}
               {filteredCWEs.length === 0 ? <p className="px-4 py-6 text-center text-[11px] text-ink-400">No matching CWE.</p> : null}
@@ -139,16 +139,16 @@ function CveCard({ cve }: { cve: CVE }) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-[14px] font-semibold text-ink-50">{cve.id}</span>
             <SeverityBadge severity={severity} />
-            {cve.cached ? <Badge className="text-[9px]">cached</Badge> : <Badge className="border-sky-500/25 bg-sky-500/10 text-[9px] text-sky-300">live</Badge>}
-            {cve.stale ? <Badge className="border-amber-500/25 bg-amber-500/10 text-[9px] text-amber-300">stale</Badge> : null}
-            {cve.known_exploited ? <Badge className="border-red-500/25 bg-red-500/10 text-[9px] text-red-300">known exploited</Badge> : null}
+            {cve.cached ? <Badge className="text-[9px]">cached</Badge> : <Badge className="border-sky-500/25 bg-sky-500/10 text-[9px] text-sky-700">live</Badge>}
+            {cve.stale ? <Badge className="border-amber-500/25 bg-amber-500/10 text-[9px] text-amber-700">stale</Badge> : null}
+            {cve.known_exploited ? <Badge className="border-red-500/25 bg-red-500/10 text-[9px] text-red-700">known exploited</Badge> : null}
           </div>
           <p className="mt-2 text-[12px] leading-relaxed text-ink-300">{cve.summary}</p>
         </div>
         {cve.cvss !== undefined && cve.cvss !== null ? (
           <div className="shrink-0 text-right">
             <p className={cn("font-mono text-[24px] font-semibold leading-none", severityStyles[severity].split(" ").slice(-1)[0])}>{cve.cvss.toFixed(1)}</p>
-            <p className="mt-1 text-[8.5px] uppercase tracking-wider text-ink-500">CVSS {cve.cvss_version ?? ""}</p>
+            <p className="mt-1 text-[8.5px] uppercase tracking-wider text-ink-400">CVSS {cve.cvss_version ?? ""}</p>
           </div>
         ) : null}
       </CardHeader>
@@ -160,28 +160,28 @@ function CveCard({ cve }: { cve: CVE }) {
         </div>
         {cve.cwe.length ? (
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">CWE classification</p>
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">CWE classification</p>
             <div className="mt-1.5 flex flex-wrap gap-1.5">{cve.cwe.map((item) => <Badge key={item} className="font-mono">{item}</Badge>)}</div>
           </div>
         ) : null}
         {cve.cvss_vector ? (
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">CVSS vector</p>
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">CVSS vector</p>
             <p className="mt-1 break-all font-mono text-[10px] text-ink-300">{cve.cvss_vector}</p>
           </div>
         ) : null}
         {cve.affected.length ? (
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">Affected configurations</p>
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">Affected configurations</p>
             <ul className="mt-1.5 space-y-1 text-[10.5px] text-ink-300">{cve.affected.slice(0, 12).map((item) => <li key={item} className="truncate font-mono">{item}</li>)}</ul>
           </div>
         ) : null}
         {cve.references.length ? (
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">References</p>
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">References</p>
             <div className="mt-1.5 space-y-1">
               {cve.references.slice(0, 8).map((reference) => (
-                <a key={reference} href={reference} target="_blank" rel="noopener noreferrer" className="flex items-start gap-1.5 text-[10.5px] text-amber-300 hover:text-amber-200">
+                <a key={reference} href={reference} target="_blank" rel="noopener noreferrer" className="flex items-start gap-1.5 text-[10.5px] text-amber-700 hover:text-amber-700">
                   <ArrowUpRight className="mt-0.5 h-3 w-3 shrink-0" /><span className="break-all">{reference}</span>
                 </a>
               ))}
@@ -196,7 +196,7 @@ function CveCard({ cve }: { cve: CVE }) {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-500">{label}</p>
+      <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-400">{label}</p>
       <p className="mt-1 truncate text-[11px] text-ink-200">{value}</p>
     </div>
   );

@@ -2,7 +2,7 @@
 
 This log states what is implemented, what is partial, and what remains. It is updated as the platform evolves. A feature is only marked complete when it has a working backend path.
 
-## Phase 1 — Architecture, structure, design system, landing
+## Phase 1 - Architecture, structure, design system, landing
 
 **Complete**
 - Monorepo layout, architecture, ER diagram, API contract, scanner execution model, threat model and deployment docs.
@@ -10,7 +10,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Dark-first marketing landing page with responsive layout and real product positioning.
 - OpenAPI 3.1 description served by the API.
 
-## Phase 2 — Authentication, authorization, assets, database
+## Phase 2 - Authentication, authorization, assets, database
 
 **Complete**
 - PostgreSQL schema (25+ tables) with constraints, indexes, triggers and forward-only migrations.
@@ -23,7 +23,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Member invitation with generated temporary passwords, role hierarchy enforcement.
 - API keys with scopes, hashing, expiry and revocation.
 
-## Phase 3 — Scan orchestration, Nmap, Nuclei
+## Phase 3 - Scan orchestration, Nmap, Nuclei
 
 **Complete**
 - Redis queue, worker claim, progress callbacks, execution records, cancellation, emergency stop, stale-job reaper.
@@ -35,7 +35,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Scanner catalogue, system profiles, parameter allowlists and custom profiles.
 - Scan comparison by fingerprint.
 
-## Phase 4 — OWASP ZAP and web assessment
+## Phase 4 - OWASP ZAP and web assessment
 
 **Complete**
 - First-party HTTP baseline: security headers, clickjacking, cookies, CORS, server disclosure, stack traces, TLS protocol/certificate and signed exposure checks.
@@ -44,7 +44,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - testssl.sh adapter with JSON parsing.
 - Guarded SQLMap adapter (single parameter, boolean/error only, no dump, no shell, intrusive approval required).
 
-## Phase 5 — Findings and intelligence
+## Phase 5 - Findings and intelligence
 
 **Complete**
 - Normalized result schema and deterministic fingerprints.
@@ -53,7 +53,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Evidence upload with MIME/magic-byte validation, SHA-256, storage abstraction (local or S3/MinIO) and organization-scoped download.
 - CVE lookup via CIRCL with seven-day cache and stale fallback; CWE catalogue; local lookup history.
 
-## Phase 6 — Reporting
+## Phase 6 - Reporting
 
 **Complete**
 - Fourteen-section server-rendered HTML report with escaped user content and a restrictive CSP.
@@ -61,7 +61,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Report records with SHA-256 hashes of both artefacts, organization-scoped delivery and deletion.
 - Report generation from a scan or a selected finding set.
 
-## Phase 7 — Cloud and network integrations
+## Phase 7 - Cloud and network integrations
 
 **Complete**
 - AWS read-only posture checks via boto3: root MFA/access keys, CloudTrail, S3 public access, password policy, open security groups, stale keys.
@@ -75,7 +75,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Prowler/ScoutSuite/Checkov/Trivy are not installed in the default worker image; availability is reported honestly and the image can be extended.
 - Cloud scan validation is structural; live permissions are validated by running a posture scan.
 
-## Phase 8 — Authentication security
+## Phase 8 - Authentication security
 
 **Complete**
 - Bounded rate-limit and lockout verification against an explicit test account.
@@ -87,7 +87,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Credential stuffing, password spraying, unlimited attempts, third-party account attacks.
 - Password policy discovery without an authenticated policy endpoint.
 
-## Phase 9 — Analytics, notifications, history, scheduling
+## Phase 9 - Analytics, notifications, history, scheduling
 
 **Complete**
 - Dashboard metrics from PostgreSQL: posture score, counts, severity distribution, 30-day trend, recent scans, activity.
@@ -102,7 +102,7 @@ This log states what is implemented, what is partial, and what remains. It is up
 - Notifications are in-app only. Email/webhook delivery is not configured.
 - Scheduler runs in the API process; for multiple API replicas, a dedicated scheduler election would be preferable.
 
-## Phase 10 — Hardening, tests, deployment
+## Phase 10 - Hardening, tests, deployment
 
 **Complete**
 - Dockerfiles for API, web/Caddy and worker; Compose topology with isolated networks and hardened worker.

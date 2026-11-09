@@ -83,7 +83,7 @@ export function ScanDetailPage() {
 
   useEffect(() => {
     if (scan.data) {
-      setReportTitle(`Security assessment — ${scan.data.asset_name}`);
+      setReportTitle(`Security assessment - ${scan.data.asset_name}`);
       setAssessorName((current) => current || me.data?.user.name || "");
     }
   }, [scan.data, me.data]);
@@ -164,8 +164,8 @@ export function ScanDetailPage() {
         <Badge>queued {formatDateTime(data.created_at)}</Badge>
         {data.started_at ? <Badge>started {formatDateTime(data.started_at)}</Badge> : null}
         {data.finished_at ? <Badge>finished {formatDateTime(data.finished_at)}</Badge> : null}
-        {data.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-orange-300">intrusive</Badge> : null}
-        <span className="font-mono text-[10px] text-ink-500">{data.id}</span>
+        {data.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-orange-700">intrusive</Badge> : null}
+        <span className="font-mono text-[10px] text-ink-400">{data.id}</span>
       </div>
 
       {active ? (
@@ -174,7 +174,7 @@ export function ScanDetailPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10">
-                  <Radar className="h-4 w-4 animate-pulseSoft text-amber-300" />
+                  <Radar className="h-4 w-4 animate-pulseSoft text-amber-700" />
                 </span>
                 <div>
                   <p className="text-[12.5px] font-medium text-ink-100">{phase || "Waiting for worker"}</p>
@@ -182,8 +182,8 @@ export function ScanDetailPage() {
                 </div>
               </div>
               <div className="text-right">
-                <span className="font-mono text-[18px] font-semibold text-amber-300">{progress}%</span>
-                <p className="text-[9px] uppercase tracking-wider text-ink-500">worker progress</p>
+                <span className="font-mono text-[18px] font-semibold text-amber-700">{progress}%</span>
+                <p className="text-[9px] uppercase tracking-wider text-ink-400">worker progress</p>
               </div>
             </div>
             <Progress value={progress} className="mt-3" />
@@ -193,8 +193,8 @@ export function ScanDetailPage() {
 
       {status === "failed" ? (
         <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/[0.05] px-4 py-3">
-          <div className="flex items-center gap-2 text-[12px] font-medium text-red-200"><AlertTriangle className="h-4 w-4" /> Assessment failed</div>
-          <p className="mt-1.5 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-red-200/80">{data.error || "The worker reported a failure without an error message."}</p>
+          <div className="flex items-center gap-2 text-[12px] font-medium text-red-700"><AlertTriangle className="h-4 w-4" /> Assessment failed</div>
+          <p className="mt-1.5 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-red-700/80">{data.error || "The worker reported a failure without an error message."}</p>
         </div>
       ) : null}
 
@@ -267,7 +267,7 @@ export function ScanDetailPage() {
                     {severityOrder.map((severity) => (
                       <div key={severity} className="text-center">
                         <div className="text-[12px] font-semibold text-ink-100">{data.severity_counts[severity] ?? 0}</div>
-                        <div className="mt-0.5 text-[8.5px] uppercase tracking-wider text-ink-500">{severity}</div>
+                        <div className="mt-0.5 text-[8.5px] uppercase tracking-wider text-ink-400">{severity}</div>
                       </div>
                     ))}
                   </div>
@@ -284,7 +284,7 @@ export function ScanDetailPage() {
                         <span className={cn("mt-1 h-1.5 w-1.5 shrink-0 rounded-full", execution.status === "completed" ? "bg-lime-400" : execution.status === "failed" ? "bg-red-400" : "bg-amber-400")} />
                         <div className="min-w-0">
                           <p className="text-[11.5px] font-medium text-ink-200">{execution.scanner}</p>
-                          <p className="truncate text-[10px] text-ink-500">{execution.status} · {relativeTime(execution.started_at)}{execution.exit_code !== undefined && execution.exit_code !== null ? ` · exit ${execution.exit_code}` : ""}</p>
+                          <p className="truncate text-[10px] text-ink-400">{execution.status} · {relativeTime(execution.started_at)}{execution.exit_code !== undefined && execution.exit_code !== null ? ` · exit ${execution.exit_code}` : ""}</p>
                         </div>
                       </div>
                     ))
@@ -304,15 +304,15 @@ export function ScanDetailPage() {
                 <Card key={execution.id}>
                   <CardHeader>
                     <CardTitle subtitle={execution.command}>{execution.scanner}</CardTitle>
-                    <Badge className={execution.status === "completed" ? "border-lime-500/25 bg-lime-500/10 text-lime-300" : execution.status === "failed" ? "border-red-500/25 bg-red-500/10 text-red-300" : ""}>{execution.status}</Badge>
+                    <Badge className={execution.status === "completed" ? "border-lime-500/25 bg-lime-500/10 text-lime-700" : execution.status === "failed" ? "border-red-500/25 bg-red-500/10 text-red-700" : ""}>{execution.status}</Badge>
                   </CardHeader>
                   <CardContent>
-                    <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-ink-500">
+                    <div className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-ink-400">
                       <span>started {formatDateTime(execution.started_at)}</span>
                       {execution.finished_at ? <span>finished {formatDateTime(execution.finished_at)}</span> : null}
                       {execution.exit_code !== undefined && execution.exit_code !== null ? <span>exit {execution.exit_code}</span> : null}
                     </div>
-                    {execution.error ? <p className="mb-2 rounded border border-red-500/20 bg-red-500/5 px-2 py-1.5 text-[11px] text-red-200">{execution.error}</p> : null}
+                    {execution.error ? <p className="mb-2 rounded border border-red-500/20 bg-red-500/5 px-2 py-1.5 text-[11px] text-red-700">{execution.error}</p> : null}
                     <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-ink-700 bg-ink-950 p-3 font-mono text-[10px] leading-relaxed text-ink-300">{execution.output_excerpt || "No output captured."}</pre>
                   </CardContent>
                 </Card>
@@ -338,7 +338,7 @@ export function ScanDetailPage() {
                           </div>
                           <p className="mt-1 max-w-3xl truncate font-mono text-[10.5px] text-ink-400">{result.endpoint}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] text-ink-500">
+                        <div className="flex items-center gap-2 text-[10px] text-ink-400">
                           {result.cve ? <Badge>{result.cve}</Badge> : null}
                           {result.cwe ? <Badge>{result.cwe}</Badge> : null}
                           {result.cvss ? <Badge>CVSS {result.cvss}</Badge> : null}
@@ -347,7 +347,7 @@ export function ScanDetailPage() {
                       <p className="mt-2 line-clamp-3 text-[11.5px] leading-relaxed text-ink-300">{result.description}</p>
                       {Object.keys(result.evidence ?? {}).length ? (
                         <details className="mt-2">
-                          <summary className="cursor-pointer text-[10.5px] text-ink-500 hover:text-ink-300">Evidence</summary>
+                          <summary className="cursor-pointer text-[10.5px] text-ink-400 hover:text-ink-300">Evidence</summary>
                           <pre className="mt-1.5 max-h-48 overflow-auto rounded border border-ink-700 bg-ink-950 p-2 font-mono text-[9.5px] leading-relaxed text-ink-400">{JSON.stringify(result.evidence, null, 2)}</pre>
                         </details>
                       ) : null}
@@ -374,7 +374,7 @@ export function ScanDetailPage() {
                         <td><SeverityBadge severity={finding.severity} /></td>
                         <td className="text-[11px] capitalize text-ink-300">{finding.status.replace(/_/g, " ")}</td>
                         <td className="max-w-[300px] truncate font-mono text-[10.5px] text-ink-400">{finding.endpoint}</td>
-                        <td><Link to={`/findings/${finding.id}`} className="inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-amber-200">Open <ArrowRight className="h-3 w-3" /></Link></td>
+                        <td><Link to={`/findings/${finding.id}`} className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-700">Open <ArrowRight className="h-3 w-3" /></Link></td>
                       </tr>
                     ))}
                   </tbody>
@@ -423,14 +423,14 @@ export function ScanDetailPage() {
 function Info({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="min-w-0">
-      <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-ink-500">{label}</p>
-      <p className={cn("mt-1 break-words text-[11.5px] text-ink-200", mono && "font-mono text-[10.5px] text-ink-300")}>{value || "—"}</p>
+      <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-ink-400">{label}</p>
+      <p className={cn("mt-1 break-words text-[11.5px] text-ink-200", mono && "font-mono text-[10.5px] text-ink-300")}>{value || "-"}</p>
     </div>
   );
 }
 
 function duration(start?: string, end?: string): string {
-  if (!start) return "—";
+  if (!start) return "-";
   const finish = end ? new Date(end).getTime() : Date.now();
   const seconds = Math.max(0, Math.round((finish - new Date(start).getTime()) / 1000));
   if (seconds < 60) return `${seconds}s`;
@@ -473,15 +473,15 @@ function CompareModal({ baseId, assetId, onClose }: { baseId: string; assetId: s
 interface CompareRow { fingerprint: string; title: string; severity: Severity; endpoint: string; cve?: string }
 
 function CompareList({ title, tone, items }: { title: string; tone: "red" | "lime" | "amber"; items: CompareRow[] }) {
-  const colors = { red: "text-red-300", lime: "text-lime-300", amber: "text-amber-300" };
+  const colors = { red: "text-red-700", lime: "text-lime-700", amber: "text-amber-700" };
   return (
     <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">
       <p className={cn("text-[10px] font-semibold uppercase tracking-[0.12em]", colors[tone])}>{title} · {items.length}</p>
       <div className="mt-2 space-y-2">
-        {items.length === 0 ? <p className="text-[10.5px] text-ink-500">None</p> : items.slice(0, 20).map((item) => (
+        {items.length === 0 ? <p className="text-[10.5px] text-ink-400">None</p> : items.slice(0, 20).map((item) => (
           <div key={item.fingerprint}>
             <p className="line-clamp-2 text-[10.5px] leading-snug text-ink-200">{item.title}</p>
-            <p className="mt-0.5 truncate font-mono text-[9px] text-ink-500">{item.endpoint}</p>
+            <p className="mt-0.5 truncate font-mono text-[9px] text-ink-400">{item.endpoint}</p>
           </div>
         ))}
       </div>

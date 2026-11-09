@@ -17,6 +17,7 @@ import {
   Network,
   Radar,
   ShieldCheck,
+  Sparkles,
   Terminal,
   TriangleAlert,
 } from "lucide-react";
@@ -45,8 +46,8 @@ const steps = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-ink-900">
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-ink-900/80 backdrop-blur-md">
+    <div className="min-h-screen bg-ink-950">
+      <header className="surface-blur sticky top-0 z-40 border-b border-ink-700/70">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 lg:px-8">
           <Link to="/" aria-label="King Malhare home"><Logo /></Link>
           <nav className="hidden items-center gap-7 text-[12.5px] text-ink-300 md:flex">
@@ -63,17 +64,22 @@ export function LandingPage() {
       </header>
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/[0.06]">
+        <section className="relative overflow-hidden border-b border-ink-700/70">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -left-28 top-6 h-80 w-80 rounded-full bg-amber-200/50 blur-3xl" />
+            <div className="absolute -right-24 top-0 h-96 w-96 rounded-full bg-mint-200/45 blur-3xl" />
+            <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-lilac-200/40 blur-3xl" />
+          </div>
           <div className="pointer-events-none absolute inset-0 dot-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_70%)]" />
           <div className="relative mx-auto grid max-w-6xl gap-14 px-5 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
             <div>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/[0.07] px-3 py-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Authorized offensive security</span>
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/25 bg-teal-500/[0.08] px-3 py-1">
+                  <Sparkles className="h-3 w-3 text-butter-600" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-teal-700">Authorized offensive security</span>
                 </div>
                 <h1 className="max-w-[620px] text-[44px] font-semibold leading-[0.98] tracking-[-0.045em] text-ink-50 sm:text-[58px] lg:text-[64px]">
-                  Know your weaknesses before attackers do.
+                  Know your weaknesses <span className="text-gradient-teal">before attackers do.</span>
                 </h1>
                 <p className="mt-6 max-w-[520px] text-[15px] leading-relaxed text-ink-300">
                   King Malhare brings asset inventory, authorization, scanner orchestration, findings and client-ready reporting into one self-hosted security workstation.
@@ -90,9 +96,9 @@ export function LandingPage() {
                   </a>
                 </div>
                 <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-ink-400">
-                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-400/80" /> Self-hosted</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-400/80" /> Real scanners, no demo data</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-400/80" /> Scope enforced twice</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-600/80" /> Self-hosted</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-600/80" /> Real scanners, no demo data</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-lime-600/80" /> Scope enforced twice</span>
                 </div>
               </motion.div>
             </div>
@@ -109,17 +115,17 @@ export function LandingPage() {
                   <span className="h-2 w-2 rounded-full bg-ink-600" />
                   <span className="h-2 w-2 rounded-full bg-ink-600" />
                   <span className="h-2 w-2 rounded-full bg-ink-600" />
-                  <span className="ml-3 font-mono text-[9px] text-ink-500">king-malhare / operations</span>
-                  <span className="ml-auto rounded border border-ink-700 px-1.5 py-0.5 font-mono text-[8px] text-ink-500">interface preview</span>
+                  <span className="ml-3 font-mono text-[9px] text-ink-400">king-malhare / operations</span>
+                  <span className="ml-auto rounded border border-ink-700 px-1.5 py-0.5 font-mono text-[8px] text-ink-400">interface preview</span>
                 </div>
                 <div className="grid grid-cols-[118px_1fr]">
                   <div className="border-r border-ink-800 p-2.5">
                     <div className="mb-3 flex items-center gap-1.5">
-                      <span className="flex h-5 w-5 items-center justify-center rounded bg-amber-400 text-[10px] font-bold text-ink-950">K</span>
+                      <span className="flex h-5 w-5 items-center justify-center rounded bg-amber-400 text-[10px] font-bold text-ink-50">K</span>
                       <span className="text-[8px] font-semibold text-ink-200">King Malhare</span>
                     </div>
                     {["Overview", "Assets", "Scans", "Web", "Network", "Cloud", "Findings", "Reports"].map((item, index) => (
-                      <div key={item} className={`mb-0.5 flex items-center gap-1.5 rounded px-1.5 py-1 text-[8px] ${index === 0 ? "bg-ink-800 text-ink-100" : "text-ink-500"}`}>
+                      <div key={item} className={`mb-0.5 flex items-center gap-1.5 rounded px-1.5 py-1 text-[8px] ${index === 0 ? "bg-ink-800 text-ink-100" : "text-ink-400"}`}>
                         <span className={`h-1 w-1 rounded-full ${index === 0 ? "bg-amber-400" : "bg-ink-600"}`} />
                         {item}
                       </div>
@@ -128,15 +134,15 @@ export function LandingPage() {
                   <div className="p-3.5">
                     <div className="mb-3 flex items-center justify-between">
                       <div>
-                        <p className="text-[8px] uppercase tracking-[0.14em] text-ink-500">Security overview</p>
+                        <p className="text-[8px] uppercase tracking-[0.14em] text-ink-400">Security overview</p>
                         <p className="mt-1 text-[13px] font-medium text-ink-100">Posture at a glance</p>
                       </div>
-                      <span className="rounded bg-amber-400/15 px-2 py-1 text-[8px] font-medium text-amber-300">Live data</span>
+                      <span className="rounded bg-amber-400/15 px-2 py-1 text-[8px] font-medium text-amber-700">Live data</span>
                     </div>
                     <div className="mb-3 grid grid-cols-3 gap-1.5">
                       {["Assets", "Active scans", "Critical"].map((label) => (
                         <div key={label} className="rounded border border-ink-700 bg-ink-900 p-2">
-                          <p className="text-[7px] text-ink-500">{label}</p>
+                          <p className="text-[7px] text-ink-400">{label}</p>
                           <div className="mt-2 h-1.5 w-8 rounded bg-ink-700" />
                         </div>
                       ))}
@@ -144,7 +150,7 @@ export function LandingPage() {
                     <div className="rounded border border-ink-700 bg-ink-900 p-2.5">
                       <div className="mb-2 flex items-center justify-between">
                         <p className="text-[8px] text-ink-400">Recent findings</p>
-                        <span className="text-[7px] text-ink-600">normalized</span>
+                        <span className="text-[7px] text-ink-400">normalized</span>
                       </div>
                       <div className="space-y-1.5">
                         {[
@@ -155,14 +161,14 @@ export function LandingPage() {
                           <div key={title} className="flex items-center gap-2 rounded border border-ink-800 bg-ink-850 px-2 py-1.5">
                             <SeverityBadge severity={sev as "medium" | "high" | "low"} />
                             <span className="flex-1 truncate text-[8px] text-ink-300">{title}</span>
-                            <span className="font-mono text-[7px] text-ink-600">open</span>
+                            <span className="font-mono text-[7px] text-ink-400">open</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div className="mt-2.5 rounded border border-amber-500/20 bg-amber-500/[0.04] p-2 font-mono text-[7px] leading-relaxed text-amber-200/80">
+                    <div className="mt-2.5 rounded border border-amber-500/20 bg-amber-500/[0.04] p-2 font-mono text-[7px] leading-relaxed text-amber-700/80">
                       <div className="flex items-center gap-1.5"><Terminal className="h-2.5 w-2.5" /> worker → nmap · nuclei · http-baseline</div>
-                      <div className="mt-1 text-ink-500">scope revalidated · authorization active</div>
+                      <div className="mt-1 text-ink-400">scope revalidated · authorization active</div>
                     </div>
                   </div>
                 </div>
@@ -171,9 +177,9 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="border-b border-white/[0.06] bg-ink-950/60">
+        <section className="border-b border-ink-700/70 bg-ink-850/70">
           <div className="mx-auto max-w-6xl px-5 py-6 lg:px-8">
-            <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[10.5px] font-medium uppercase tracking-[0.14em] text-ink-500">
+            <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[10.5px] font-medium uppercase tracking-[0.14em] text-ink-400">
               {scanners.map((scanner) => <span key={scanner}>{scanner}</span>)}
             </div>
           </div>
@@ -181,38 +187,31 @@ export function LandingPage() {
 
         <section id="platform" className="mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-28">
           <div className="max-w-2xl">
-            <div className="eyebrow text-amber-400/80">The platform</div>
+            <div className="eyebrow">The platform</div>
             <h2 className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[42px]">One workstation. The whole assessment.</h2>
             <p className="mt-4 text-[14px] leading-relaxed text-ink-300">Not another dashboard layered over a script runner. King Malhare models authorization, execution, evidence and remediation as first-class data.</p>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink-650 bg-ink-650 sm:grid-cols-2 lg:grid-cols-4">
-            {capabilities.map((capability, index) => {
+          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-ink-650 bg-ink-650 shadow-soft sm:grid-cols-2 lg:grid-cols-4">
+            {capabilities.map((capability) => {
               const Icon = capability.icon;
               return (
-                <motion.div
-                  key={capability.title}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.4, delay: (index % 4) * 0.05 }}
-                  className="group bg-ink-850 p-5 transition-colors hover:bg-ink-800"
-                >
-                  <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-lg border border-ink-600 bg-ink-900 text-amber-400 transition-colors group-hover:border-amber-500/30">
+                <div key={capability.title} className="group bg-ink-850 p-5 transition-colors hover:bg-ink-800">
+                  <div className="mb-4 flex h-8 w-8 items-center justify-center rounded-xl border border-ink-600 bg-ink-900 text-amber-700 transition-colors group-hover:border-amber-500/30">
                     <Icon className="h-4 w-4" strokeWidth={1.8} />
                   </div>
                   <h3 className="text-[13px] font-semibold text-ink-50">{capability.title}</h3>
                   <p className="mt-2 text-[11.5px] leading-relaxed text-ink-400">{capability.text}</p>
-                </motion.div>
+                </div>
               );
             })}
           </div>
         </section>
 
-        <section id="workflow" className="border-y border-white/[0.06] bg-ink-950/50">
+        <section id="workflow" className="border-y border-ink-700/70 bg-ink-900/60">
           <div className="mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-28">
             <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
-                <div className="eyebrow text-amber-400/80">The workflow</div>
+                <div className="eyebrow">The workflow</div>
                 <h2 className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[42px]">Intake to evidence, without gaps.</h2>
                 <p className="mt-4 max-w-md text-[14px] leading-relaxed text-ink-300">Every assessment is traceable from the written authorization to the exact scanner execution and the generated report.</p>
                 <Link to="/register" className={buttonStyles("outline", "md", "mt-7")}>Start with an authorized asset <ArrowRight className="h-3.5 w-3.5" /></Link>
@@ -220,7 +219,7 @@ export function LandingPage() {
               <div className="divide-y divide-ink-700/70 border-y border-ink-700/70">
                 {steps.map((step) => (
                   <div key={step.number} className="grid gap-3 py-6 sm:grid-cols-[48px_1fr]">
-                    <span className="font-mono text-[11px] text-amber-400/80">{step.number}</span>
+                    <span className="font-mono text-[11px] text-amber-700/80">{step.number}</span>
                     <div>
                       <h3 className="text-[14px] font-semibold text-ink-50">{step.title}</h3>
                       <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-ink-400">{step.text}</p>
@@ -235,7 +234,7 @@ export function LandingPage() {
         <section id="security" className="mx-auto max-w-6xl px-5 py-20 lg:px-8 lg:py-28">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div>
-              <div className="eyebrow text-amber-400/80">Security model</div>
+              <div className="eyebrow">Security model</div>
               <h2 className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-[-0.035em] sm:text-[42px]">The platform is part of the attack surface.</h2>
               <p className="mt-4 text-[14px] leading-relaxed text-ink-300">King Malhare applies the same discipline to itself: Argon2id authentication, opaque sessions, CSRF protection, encrypted cloud credentials, strict RBAC and an append-only audit trail.</p>
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -248,7 +247,7 @@ export function LandingPage() {
                   const Component = Icon as typeof ShieldCheck;
                   return (
                     <div key={String(title)} className="rounded-lg border border-ink-700 bg-ink-850/70 p-3.5">
-                      <Component className="mb-2 h-4 w-4 text-amber-400" />
+                      <Component className="mb-2 h-4 w-4 text-amber-700" />
                       <p className="text-[12px] font-medium text-ink-100">{String(title)}</p>
                       <p className="mt-1 text-[11px] leading-relaxed text-ink-400">{String(text)}</p>
                     </div>
@@ -259,7 +258,7 @@ export function LandingPage() {
             <div className="overflow-hidden rounded-xl border border-ink-650 bg-ink-950 shadow-lift">
               <div className="flex items-center gap-2 border-b border-ink-700 bg-ink-900 px-4 py-2.5">
                 <Code2 className="h-3.5 w-3.5 text-ink-400" />
-                <span className="font-mono text-[10px] text-ink-500">authorization policy</span>
+                <span className="font-mono text-[10px] text-ink-400">authorization policy</span>
               </div>
               <pre className="overflow-x-auto p-5 font-mono text-[10.5px] leading-[1.8] text-ink-300">
 {`assert asset.org_id == actor.org_id
@@ -279,20 +278,20 @@ if target.is_private():
 queue.enqueue(job)  # worker repeats every check`}
               </pre>
               <div className="flex items-center gap-2 border-t border-ink-700 bg-ink-900 px-4 py-3 text-[10.5px] text-ink-400">
-                <BadgeCheck className="h-3.5 w-3.5 text-lime-400/80" />
+                <BadgeCheck className="h-3.5 w-3.5 text-lime-600/80" />
                 Any failed condition stops the assessment before execution.
               </div>
             </div>
           </div>
         </section>
 
-        <section className="border-t border-white/[0.06]">
+        <section className="border-t border-ink-700/70">
           <div className="mx-auto max-w-6xl px-5 py-16 lg:px-8">
-            <div className="grid gap-6 rounded-2xl border border-ink-650 bg-ink-850 p-7 sm:p-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
+            <div className="grid gap-6 rounded-3xl border border-ink-650 bg-gradient-to-br from-amber-100/80 via-ink-850 to-mint-100/70 p-7 shadow-soft sm:p-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
               <div>
                 <div className="mb-3 flex items-center gap-2">
-                  <TriangleAlert className="h-4 w-4 text-amber-400" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300">Operator's tool</span>
+                  <TriangleAlert className="h-4 w-4 text-amber-700" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700">Operator's tool</span>
                 </div>
                 <h2 className="max-w-2xl text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] sm:text-[34px]">Built for the person holding the keyboard.</h2>
                 <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-ink-300">No simulated scans. No decorative metrics. When a tool is missing, the platform says so. When a target is out of scope, it refuses. When a scan runs, you see the real output.</p>
@@ -306,13 +305,13 @@ queue.enqueue(job)  # worker repeats every check`}
         </section>
       </main>
 
-      <footer className="border-t border-white/[0.06]">
+      <footer className="border-t border-ink-700/70">
         <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:flex-row sm:items-center sm:justify-between lg:px-8">
           <div className="flex items-center gap-3">
             <Logo compact />
-            <span className="text-[11px] text-ink-500">Offensive security, under control.</span>
+            <span className="text-[11px] text-ink-400">Offensive security, under control.</span>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-ink-500">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-ink-400">
             <Link to="/api-docs" className="hover:text-ink-200">API</Link>
             <Link to="/login" className="hover:text-ink-200">Sign in</Link>
             <span>Authorized testing only</span>

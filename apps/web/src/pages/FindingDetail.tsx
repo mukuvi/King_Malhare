@@ -133,7 +133,7 @@ export function FindingDetailPage() {
         {data.cve ? <Badge>{data.cve}</Badge> : null}
         {data.cwe ? <Badge>{data.cwe}</Badge> : null}
         {data.cvss ? <Badge>CVSS {data.cvss}</Badge> : null}
-        {data.verified_at ? <Badge className="border-lime-500/25 bg-lime-500/10 text-lime-300"><CheckCircle2 className="h-3 w-3" /> verified {formatDate(data.verified_at)}</Badge> : null}
+        {data.verified_at ? <Badge className="border-lime-500/25 bg-lime-500/10 text-lime-700"><CheckCircle2 className="h-3 w-3" /> verified {formatDate(data.verified_at)}</Badge> : null}
       </div>
 
       <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
@@ -185,10 +185,10 @@ export function FindingDetailPage() {
                       <Paperclip className="h-3.5 w-3.5 shrink-0 text-ink-400" />
                       <div className="min-w-0">
                         <p className="truncate text-[11.5px] text-ink-100">{file.filename}</p>
-                        <p className="mt-0.5 truncate font-mono text-[9px] text-ink-500">{file.content_type} · {formatBytes(file.size_bytes)} · SHA-256 {file.sha256.slice(0, 16)}…</p>
+                        <p className="mt-0.5 truncate font-mono text-[9px] text-ink-400">{file.content_type} · {formatBytes(file.size_bytes)} · SHA-256 {file.sha256.slice(0, 16)}…</p>
                       </div>
                     </div>
-                    <a href={`${api.base}/evidence/${file.id}/download`} className="shrink-0 text-[10.5px] text-amber-300 hover:text-amber-200">Download</a>
+                    <a href={`${api.base}/evidence/${file.id}/download`} className="shrink-0 text-[10.5px] text-amber-700 hover:text-amber-700">Download</a>
                   </div>
                 ))
               )}
@@ -200,7 +200,7 @@ export function FindingDetailPage() {
               <CardHeader><CardTitle subtitle="Vendor advisories and external references">References</CardTitle></CardHeader>
               <CardContent className="space-y-1.5">
                 {data.references.map((reference) => (
-                  <a key={reference} href={reference} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-[11px] text-amber-300 hover:text-amber-200">
+                  <a key={reference} href={reference} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-[11px] text-amber-700 hover:text-amber-700">
                     <ArrowUpRight className="mt-0.5 h-3 w-3 shrink-0" />
                     <span className="break-all">{reference}</span>
                   </a>
@@ -216,10 +216,10 @@ export function FindingDetailPage() {
                 <div className="divide-y divide-ink-700/60">
                   {data.events.map((event) => (
                     <div key={event.id} className="flex gap-3 px-5 py-3">
-                      <History className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-500" />
+                      <History className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-400" />
                       <div className="min-w-0">
                         <p className="text-[11.5px] text-ink-200">{event.type.replace(/_/g, " ")} {event.from ? <span className="text-ink-400">from {event.from}</span> : null} {event.to ? <span className="text-ink-400">to {event.to}</span> : null}</p>
-                        <p className="mt-0.5 text-[10px] text-ink-500">{event.actor ?? "System"} · {formatDateTime(event.created_at)}{event.note ? ` · ${event.note}` : ""}</p>
+                        <p className="mt-0.5 text-[10px] text-ink-400">{event.actor ?? "System"} · {formatDateTime(event.created_at)}{event.note ? ` · ${event.note}` : ""}</p>
                       </div>
                     </div>
                   ))}
@@ -254,7 +254,7 @@ export function FindingDetailPage() {
               </Field>
               {canWrite ? (
                 <Button className="w-full" size="sm" loading={update.isPending} onClick={() => update.mutate({ status, severity, assigned_to: assignee, note })}>Save triage</Button>
-              ) : <p className="text-[10.5px] text-ink-500">Read-only access.</p>}
+              ) : <p className="text-[10.5px] text-ink-400">Read-only access.</p>}
             </CardContent>
           </Card>
 
@@ -279,14 +279,14 @@ export function FindingDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="rounded-lg border border-ink-700 bg-ink-900/40 p-3">
-                <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">Recommendation</p>
+                <p className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">Recommendation</p>
                 <p className="mt-1.5 whitespace-pre-wrap text-[11.5px] leading-relaxed text-ink-200">{data.remediation || "No remediation guidance recorded."}</p>
               </div>
-              {data.remediation_records.length === 0 ? <p className="text-[10.5px] text-ink-500">No remediation actions logged.</p> : data.remediation_records.map((record) => (
+              {data.remediation_records.length === 0 ? <p className="text-[10.5px] text-ink-400">No remediation actions logged.</p> : data.remediation_records.map((record) => (
                 <div key={record.id} className="border-t border-ink-700/60 pt-2.5">
                   <p className="text-[11px] font-medium text-ink-200">{record.action}</p>
                   {record.notes ? <p className="mt-0.5 text-[10.5px] leading-relaxed text-ink-400">{record.notes}</p> : null}
-                  <p className="mt-1 text-[9.5px] text-ink-500">{record.performed_by ?? "Unknown"} · {formatDateTime(record.performed_at)}{record.deadline ? ` · due ${formatDate(record.deadline)}` : ""}</p>
+                  <p className="mt-1 text-[9.5px] text-ink-400">{record.performed_by ?? "Unknown"} · {formatDateTime(record.performed_at)}{record.deadline ? ` · due ${formatDate(record.deadline)}` : ""}</p>
                 </div>
               ))}
             </CardContent>
@@ -343,7 +343,7 @@ export function FindingDetailPage() {
 function Section({ title, body }: { title: string; body: string }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-500">{title}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-400">{title}</p>
       <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-relaxed text-ink-200">{body || "Not recorded."}</p>
     </div>
   );
@@ -352,8 +352,8 @@ function Section({ title, body }: { title: string; body: string }) {
 function Meta({ label, value, link, mono }: { label: string; value: string; link?: string; mono?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <span className="text-ink-500">{label}</span>
-      {link ? <Link to={link} className="max-w-[190px] truncate text-right text-amber-300 hover:text-amber-200">{value}</Link> : <span className={cn("max-w-[190px] truncate text-right text-ink-200", mono && "font-mono text-[10px]")}>{value}</span>}
+      <span className="text-ink-400">{label}</span>
+      {link ? <Link to={link} className="max-w-[190px] truncate text-right text-amber-700 hover:text-amber-700">{value}</Link> : <span className={cn("max-w-[190px] truncate text-right text-ink-200", mono && "font-mono text-[10px]")}>{value}</span>}
     </div>
   );
 }

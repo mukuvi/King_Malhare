@@ -86,7 +86,7 @@ export function Sidebar() {
         <NavLink to="/dashboard" aria-label="King Malhare dashboard">
           <Logo />
         </NavLink>
-        <button className="rounded-md p-1 text-ink-400 hover:bg-ink-800 hover:text-ink-100 lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
+        <button className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-800 hover:text-ink-100 lg:hidden" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -104,17 +104,17 @@ export function Sidebar() {
                     to={item.to}
                     className={({ isActive }) =>
                       cn(
-                        "group flex items-center gap-2.5 rounded-md px-2.5 py-[7px] text-[12.5px] transition-colors",
-                        isActive ? "bg-ink-750 text-ink-50" : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100",
+                        "group flex items-center gap-2.5 rounded-xl px-2.5 py-[7px] text-[12.5px] transition-all",
+                        isActive ? "bg-ink-750 font-medium text-ink-50 shadow-[0_1px_0_rgba(255,255,255,0.7)_inset]" : "text-ink-300 hover:bg-ink-800/70 hover:text-ink-100",
                       )
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        <Icon className={cn("h-[15px] w-[15px] shrink-0", isActive ? "text-amber-400" : "text-ink-400 group-hover:text-ink-200")} strokeWidth={1.8} />
+                        <Icon className={cn("h-[15px] w-[15px] shrink-0", isActive ? "text-amber-700" : "text-ink-400 group-hover:text-teal-700")} strokeWidth={1.8} />
                         <span className="flex-1">{item.label}</span>
                         {item.to === "/notifications" && notifications?.unread ? (
-                          <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-ink-950">{notifications.unread}</span>
+                          <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-bold leading-none text-ink-50">{notifications.unread}</span>
                         ) : null}
                       </>
                     )}
@@ -127,15 +127,15 @@ export function Sidebar() {
       </nav>
 
       <div className="shrink-0 border-t border-ink-700/80 p-3">
-        <NavLink to="/settings" className="flex items-center gap-2.5 rounded-lg border border-ink-700 bg-ink-900/60 p-2.5 transition-colors hover:border-ink-500 hover:bg-ink-800">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold text-ink-950" style={{ backgroundColor: me?.user.avatar_color ?? "#f5a524" }}>
+        <NavLink to="/settings" className="flex items-center gap-2.5 rounded-xl border border-ink-700 bg-ink-850/70 p-2.5 transition-all hover:border-ink-500 hover:bg-ink-800">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold text-ink-50" style={{ backgroundColor: me?.user.avatar_color ?? "#D98B8B" }}>
             {initials(me?.user.name)}
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-[11.5px] font-medium text-ink-100">{me?.user.name ?? "Loading"}</div>
             <div className="truncate text-[10px] text-ink-400">{org?.name ?? ""}</div>
           </div>
-          <span className="rounded border border-ink-600 px-1 py-0.5 text-[8px] uppercase tracking-wider text-ink-400">{me?.role}</span>
+          <span className="rounded-md border border-ink-600 bg-ink-900/60 px-1.5 py-0.5 text-[8px] uppercase tracking-wider text-ink-400">{me?.role}</span>
         </NavLink>
       </div>
     </div>
@@ -143,13 +143,13 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink-700/80 bg-ink-900/95 lg:block">{content}</aside>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] border-r border-ink-700/80 bg-ink-900/80 backdrop-blur-xl lg:block">{content}</aside>
       <AnimatePresence>
         {sidebarOpen ? (
           <div className="fixed inset-0 z-50 lg:hidden">
-            <motion.div className="absolute inset-0 bg-black/70" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSidebarOpen(false)} />
+            <motion.div className="absolute inset-0 bg-ink-50/35 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSidebarOpen(false)} />
             <motion.aside
-              className="relative h-full w-[270px] border-r border-ink-700 bg-ink-900"
+              className="relative h-full w-[280px] border-r border-ink-700 bg-ink-900 shadow-lift"
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
@@ -167,8 +167,8 @@ export function Sidebar() {
 export function SidebarEmergencyBanner({ active }: { active: boolean }) {
   if (!active) return null;
   return (
-    <div className="flex items-center gap-2 border-b border-red-500/30 bg-red-500/10 px-4 py-2 text-[11.5px] text-red-200">
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-400" />
+    <div className="flex items-center gap-2 border-b border-red-500/25 bg-red-500/10 px-4 py-2 text-[11.5px] text-red-700">
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-500" />
       Emergency stop is active. New assessments are blocked.
     </div>
   );

@@ -30,11 +30,11 @@ export function ApiDocsPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">
-                  <div className="flex items-center gap-2 text-[11.5px] font-medium text-ink-100"><KeyRound className="h-3.5 w-3.5 text-amber-400" /> Browser session</div>
+                  <div className="flex items-center gap-2 text-[11.5px] font-medium text-ink-100"><KeyRound className="h-3.5 w-3.5 text-amber-700" /> Browser session</div>
                   <p className="mt-1.5 text-[10.5px] leading-relaxed text-ink-400">HttpOnly <code className="font-mono text-ink-300">km_session</code> cookie. Every mutating request sends <code className="font-mono text-ink-300">X-CSRF-Token</code> with the value of the <code className="font-mono text-ink-300">km_csrf</code> cookie.</p>
                 </div>
                 <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">
-                  <div className="flex items-center gap-2 text-[11.5px] font-medium text-ink-100"><Terminal className="h-3.5 w-3.5 text-amber-400" /> API key</div>
+                  <div className="flex items-center gap-2 text-[11.5px] font-medium text-ink-100"><Terminal className="h-3.5 w-3.5 text-amber-700" /> API key</div>
                   <p className="mt-1.5 text-[10.5px] leading-relaxed text-ink-400">Create a scoped key under Integrations, then send <code className="font-mono text-ink-300">Authorization: Bearer km_…</code>. Only the SHA-256 hash is stored.</p>
                 </div>
               </div>
@@ -48,7 +48,7 @@ curl -X POST ${window.location.origin}${api.base}/scans \\
     "scanner": "nuclei",
     "params": {"severity": ["high","critical"], "rate_limit": 40}
   }'`}</pre>
-              <p className="flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-500"><LockKeyhole className="mt-0.5 h-3 w-3 shrink-0" /> API keys inherit your permission set at creation time. Requests are still limited by organization scope and asset authorization.</p>
+              <p className="flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-400"><LockKeyhole className="mt-0.5 h-3 w-3 shrink-0" /> API keys inherit your permission set at creation time. Requests are still limited by organization scope and asset authorization.</p>
             </CardContent>
           </Card>
 
@@ -57,13 +57,13 @@ curl -X POST ${window.location.origin}${api.base}/scans \\
             <CardContent className="space-y-5">
               {groups.map((group) => (
                 <div key={group.title}>
-                  <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-500">{group.title}</p>
+                  <p className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-ink-400">{group.title}</p>
                   <div className="mt-2 divide-y divide-ink-700/50">
                     {group.rows.map(([method, path, description]) => (
                       <div key={`${method}-${path}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:items-center sm:gap-3">
-                        <span className={`inline-flex w-fit rounded px-1.5 py-0.5 font-mono text-[9px] font-bold ${method === "GET" ? "bg-lime-500/10 text-lime-300" : method === "POST" ? "bg-amber-500/10 text-amber-300" : "bg-sky-500/10 text-sky-300"}`}>{method}</span>
+                        <span className={`inline-flex w-fit rounded px-1.5 py-0.5 font-mono text-[9px] font-bold ${method === "GET" ? "bg-lime-500/10 text-lime-700" : method === "POST" ? "bg-amber-500/10 text-amber-700" : "bg-sky-500/10 text-sky-700"}`}>{method}</span>
                         <code className="font-mono text-[10.5px] text-ink-200">{path}</code>
-                        <span className="text-[10.5px] text-ink-500 sm:ml-auto sm:text-right">{description}</span>
+                        <span className="text-[10.5px] text-ink-400 sm:ml-auto sm:text-right">{description}</span>
                       </div>
                     ))}
                   </div>
@@ -99,7 +99,7 @@ curl -X POST ${window.location.origin}${api.base}/scans \\
                 "Intrusive scanners require scans:intrusive, an intrusive authorization and confirm_intrusive.",
                 "Worker callbacks use a separate internal listener and service token; they are not part of the public API.",
               ].map((item) => (
-                <p key={item} className="flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-400"><ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-lime-400/70" /> {item}</p>
+                <p key={item} className="flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-400"><ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-lime-600/70" /> {item}</p>
               ))}
             </CardContent>
           </Card>

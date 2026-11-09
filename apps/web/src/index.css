@@ -3,30 +3,41 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --sidebar-width: 248px;
+  --paper: #f7f2e8;
+  --paper-raised: #fffdf9;
+  --ink: #1f1b16;
+  --ink-muted: #6b6459;
+  --line: #e7ded0;
+  --rose: #e8a8a2;
+  --mint: #9ddcbf;
+  --butter: #f9d878;
+  --lilac: #ddd2f6;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a2a31 transparent;
+  scrollbar-color: #d7cbbb transparent;
 }
 
 html {
-  background: #08080a;
+  background: var(--paper);
 }
 
 body {
   min-height: 100vh;
   background:
-    radial-gradient(900px 500px at 68% -10%, rgba(245, 176, 37, 0.055), transparent 62%),
-    radial-gradient(700px 420px at 105% 12%, rgba(246, 92, 27, 0.035), transparent 60%),
-    #0c0c0f;
+    radial-gradient(900px 560px at 10% -8%, rgba(232, 168, 162, 0.18), transparent 62%),
+    radial-gradient(760px 520px at 96% 4%, rgba(157, 220, 191, 0.18), transparent 60%),
+    radial-gradient(700px 460px at 52% 110%, rgba(221, 210, 246, 0.22), transparent 65%),
+    var(--paper);
+  background-attachment: fixed;
 }
 
 ::selection {
-  background: rgba(245, 176, 37, 0.28);
-  color: #fff8e6;
+  background: rgba(232, 168, 162, 0.4);
+  color: #1f1b16;
 }
 
 ::-webkit-scrollbar {
@@ -34,9 +45,9 @@ body {
   height: 9px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a31;
+  background: #d7cbbb;
   border-radius: 999px;
-  border: 2px solid #0c0c0f;
+  border: 2px solid var(--paper);
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -44,11 +55,13 @@ body {
 
 @layer base {
   * {
-    @apply border-ink-600;
+    @apply border-ink-700;
   }
   body {
     @apply font-sans text-[14px] leading-relaxed text-ink-100;
     font-feature-settings: "ss01" 1, "cv01" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4 {
     @apply text-ink-50;
@@ -58,7 +71,7 @@ body {
     @apply text-ink-400;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-amber-400/70 ring-offset-2 ring-offset-ink-900;
+    @apply outline-none ring-2 ring-amber-500/45 ring-offset-2 ring-offset-ink-950;
   }
   a {
     @apply text-inherit;
@@ -67,41 +80,60 @@ body {
 
 @layer components {
   .panel {
-    @apply rounded-xl border border-ink-650/80 bg-ink-850 shadow-card;
+    @apply rounded-2xl border border-ink-700/90 bg-ink-850 shadow-card;
   }
   .panel-hover {
-    @apply transition-colors duration-200 hover:border-ink-500 hover:bg-ink-800;
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-ink-500 hover:shadow-soft;
   }
   .eyebrow {
-    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-300;
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-teal-700;
   }
   .mono {
     @apply font-mono text-[12px] tracking-[-0.01em];
   }
   .input-base {
-    @apply h-10 w-full rounded-lg border border-ink-600 bg-ink-900 px-3 text-[13.5px] text-ink-50 placeholder:text-ink-400 transition-colors hover:border-ink-500 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-400/15;
+    @apply h-10 w-full rounded-xl border border-ink-600 bg-ink-850 px-3 text-[13.5px] text-ink-50 placeholder:text-ink-400 transition-all hover:border-ink-500 focus:border-amber-500/70 focus:outline-none focus:ring-2 focus:ring-amber-500/15;
   }
   .table-base {
     @apply w-full border-collapse text-left text-[13px];
   }
   .table-base th {
-    @apply border-b border-ink-600 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-300;
+    @apply border-b border-ink-700 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-400;
   }
   .table-base td {
     @apply border-b border-ink-700/70 px-4 py-3 align-middle;
   }
   .table-base tbody tr {
-    @apply transition-colors hover:bg-ink-800/70;
+    @apply transition-colors hover:bg-ink-800/60;
   }
   .dot-grid {
-    background-image: radial-gradient(rgba(246, 242, 233, 0.07) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(31, 27, 22, 0.14) 1px, transparent 1px);
     background-size: 22px 22px;
   }
+  .paper-grid {
+    background-image:
+      linear-gradient(to right, rgba(31, 27, 22, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(31, 27, 22, 0.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
   .hairline {
-    background: linear-gradient(90deg, transparent, rgba(246, 242, 233, 0.18), transparent);
+    background: linear-gradient(90deg, transparent, rgba(31, 27, 22, 0.14), transparent);
   }
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950;
+  }
+  .surface-blur {
+    background: rgba(255, 253, 249, 0.78);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+  .soft-divider {
+    @apply border-ink-700/80;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink-700 bg-ink-850 px-2.5 py-1 text-[10.5px] font-medium text-ink-300;
+  }
+  .accent-text {
+    @apply text-teal-700;
   }
 }
 
@@ -117,12 +149,24 @@ body {
     scrollbar-width: none;
   }
   .skeleton {
-    @apply relative overflow-hidden rounded-md bg-ink-700/80;
+    @apply relative overflow-hidden rounded-md bg-ink-700/70;
   }
   .skeleton::after {
     content: "";
-    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.04] to-transparent;
+    @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
     animation: shimmer 1.8s infinite;
+  }
+  .text-gradient-rose {
+    background: linear-gradient(120deg, #9e5b58 0%, #bf7370 45%, #2a6e61 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-teal {
+    background: linear-gradient(120deg, #2a6e61 0%, #338a79 55%, #9e5b58 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }
 

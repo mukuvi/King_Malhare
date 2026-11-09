@@ -141,10 +141,10 @@ export function AssetFormModal({
           </Field>
         </div>
       </div>
-      {error ? <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">{error}</div> : null}
+      {error ? <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
       {!editing ? (
         <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-300">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700" />
           Registering an asset does not authorize testing. Add a signed authorization record with a validity window before starting any assessment.
         </div>
       ) : null}
@@ -266,7 +266,7 @@ export function AuthorizationModal({
             description="Required when the target resolves to loopback, RFC1918 or another private address. Only enable for infrastructure you control."
           />
         </div>
-        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">{error}</div> : null}
+        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
       </div>
     </Modal>
   );
@@ -295,7 +295,7 @@ export function AuthorizationList({ asset, authorizations, onAdd }: { asset: Ass
       </div>
       {authorizations.length === 0 ? (
         <div className="flex flex-col items-start gap-3 px-5 py-6 text-[12px] text-ink-300">
-          <div className="flex items-center gap-2 text-amber-300"><ShieldOff className="h-4 w-4" /> No authorization recorded</div>
+          <div className="flex items-center gap-2 text-amber-700"><ShieldOff className="h-4 w-4" /> No authorization recorded</div>
           <p className="max-w-lg text-[11.5px] leading-relaxed text-ink-400">Add a written approval reference, approver and expiry before running any assessment. The platform re-checks expiry at scan creation and again in the worker.</p>
           <Button size="sm" onClick={onAdd}><ShieldCheck className="h-3.5 w-3.5" /> Record authorization</Button>
         </div>
@@ -307,13 +307,13 @@ export function AuthorizationList({ asset, authorizations, onAdd }: { asset: Ass
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-mono text-[11.5px] text-ink-100">{auth.reference}</span>
                   <Badge className={
-                    auth.effective_status === "active" ? "border-lime-500/30 bg-lime-500/10 text-lime-300" :
-                    auth.effective_status === "expired" ? "border-red-500/30 bg-red-500/10 text-red-300" :
+                    auth.effective_status === "active" ? "border-lime-500/30 bg-lime-500/10 text-lime-700" :
+                    auth.effective_status === "expired" ? "border-red-500/30 bg-red-500/10 text-red-700" :
                     auth.effective_status === "revoked" ? "border-ink-500 bg-ink-800 text-ink-300" :
-                    "border-sky-500/30 bg-sky-500/10 text-sky-300"
+                    "border-sky-500/30 bg-sky-500/10 text-sky-700"
                   }>{auth.effective_status}</Badge>
-                  {auth.intrusive_allowed ? <Badge className="border-orange-500/30 bg-orange-500/10 text-orange-300">intrusive approved</Badge> : null}
-                  {auth.allow_private ? <Badge className="border-amber-500/30 bg-amber-500/10 text-amber-300">private allowed</Badge> : null}
+                  {auth.intrusive_allowed ? <Badge className="border-orange-500/30 bg-orange-500/10 text-orange-700">intrusive approved</Badge> : null}
+                  {auth.allow_private ? <Badge className="border-amber-500/30 bg-amber-500/10 text-amber-700">private allowed</Badge> : null}
                 </div>
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-ink-400">
                   <span className="flex items-center gap-1"><CalendarClock className="h-3 w-3" /> {formatDateTime(auth.expires_at)}</span>
@@ -326,7 +326,7 @@ export function AuthorizationList({ asset, authorizations, onAdd }: { asset: Ass
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-ink-400 hover:text-red-300"
+                  className="text-ink-400 hover:text-red-700"
                   onClick={() => {
                     if (window.confirm(`Revoke authorization ${auth.reference}? Any queued assessment using it will fail scope re-validation.`)) revoke.mutate(auth.id);
                   }}
@@ -346,7 +346,7 @@ export function AuthorizationList({ asset, authorizations, onAdd }: { asset: Ass
 export function AuthorizationStatus({ authorizations }: { authorizations: Authorization[] }) {
   const active = authorizations.find((auth) => auth.effective_status === "active");
   if (!active) {
-    return <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300"><KeyRound className="h-3 w-3" /> Not authorized</span>;
+    return <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700"><KeyRound className="h-3 w-3" /> Not authorized</span>;
   }
-  return <span className="inline-flex items-center gap-1.5 rounded-full border border-lime-500/25 bg-lime-500/10 px-2 py-0.5 text-[10px] font-medium text-lime-300"><ShieldCheck className="h-3 w-3" /> Authorized to {formatDate(active.expires_at)}</span>;
+  return <span className="inline-flex items-center gap-1.5 rounded-full border border-lime-500/25 bg-lime-500/10 px-2 py-0.5 text-[10px] font-medium text-lime-700"><ShieldCheck className="h-3 w-3" /> Authorized to {formatDate(active.expires_at)}</span>;
 }

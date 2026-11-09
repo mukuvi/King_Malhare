@@ -15,7 +15,7 @@ Caddy (TLS, HSTS, rate limit at edge)
 workers (no ports) ── internal network ──> redis, api:8081
 ```
 
-Networks: `edge` (Caddy/web/API), `internal` (API, PostgreSQL, Redis, workers, optional ZAP) and `egress` (workers only, for outbound scanning). Workers are attached to `internal` and `egress`, but have no published ports. PostgreSQL and Redis are published only on `127.0.0.1` in the development Compose file; the production override removes those mappings. If `ALLOW_PRIVATE_TARGETS=true`, workers can reach private ranges only when the authorization permits it — restrict this on shared infrastructure.
+Networks: `edge` (Caddy/web/API), `internal` (API, PostgreSQL, Redis, workers, optional ZAP) and `egress` (workers only, for outbound scanning). Workers are attached to `internal` and `egress`, but have no published ports. PostgreSQL and Redis are published only on `127.0.0.1` in the development Compose file; the production override removes those mappings. If `ALLOW_PRIVATE_TARGETS=true`, workers can reach private ranges only when the authorization permits it - restrict this on shared infrastructure.
 
 ## Production bring-up
 
@@ -98,8 +98,8 @@ Schedule daily with cron, encrypt off-host (`age`/GPG), test restores quarterly.
 
 ## Health and monitoring
 
-- `GET /api/v1/health` — process liveness.
-- `GET /api/v1/ready` — checks PostgreSQL and Redis.
+- `GET /api/v1/health` - process liveness.
+- `GET /api/v1/ready` - checks PostgreSQL and Redis.
 - Compose health checks gate startup.
 - `infrastructure/monitoring/` contains a Prometheus scrape config and alert rules for API 5xx rate, scan failure ratio, queue depth, worker heartbeat staleness, disk usage.
 - Worker heartbeat is in Redis (`km:worker:heartbeat`), surfaced on the Integrations page.

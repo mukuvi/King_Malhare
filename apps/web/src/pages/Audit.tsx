@@ -21,7 +21,7 @@ export function AuditPage() {
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <StatCard label="Events" value={query.data?.total ?? "—"} hint="Matching the current filters" icon={<ScrollText className="h-4 w-4" />} loading={query.isLoading} />
+        <StatCard label="Events" value={query.data?.total ?? "-"} hint="Matching the current filters" icon={<ScrollText className="h-4 w-4" />} loading={query.isLoading} />
         <StatCard label="Retention" value="Policy" hint="Organization retention applies to old events" icon={<ShieldCheck className="h-4 w-4" />} />
         <StatCard label="Visibility" value="Org-scoped" hint="Members only see their organization" icon={<ShieldCheck className="h-4 w-4" />} />
       </div>
@@ -54,20 +54,20 @@ export function AuditPage() {
                       <td className="whitespace-nowrap text-[11px] text-ink-400">{formatDateTime(event.created_at)}</td>
                       <td>
                         <div className="text-[11.5px] text-ink-200">{event.actor ?? "System"}</div>
-                        <div className="mt-0.5 text-[9.5px] text-ink-500">{event.actor_email ?? event.ip ?? ""}</div>
+                        <div className="mt-0.5 text-[9.5px] text-ink-400">{event.actor_email ?? event.ip ?? ""}</div>
                       </td>
-                      <td><span className="font-mono text-[10.5px] text-amber-200">{event.action}</span></td>
+                      <td><span className="font-mono text-[10.5px] text-amber-700">{event.action}</span></td>
                       <td>
                         <Badge>{event.resource_type.replace(/_/g, " ")}</Badge>
-                        {event.resource_id ? <div className="mt-1 max-w-[150px] truncate font-mono text-[9px] text-ink-500">{event.resource_id}</div> : null}
+                        {event.resource_id ? <div className="mt-1 max-w-[150px] truncate font-mono text-[9px] text-ink-400">{event.resource_id}</div> : null}
                       </td>
                       <td>
                         {event.metadata && Object.keys(event.metadata).length ? (
                           <details>
-                            <summary className="cursor-pointer text-[10px] text-ink-500 hover:text-ink-300">View metadata</summary>
+                            <summary className="cursor-pointer text-[10px] text-ink-400 hover:text-ink-300">View metadata</summary>
                             <pre className="mt-1 max-h-40 max-w-lg overflow-auto rounded border border-ink-700 bg-ink-950 p-2 font-mono text-[9px] leading-relaxed text-ink-400">{JSON.stringify(event.metadata, null, 2)}</pre>
                           </details>
-                        ) : <span className="text-[10px] text-ink-600">—</span>}
+                        ) : <span className="text-[10px] text-ink-400">-</span>}
                       </td>
                     </tr>
                   ))}

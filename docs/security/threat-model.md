@@ -4,12 +4,12 @@ Scope: the King Malhare platform itself, its operators, and the assets it assess
 
 ## Assets
 
-1. Authorization records and scope — the legal/ethical control.
+1. Authorization records and scope - the legal/ethical control.
 2. Cloud credentials and API keys.
-3. Findings and evidence — sensitive description of weaknesses.
-4. Audit trail — accountability.
-5. Scanner workers — code execution with network reach.
-6. Tenant data — assets, reports.
+3. Findings and evidence - sensitive description of weaknesses.
+4. Audit trail - accountability.
+5. Scanner workers - code execution with network reach.
+6. Tenant data - assets, reports.
 
 ## Trust boundaries
 

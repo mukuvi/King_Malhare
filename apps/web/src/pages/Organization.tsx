@@ -46,8 +46,8 @@ export function OrganizationPage() {
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <StatCard label="Members" value={org.data?.member_count ?? "—"} hint="Users with access to this workspace" icon={<Users className="h-4 w-4" />} loading={org.isLoading} />
-        <StatCard label="Active assets" value={org.data?.asset_count ?? "—"} hint="Registered and currently testable" icon={<ShieldCheck className="h-4 w-4" />} loading={org.isLoading} />
+        <StatCard label="Members" value={org.data?.member_count ?? "-"} hint="Users with access to this workspace" icon={<Users className="h-4 w-4" />} loading={org.isLoading} />
+        <StatCard label="Active assets" value={org.data?.asset_count ?? "-"} hint="Registered and currently testable" icon={<ShieldCheck className="h-4 w-4" />} loading={org.isLoading} />
         <StatCard label="Emergency stop" value={org.data?.emergency_stop ? "Active" : "Clear"} hint="Blocks all new assessments" tone={org.data?.emergency_stop ? "danger" : "good"} icon={<ShieldCheck className="h-4 w-4" />} loading={org.isLoading} />
       </div>
 
@@ -74,7 +74,7 @@ export function OrganizationPage() {
               <Field label="Data retention" hint="Days">
                 <Input type="number" min={30} max={3650} value={retention} onChange={(event) => setRetention(Number(event.target.value))} disabled={!canOrg} />
               </Field>
-              <p className="text-[10.5px] leading-relaxed text-ink-500">Retention applies to raw scan artefacts and audit history. Findings remain until explicitly removed.</p>
+              <p className="text-[10.5px] leading-relaxed text-ink-400">Retention applies to raw scan artefacts and audit history. Findings remain until explicitly removed.</p>
               {canOrg ? <Button size="sm" onClick={() => updateOrg.mutate()} loading={updateOrg.isPending} disabled={!name.trim()}><Save className="h-3.5 w-3.5" /> Save workspace</Button> : null}
             </CardContent>
           </Card>
@@ -82,9 +82,9 @@ export function OrganizationPage() {
           <Card>
             <CardHeader><CardTitle subtitle="Workspace details">Metadata</CardTitle></CardHeader>
             <CardContent className="space-y-2.5 text-[11.5px]">
-              <Row label="Slug" value={org.data?.slug ?? "—"} />
-              <Row label="Created" value={org.data?.created_at ? formatDateTime(org.data.created_at) : "—"} />
-              <Row label="Your role" value={me.data?.role ?? "—"} />
+              <Row label="Slug" value={org.data?.slug ?? "-"} />
+              <Row label="Created" value={org.data?.created_at ? formatDateTime(org.data.created_at) : "-"} />
+              <Row label="Your role" value={me.data?.role ?? "-"} />
               <Row label="Retention" value={`${org.data?.retention_days ?? 365} days`} />
             </CardContent>
           </Card>
@@ -113,15 +113,15 @@ function MemberRow({ member, canManage, currentUserId }: { member: Member; canMa
   return (
     <div className="flex flex-col gap-2 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-ink-950" style={{ backgroundColor: member.avatar_color }}>{member.name.slice(0, 1).toUpperCase()}</div>
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-ink-50" style={{ backgroundColor: member.avatar_color }}>{member.name.slice(0, 1).toUpperCase()}</div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="truncate text-[12px] font-medium text-ink-100">{member.name}</span>
             {self ? <Badge className="text-[9px]">you</Badge> : null}
-            {member.role === "owner" ? <Badge className="border-amber-500/25 bg-amber-500/10 text-[9px] text-amber-300">owner</Badge> : null}
+            {member.role === "owner" ? <Badge className="border-amber-500/25 bg-amber-500/10 text-[9px] text-amber-700">owner</Badge> : null}
           </div>
           <p className="truncate text-[10.5px] text-ink-400">{member.email} · joined {formatDateTime(member.joined_at)}</p>
-          <p className="mt-0.5 text-[9.5px] text-ink-500">{member.open_findings} open findings assigned · last sign-in {member.last_login_at ? formatDateTime(member.last_login_at) : "never"}</p>
+          <p className="mt-0.5 text-[9.5px] text-ink-400">{member.open_findings} open findings assigned · last sign-in {member.last_login_at ? formatDateTime(member.last_login_at) : "never"}</p>
         </div>
       </div>
       <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -135,7 +135,7 @@ function MemberRow({ member, canManage, currentUserId }: { member: Member; canMa
           <Badge>{member.role}</Badge>
         )}
         {canManage && !self && member.role !== "owner" ? (
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-ink-400 hover:text-red-300" onClick={() => { if (window.confirm(`Remove ${member.name} from the organization?`)) remove.mutate(); }} loading={remove.isPending} aria-label="Remove member">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-ink-400 hover:text-red-700" onClick={() => { if (window.confirm(`Remove ${member.name} from the organization?`)) remove.mutate(); }} loading={remove.isPending} aria-label="Remove member">
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         ) : null}
@@ -195,7 +195,7 @@ function InviteModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           <Field label="Email"><Input value={email} readOnly /></Field>
           <Field label="Temporary password"><Input value={temporaryPassword} readOnly className="font-mono" /></Field>
           <Button variant="secondary" size="sm" onClick={() => { void navigator.clipboard.writeText(`Email: ${email}\nTemporary password: ${temporaryPassword}`); toast.success("Credentials copied"); }}><Copy className="h-3.5 w-3.5" /> Copy credentials</Button>
-          <p className="text-[10.5px] text-ink-500">The member should change this password immediately after signing in. It is not retrievable later.</p>
+          <p className="text-[10.5px] text-ink-400">The member should change this password immediately after signing in. It is not retrievable later.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -203,13 +203,13 @@ function InviteModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           <Field label="Email"><Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="engineer@example.com" /></Field>
           <Field label="Role" hint="Owner cannot be granted here">
             <Select value={role} onChange={(event) => setRole(event.target.value)}>
-              <option value="admin">Admin — manage members and integrations</option>
-              <option value="analyst">Analyst — run scans and manage findings</option>
-              <option value="viewer">Viewer — read-only access</option>
+              <option value="admin">Admin - manage members and integrations</option>
+              <option value="analyst">Analyst - run scans and manage findings</option>
+              <option value="viewer">Viewer - read-only access</option>
             </Select>
           </Field>
           <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3 text-[10.5px] leading-relaxed text-ink-400">
-            <ShieldCheck className="mb-1 h-3.5 w-3.5 text-amber-400" />
+            <ShieldCheck className="mb-1 h-3.5 w-3.5 text-amber-700" />
             Admins cannot grant a role at or above their own level. All role changes are written to the audit log.
           </div>
         </div>
@@ -221,7 +221,7 @@ function InviteModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-ink-700/50 pb-2">
-      <span className="text-ink-500">{label}</span>
+      <span className="text-ink-400">{label}</span>
       <span className="max-w-[60%] truncate text-right text-ink-200">{value}</span>
     </div>
   );

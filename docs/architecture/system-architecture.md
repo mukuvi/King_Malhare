@@ -1,4 +1,4 @@
-# King Malhare — System Architecture
+# King Malhare - System Architecture
 
 ## 1. Context
 
@@ -29,7 +29,7 @@ flowchart TB
     S[(Evidence + report storage<br/>local disk or S3/MinIO)]
   end
 
-  subgraph Execution[Internal assessment network — no ingress]
+  subgraph Execution[Internal assessment network - no ingress]
     Q[Redis job queue]
     K1[Python scanner worker 1]
     K2[Python scanner worker N]
@@ -69,7 +69,7 @@ flowchart TB
 | ZAP daemon | Optional active/passive web scanning behind the worker | Be reachable from the internet |
 | Storage | Evidence, generated HTML/PDF reports | Be publicly listable |
 
-## 4. Request lifecycle — starting a scan
+## 4. Request lifecycle - starting a scan
 
 ```mermaid
 sequenceDiagram

@@ -57,7 +57,7 @@ export function SettingsPage() {
             <CardHeader><CardTitle subtitle="Displayed in assignments and audit events">Profile</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full text-[16px] font-bold text-ink-950" style={{ backgroundColor: me.data?.user.avatar_color ?? "#f5a524" }}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full text-[16px] font-bold text-ink-50" style={{ backgroundColor: me.data?.user.avatar_color ?? "#D98B8B" }}>
                   {me.data?.user.name.slice(0, 1).toUpperCase() ?? "K"}
                 </div>
                 <div>
@@ -85,13 +85,13 @@ export function SettingsPage() {
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {[["length", "12+ characters"], ["upper", "Upper case"], ["lower", "Lower case"], ["digit", "Number"]].map(([key, label]) => (
-                  <div key={key} className={`flex items-center gap-1.5 text-[10.5px] ${checks[key as keyof typeof checks] ? "text-lime-300" : "text-ink-500"}`}>
+                  <div key={key} className={`flex items-center gap-1.5 text-[10.5px] ${checks[key as keyof typeof checks] ? "text-lime-700" : "text-ink-400"}`}>
                     <Check className="h-3 w-3" /> {label}
                   </div>
                 ))}
               </div>
-              {confirm && confirm !== newPassword ? <p className="text-[11px] text-red-300">Passwords do not match.</p> : null}
-              {passwordError ? <p className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11.5px] text-red-200">{passwordError}</p> : null}
+              {confirm && confirm !== newPassword ? <p className="text-[11px] text-red-700">Passwords do not match.</p> : null}
+              {passwordError ? <p className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11.5px] text-red-700">{passwordError}</p> : null}
               <div className="flex justify-end">
                 <Button size="sm" onClick={() => password.mutate()} loading={password.isPending} disabled={!passwordValid}><KeyRound className="h-3.5 w-3.5" /> Update password</Button>
               </div>
@@ -103,10 +103,10 @@ export function SettingsPage() {
           <Card>
             <CardHeader><CardTitle subtitle="Session and membership">Account</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-[11.5px]">
-              <Row label="Email" value={me.data?.user.email ?? "—"} />
-              <Row label="Role" value={me.data?.role ?? "—"} />
-              <Row label="Organization" value={me.data?.org.name ?? "—"} />
-              <Row label="Last sign-in" value={me.data?.user.last_login_at ? formatDateTime(me.data.user.last_login_at) : "—"} />
+              <Row label="Email" value={me.data?.user.email ?? "-"} />
+              <Row label="Role" value={me.data?.role ?? "-"} />
+              <Row label="Organization" value={me.data?.org.name ?? "-"} />
+              <Row label="Last sign-in" value={me.data?.user.last_login_at ? formatDateTime(me.data.user.last_login_at) : "-"} />
               <Row label="Session policy" value="12 hour absolute, HttpOnly, SameSite=Lax" />
               <Link to="/organization" className="mt-2 flex items-center justify-between rounded-lg border border-ink-700 bg-ink-900/40 px-3 py-2.5 text-ink-300 hover:border-ink-500 hover:text-ink-100">
                 <span className="flex items-center gap-2"><UserRound className="h-3.5 w-3.5" /> Organization settings</span>
@@ -121,7 +121,7 @@ export function SettingsPage() {
               <div className="flex flex-wrap gap-1.5">
                 {me.data?.permissions.map((permission) => <Badge key={permission} className="font-mono text-[9.5px]">{permission}</Badge>)}
               </div>
-              <p className="mt-3 flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-500"><ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" /> Permissions are enforced server-side on every request and re-checked on object access.</p>
+              <p className="mt-3 flex items-start gap-2 text-[10.5px] leading-relaxed text-ink-400"><ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" /> Permissions are enforced server-side on every request and re-checked on object access.</p>
             </CardContent>
           </Card>
 
@@ -144,7 +144,7 @@ export function SettingsPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-ink-700/50 pb-2">
-      <span className="text-ink-500">{label}</span>
+      <span className="text-ink-400">{label}</span>
       <span className="max-w-[65%] text-right text-ink-200">{value}</span>
     </div>
   );

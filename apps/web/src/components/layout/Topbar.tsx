@@ -5,6 +5,7 @@ import { useMe, useLogout, useNotifications } from "@/hooks/queries";
 import { useUIStore } from "@/stores/ui";
 import { initials } from "@/lib/utils";
 import { buttonStyles } from "@/components/ui";
+import { Logo } from "./Logo";
 
 export function Topbar() {
   const { toggleSidebar } = useUIStore();
@@ -37,10 +38,13 @@ export function Topbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-700/80 bg-ink-900/85 px-4 backdrop-blur-md sm:px-6">
-      <button className="-ml-1 rounded-md p-1.5 text-ink-300 hover:bg-ink-800 hover:text-ink-100 lg:hidden" onClick={toggleSidebar} aria-label="Open menu">
+    <header className="surface-blur sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-ink-700/80 px-4 sm:px-6">
+      <button className="-ml-1 rounded-lg p-1.5 text-ink-300 hover:bg-ink-800 hover:text-ink-100 lg:hidden" onClick={toggleSidebar} aria-label="Open menu">
         <Menu className="h-5 w-5" />
       </button>
+      <Link to="/dashboard" className="lg:hidden" aria-label="King Malhare dashboard">
+        <Logo compact />
+      </Link>
 
       <form
         className="relative hidden max-w-md flex-1 md:block"
@@ -55,7 +59,7 @@ export function Topbar() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search findings, assets, CVEs"
-          className="h-9 w-full rounded-lg border border-ink-700 bg-ink-850/80 pl-9 pr-12 text-[12.5px] text-ink-100 placeholder:text-ink-400 transition-colors hover:border-ink-500 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-400/10"
+          className="h-9 w-full rounded-xl border border-ink-700 bg-ink-850/90 pl-9 pr-12 text-[12.5px] text-ink-100 placeholder:text-ink-400 transition-all hover:border-ink-500 focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
           aria-label="Search findings, assets and CVEs"
         />
         <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[9px] text-ink-400">/</span>
@@ -71,7 +75,7 @@ export function Topbar() {
         <Link to="/notifications" className="relative rounded-md p-2 text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100" aria-label="Notifications">
           <Bell className="h-[18px] w-[18px]" strokeWidth={1.8} />
           {notifications?.unread ? (
-            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[8.5px] font-bold text-ink-950">
+            <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[8.5px] font-bold text-ink-50">
               {notifications.unread > 9 ? "9+" : notifications.unread}
             </span>
           ) : null}
@@ -84,7 +88,7 @@ export function Topbar() {
             aria-haspopup="menu"
             aria-expanded={menuOpen}
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-ink-950" style={{ backgroundColor: me?.user.avatar_color ?? "#f5a524" }}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-ink-50" style={{ backgroundColor: me?.user.avatar_color ?? "#D98B8B" }}>
               {initials(me?.user.name)}
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-ink-400" />
@@ -104,7 +108,7 @@ export function Topbar() {
                   <Settings className="h-3.5 w-3.5" /> Account settings
                 </Link>
                 <button
-                  className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[12.5px] text-red-300 hover:bg-red-500/10"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[12.5px] text-red-700 hover:bg-red-500/10"
                   onClick={() => logout.mutate()}
                   role="menuitem"
                   disabled={logout.isPending}

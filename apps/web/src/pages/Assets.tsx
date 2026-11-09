@@ -78,10 +78,10 @@ export function AssetsPage() {
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active assets" value={overview.data?.assets.active ?? "—"} hint="Registered and not archived" icon={<Boxes className="h-4 w-4" />} loading={overview.isLoading} />
-        <StatCard label="Awaiting authorization" value={overview.data?.assets.without_authorization ?? "—"} hint="Assessments are blocked" icon={<KeyRound className="h-4 w-4" />} tone={(overview.data?.assets.without_authorization ?? 0) > 0 ? "warn" : "default"} loading={overview.isLoading} />
-        <StatCard label="Critical findings" value={overview.data?.findings.critical ?? "—"} hint="Across all active assets" icon={<ShieldCheck className="h-4 w-4" />} tone={(overview.data?.findings.critical ?? 0) > 0 ? "danger" : "default"} loading={overview.isLoading} />
-        <StatCard label="Archived" value={overview.data?.assets.archived ?? "—"} hint="Excluded from active posture" icon={<Boxes className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Active assets" value={overview.data?.assets.active ?? "-"} hint="Registered and not archived" icon={<Boxes className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Awaiting authorization" value={overview.data?.assets.without_authorization ?? "-"} hint="Assessments are blocked" icon={<KeyRound className="h-4 w-4" />} tone={(overview.data?.assets.without_authorization ?? 0) > 0 ? "warn" : "default"} loading={overview.isLoading} />
+        <StatCard label="Critical findings" value={overview.data?.findings.critical ?? "-"} hint="Across all active assets" icon={<ShieldCheck className="h-4 w-4" />} tone={(overview.data?.findings.critical ?? 0) > 0 ? "danger" : "default"} loading={overview.isLoading} />
+        <StatCard label="Archived" value={overview.data?.assets.archived ?? "-"} hint="Excluded from active posture" icon={<Boxes className="h-4 w-4" />} loading={overview.isLoading} />
       </div>
 
       <div className="mt-6 flex flex-col gap-3 rounded-xl border border-ink-650 bg-ink-850 p-3 sm:flex-row sm:items-center">
@@ -107,7 +107,7 @@ export function AssetsPage() {
             <option value="archived">Archived</option>
           </Select>
           <div className="hidden items-center gap-1.5 sm:flex">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-ink-500" />
+            <SlidersHorizontal className="h-3.5 w-3.5 text-ink-400" />
             <Select value={sort} onChange={(event) => setSort(event.target.value)} className="w-auto border-ink-700 bg-ink-900">
               <option value="created_at">Newest</option>
               <option value="last_assessed_at">Last assessed</option>
@@ -184,9 +184,9 @@ function AssetRow({ asset }: { asset: Asset }) {
       </td>
       <td>
         {asset.active_authorizations > 0 ? (
-          <span className="inline-flex items-center gap-1 text-[10.5px] text-lime-300"><ShieldCheck className="h-3 w-3" /> Authorized</span>
+          <span className="inline-flex items-center gap-1 text-[10.5px] text-lime-700"><ShieldCheck className="h-3 w-3" /> Authorized</span>
         ) : (
-          <span className="inline-flex items-center gap-1 text-[10.5px] text-amber-300"><KeyRound className="h-3 w-3" /> Missing</span>
+          <span className="inline-flex items-center gap-1 text-[10.5px] text-amber-700"><KeyRound className="h-3 w-3" /> Missing</span>
         )}
         {asset.tags.length ? <div className="mt-1 flex flex-wrap gap-1">{asset.tags.slice(0, 2).map((tag) => <Badge key={tag} className="text-[9px]">{tag}</Badge>)}</div> : null}
       </td>
@@ -224,7 +224,7 @@ function AssetCard({ asset }: { asset: Asset }) {
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <Badge>{meta.label}</Badge>
             <Badge>{asset.environment}</Badge>
-            {asset.active_authorizations ? <Badge className="border-lime-500/25 bg-lime-500/10 text-lime-300">authorized</Badge> : <Badge className="border-amber-500/25 bg-amber-500/10 text-amber-300">no authorization</Badge>}
+            {asset.active_authorizations ? <Badge className="border-lime-500/25 bg-lime-500/10 text-lime-700">authorized</Badge> : <Badge className="border-amber-500/25 bg-amber-500/10 text-amber-700">no authorization</Badge>}
           </div>
           <div className="mt-2.5 flex items-center justify-between text-[10.5px] text-ink-400">
             <span>{asset.open_findings} open findings</span>

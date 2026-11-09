@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, ShieldCheck } from "lucide-r
 import { api, ApiError } from "@/lib/api";
 import type { Me } from "@/types";
 import { Button, Field, Input } from "@/components/ui";
-import { Logo } from "@/components/layout/Logo";
+import { Logo, LogoMark } from "@/components/layout/Logo";
 
 function AuthPanel({ children }: { children: React.ReactNode }) {
   return (
@@ -23,14 +23,26 @@ function AuthPanel({ children }: { children: React.ReactNode }) {
             {children}
           </motion.div>
         </div>
-        <p className="text-center text-[10px] text-ink-500">Authorized security testing only. You are responsible for having permission for every target.</p>
+        <p className="text-center text-[10px] text-ink-400">Authorized security testing only. You are responsible for having permission for every target.</p>
       </div>
 
-      <div className="relative hidden overflow-hidden border-l border-white/[0.06] bg-ink-950 lg:block">
-        <div className="absolute inset-0 dot-grid opacity-50 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-        <div className="relative flex h-full flex-col justify-between p-12">
+      <div className="relative hidden overflow-hidden border-l border-ink-700/70 bg-gradient-to-br from-amber-100 via-ink-850 to-mint-100 lg:block">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-16 -top-16 h-72 w-72 rounded-full bg-amber-200/60 blur-3xl" />
+          <div className="absolute -bottom-20 -left-10 h-80 w-80 rounded-full bg-mint-200/60 blur-3xl" />
+          <div className="absolute right-1/4 top-1/3 h-48 w-48 rounded-full bg-lilac-200/50 blur-3xl" />
+        </div>
+        <div className="absolute inset-0 dot-grid opacity-30 [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+        <div className="relative flex h-full flex-col p-12">
           <div>
-            <div className="eyebrow text-amber-400/80">Offensive security workstation</div>
+            <div className="mb-8 inline-flex items-center gap-3 rounded-2xl border border-ink-700/80 bg-ink-850/80 px-4 py-3 shadow-soft">
+              <LogoMark className="h-10 w-10" />
+              <div>
+                <div className="text-[13px] font-semibold text-ink-50">King Malhare</div>
+                <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-teal-700">Offensive security</div>
+              </div>
+            </div>
+            <div className="eyebrow">Offensive security workstation</div>
             <h2 className="mt-4 max-w-md text-[40px] font-semibold leading-[1.02] tracking-[-0.04em] text-ink-50">
               Evidence, not intuition.
             </h2>
@@ -38,7 +50,7 @@ function AuthPanel({ children }: { children: React.ReactNode }) {
               Every finding carries its scanner, endpoint, evidence, authorization and timestamp. Every scan is bounded by a written approval you recorded.
             </p>
           </div>
-          <div className="space-y-3">
+          <div className="mt-10 space-y-3">
             {[
               "Argon2id password hashing and opaque server-side sessions",
               "Explicit authorization required before any scan is queued",
@@ -46,16 +58,16 @@ function AuthPanel({ children }: { children: React.ReactNode }) {
               "Report artefacts and evidence hashed with SHA-256",
             ].map((item) => (
               <div key={item} className="flex items-start gap-2.5 text-[12px] text-ink-300">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-lime-500/30 bg-lime-500/10">
-                  <Check className="h-2.5 w-2.5 text-lime-300" />
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-lime-600/30 bg-lime-500/10">
+                  <Check className="h-2.5 w-2.5 text-lime-700" />
                 </span>
                 {item}
               </div>
             ))}
           </div>
-          <div className="rounded-lg border border-ink-700 bg-ink-900/70 p-4">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-ink-500">
-              <ShieldCheck className="h-3.5 w-3.5 text-amber-400" /> Scope gate
+          <div className="mt-auto rounded-2xl border border-ink-700 bg-ink-850/80 p-4 shadow-soft backdrop-blur">
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-ink-400">
+              <ShieldCheck className="h-3.5 w-3.5 text-amber-700" /> Scope gate
             </div>
             <p className="mt-2 font-mono text-[10.5px] leading-relaxed text-ink-400">
               authorization.status = active<br />
@@ -113,13 +125,13 @@ export function LoginPage() {
             </button>
           </div>
         </Field>
-        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">{error}</div> : null}
+        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
         <Button type="submit" size="lg" className="w-full" loading={mutation.isPending} disabled={!email || !password}>
           Sign in <ArrowRight className="h-4 w-4" />
         </Button>
       </form>
       <p className="mt-6 text-center text-[12px] text-ink-400">
-        Need a workspace? <Link to="/register" className="font-medium text-amber-300 hover:text-amber-200">Create one</Link>
+        Need a workspace? <Link to="/register" className="font-medium text-amber-700 hover:text-amber-800">Create one</Link>
       </p>
     </AuthPanel>
   );
@@ -195,7 +207,7 @@ export function RegisterPage() {
             ["lower", "Lower case"],
             ["digit", "Number"],
           ].map(([key, label]) => (
-            <div key={key} className={`flex items-center gap-1.5 text-[10.5px] ${checks[key as keyof typeof checks] ? "text-lime-300" : "text-ink-500"}`}>
+            <div key={key} className={`flex items-center gap-1.5 text-[10.5px] ${checks[key as keyof typeof checks] ? "text-lime-700" : "text-ink-400"}`}>
               <span className={`h-1 w-1 rounded-full ${checks[key as keyof typeof checks] ? "bg-lime-400" : "bg-ink-600"}`} /> {label}
             </div>
           ))}
@@ -203,20 +215,20 @@ export function RegisterPage() {
         <Field label="Confirm password">
           <Input type={showPassword ? "text" : "password"} value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="new-password" required />
         </Field>
-        {confirm && confirm !== password ? <p className="text-[11px] text-red-300">Passwords do not match.</p> : null}
+        {confirm && confirm !== password ? <p className="text-[11px] text-red-700">Passwords do not match.</p> : null}
         <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-ink-600 bg-ink-900/50 p-3">
           <input type="checkbox" checked={authorized} onChange={(event) => setAuthorized(event.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-ink-500 bg-ink-800 accent-amber-400" />
           <span className="text-[11px] leading-relaxed text-ink-300">
             I will only register and assess systems I own or have explicit, documented permission to test. I understand that intrusive testing can disrupt services.
           </span>
         </label>
-        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">{error}</div> : null}
+        {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
         <Button type="submit" size="lg" className="w-full" loading={mutation.isPending} disabled={!valid}>
           Create workspace <ArrowRight className="h-4 w-4" />
         </Button>
       </form>
       <p className="mt-5 text-center text-[12px] text-ink-400">
-        Already have an account? <Link to="/login" className="font-medium text-amber-300 hover:text-amber-200">Sign in</Link>
+        Already have an account? <Link to="/login" className="font-medium text-amber-700 hover:text-amber-800">Sign in</Link>
       </p>
     </AuthPanel>
   );

@@ -57,9 +57,9 @@ export function ScanCenterPage() {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Active now" value={running} hint="Queued, initializing or running" icon={<Activity className="h-4 w-4" />} tone={running > 0 ? "warn" : "default"} loading={overview.isLoading} />
-        <StatCard label="Completed" value={overview.data?.scans.completed ?? "—"} hint="Finished with real scanner output" icon={<Radar className="h-4 w-4" />} loading={overview.isLoading} />
-        <StatCard label="Failed (24h)" value={overview.data?.scans.failed_24h ?? "—"} hint="Check execution output for cause" icon={<ShieldAlert className="h-4 w-4" />} tone={(overview.data?.scans.failed_24h ?? 0) > 0 ? "danger" : "default"} loading={overview.isLoading} />
-        <StatCard label="Last 24 hours" value={overview.data?.scans.last_24h ?? "—"} hint={overview.data?.scans.last_at ? `Last queued ${formatDateTime(overview.data.scans.last_at)}` : "No assessments yet"} icon={<Radar className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Completed" value={overview.data?.scans.completed ?? "-"} hint="Finished with real scanner output" icon={<Radar className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Failed (24h)" value={overview.data?.scans.failed_24h ?? "-"} hint="Check execution output for cause" icon={<ShieldAlert className="h-4 w-4" />} tone={(overview.data?.scans.failed_24h ?? 0) > 0 ? "danger" : "default"} loading={overview.isLoading} />
+        <StatCard label="Last 24 hours" value={overview.data?.scans.last_24h ?? "-"} hint={overview.data?.scans.last_at ? `Last queued ${formatDateTime(overview.data.scans.last_at)}` : "No assessments yet"} icon={<Radar className="h-4 w-4" />} loading={overview.isLoading} />
       </div>
 
       <div className="mt-6">
@@ -123,10 +123,10 @@ export function ScanCenterPage() {
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-[12.5px] font-medium text-ink-100">{scan.asset_name}</span>
-                              {scan.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-[9px] text-orange-300">intrusive</Badge> : null}
+                              {scan.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-[9px] text-orange-700">intrusive</Badge> : null}
                             </div>
                             <div className="mt-0.5 max-w-[360px] truncate font-mono text-[10px] text-ink-400">{scan.target}</div>
-                            <div className="mt-1 text-[10px] text-ink-500">{scannerLabel(scan.scanner)} · {categoryLabel(scan.category)}</div>
+                            <div className="mt-1 text-[10px] text-ink-400">{scannerLabel(scan.scanner)} · {categoryLabel(scan.category)}</div>
                           </div>
                         </div>
                       </td>
@@ -134,18 +134,18 @@ export function ScanCenterPage() {
                       <td>
                         <div className="w-28">
                           <Progress value={scan.progress} tone={scan.status === "failed" ? "red" : scan.status === "completed" ? "lime" : "amber"} />
-                          <span className="mt-1 block truncate text-[9.5px] text-ink-500">{scan.phase}{scan.status === "running" ? ` · ${scan.progress}%` : ""}</span>
+                          <span className="mt-1 block truncate text-[9.5px] text-ink-400">{scan.phase}{scan.status === "running" ? ` · ${scan.progress}%` : ""}</span>
                         </div>
                       </td>
                       <td>
                         <div className="flex items-center gap-1.5 font-mono text-[11.5px]">
                           <span className="text-ink-100">{scan.findings}</span>
-                          {scan.critical > 0 ? <span className="text-red-300">· {scan.critical}C</span> : null}
-                          {scan.high > 0 ? <span className="text-orange-300">· {scan.high}H</span> : null}
+                          {scan.critical > 0 ? <span className="text-red-700">· {scan.critical}C</span> : null}
+                          {scan.high > 0 ? <span className="text-orange-700">· {scan.high}H</span> : null}
                         </div>
                       </td>
                       <td className="whitespace-nowrap text-[11px] text-ink-400">{formatDateTime(scan.created_at)}</td>
-                      <td><Link to={`/scans/${scan.id}`} className="inline-flex items-center gap-1 text-[11px] text-ink-400 hover:text-amber-300">Open <ArrowRight className="h-3 w-3" /></Link></td>
+                      <td><Link to={`/scans/${scan.id}`} className="inline-flex items-center gap-1 text-[11px] text-ink-400 hover:text-amber-700">Open <ArrowRight className="h-3 w-3" /></Link></td>
                     </tr>
                   ))}
                 </tbody>

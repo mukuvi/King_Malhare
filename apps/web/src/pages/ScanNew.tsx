@@ -198,10 +198,10 @@ export function ScanNewPage() {
               onClick={() => index < step && setStep(index)}
               className={cn(
                 "flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11.5px] transition-colors",
-                index === step ? "border-amber-500/40 bg-amber-500/10 text-amber-200" : index < step ? "border-lime-500/25 bg-lime-500/5 text-lime-300" : "border-ink-600 bg-ink-850 text-ink-400",
+                index === step ? "border-amber-500/40 bg-amber-500/10 text-amber-700" : index < step ? "border-lime-500/25 bg-lime-500/5 text-lime-700" : "border-ink-600 bg-ink-850 text-ink-400",
               )}
             >
-              <span className={cn("flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold", index === step ? "bg-amber-400 text-ink-950" : index < step ? "bg-lime-400 text-ink-950" : "bg-ink-700 text-ink-300")}>
+              <span className={cn("flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold", index === step ? "bg-amber-400 text-ink-50" : index < step ? "bg-lime-400 text-ink-50" : "bg-ink-700 text-ink-300")}>
                 {index < step ? <Check className="h-2.5 w-2.5" /> : index + 1}
               </span>
               {label}
@@ -225,7 +225,7 @@ export function ScanNewPage() {
                       <Field label="Asset">
                         <Select value={assetId} onChange={(event) => setAssetId(event.target.value)}>
                           <option value="">Select an asset</option>
-                          {assets.data?.items.map((item) => <option key={item.id} value={item.id}>{item.name} — {item.target}</option>)}
+                          {assets.data?.items.map((item) => <option key={item.id} value={item.id}>{item.name} - {item.target}</option>)}
                         </Select>
                       </Field>
                       {asset ? (
@@ -243,7 +243,7 @@ export function ScanNewPage() {
                       <div>
                         <div className="mb-2 flex items-center justify-between">
                           <span className="text-[12px] font-medium text-ink-200">Authorization</span>
-                          {asset ? <button onClick={() => setAuthOpen(true)} className="text-[11px] text-amber-300 hover:text-amber-200">Add authorization</button> : null}
+                          {asset ? <button onClick={() => setAuthOpen(true)} className="text-[11px] text-amber-700 hover:text-amber-700">Add authorization</button> : null}
                         </div>
                         {!assetId ? (
                           <p className="rounded-lg border border-ink-700 bg-ink-900/40 px-3 py-2.5 text-[11.5px] text-ink-400">Select an asset to load its authorization records.</p>
@@ -251,7 +251,7 @@ export function ScanNewPage() {
                           <Skeleton className="h-16 w-full" />
                         ) : activeAuths.length === 0 ? (
                           <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-3">
-                            <p className="flex items-center gap-2 text-[12px] text-amber-200"><AlertTriangle className="h-3.5 w-3.5" /> No active authorization</p>
+                            <p className="flex items-center gap-2 text-[12px] text-amber-700"><AlertTriangle className="h-3.5 w-3.5" /> No active authorization</p>
                             <p className="mt-1 text-[11px] leading-relaxed text-ink-300">This asset cannot be assessed. Record a written approval with a future expiry first.</p>
                             <Button size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>Record authorization</Button>
                           </div>
@@ -268,15 +268,15 @@ export function ScanNewPage() {
                               >
                                 <div className="flex items-center justify-between gap-2">
                                   <span className="font-mono text-[11.5px] text-ink-100">{auth.reference}</span>
-                                  <span className={cn("flex h-4 w-4 items-center justify-center rounded-full border", authId === auth.id ? "border-amber-400 bg-amber-400 text-ink-950" : "border-ink-500")}>
+                                  <span className={cn("flex h-4 w-4 items-center justify-center rounded-full border", authId === auth.id ? "border-amber-400 bg-amber-400 text-ink-50" : "border-ink-500")}>
                                     {authId === auth.id ? <Check className="h-2.5 w-2.5" /> : null}
                                   </span>
                                 </div>
                                 <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-ink-400">
                                   <span>expires {formatDateTime(auth.expires_at)}</span>
                                   <span>approved by {auth.approved_by_name}</span>
-                                  {auth.intrusive_allowed ? <span className="text-orange-300">intrusive allowed</span> : null}
-                                  {auth.allow_private ? <span className="text-amber-300">private allowed</span> : null}
+                                  {auth.intrusive_allowed ? <span className="text-orange-700">intrusive allowed</span> : null}
+                                  {auth.allow_private ? <span className="text-amber-700">private allowed</span> : null}
                                 </div>
                               </button>
                             ))}
@@ -300,7 +300,7 @@ export function ScanNewPage() {
                         <button
                           key={item}
                           onClick={() => { setCategory(item); setScannerName(""); setProfileId(""); setConfig({}); }}
-                          className={cn("inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors", category === item ? "border-amber-500/40 bg-amber-500/10 text-amber-200" : "border-ink-600 bg-ink-900/40 text-ink-400 hover:text-ink-200")}
+                          className={cn("inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors", category === item ? "border-amber-500/40 bg-amber-500/10 text-amber-700" : "border-ink-600 bg-ink-900/40 text-ink-400 hover:text-ink-200")}
                         >
                           <Icon className="h-3.5 w-3.5" /> {categoryLabel(item)}
                         </button>
@@ -308,7 +308,7 @@ export function ScanNewPage() {
                     })}
                   </div>
                   {scanners.isError ? (
-                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">Scanner availability could not be loaded.</div>
+                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">Scanner availability could not be loaded.</div>
                   ) : scanners.isLoading ? (
                     <div className="grid gap-2 sm:grid-cols-2">{Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-24 w-full" />)}</div>
                   ) : visibleScanners.length === 0 ? (
@@ -331,8 +331,8 @@ export function ScanNewPage() {
                           </div>
                           <p className="mt-1.5 line-clamp-2 text-[10.5px] leading-relaxed text-ink-400">{scanner.description}</p>
                           <div className="mt-2 flex items-center gap-1.5">
-                            {scanner.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-orange-300">intrusive</Badge> : null}
-                            <span className="text-[9px] uppercase tracking-wider text-ink-500">{scanner.status}</span>
+                            {scanner.intrusive ? <Badge className="border-orange-500/25 bg-orange-500/10 text-orange-700">intrusive</Badge> : null}
+                            <span className="text-[9px] uppercase tracking-wider text-ink-400">{scanner.status}</span>
                           </div>
                         </button>
                       ))}
@@ -351,14 +351,14 @@ export function ScanNewPage() {
                         <Field label="Cloud connection">
                           <Select value={cloudId} onChange={(event) => setCloudId(event.target.value)}>
                             <option value="">Select connection</option>
-                            {clouds.data?.items.map((connection) => <option key={connection.id} value={connection.id}>{connection.name} — {connection.provider.toUpperCase()} {connection.account_id}</option>)}
+                            {clouds.data?.items.map((connection) => <option key={connection.id} value={connection.id}>{connection.name} - {connection.provider.toUpperCase()} {connection.account_id}</option>)}
                           </Select>
                         </Field>
                       ) : null}
                     </div>
                   ) : null}
                   {category === "cloud" && (clouds.data?.items.length ?? 0) === 0 ? (
-                    <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-200">No cloud connection is configured. Add read-only credentials under Integrations first.</p>
+                    <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-700">No cloud connection is configured. Add read-only credentials under Integrations first.</p>
                   ) : null}
                 </CardContent>
               </Card>
@@ -396,8 +396,8 @@ export function ScanNewPage() {
                       ) : null}
                       <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">
                         <div className="mb-2 flex items-center justify-between">
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-500">Effective configuration</span>
-                          <span className="text-[9.5px] text-ink-500">server validates this</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-400">Effective configuration</span>
+                          <span className="text-[9.5px] text-ink-400">server validates this</span>
                         </div>
                         <pre className="max-h-48 overflow-auto font-mono text-[10.5px] leading-relaxed text-ink-300">{JSON.stringify(config, null, 2)}</pre>
                       </div>
@@ -412,13 +412,13 @@ export function ScanNewPage() {
                 <CardHeader><CardTitle subtitle="Confirm exactly what will be executed">Review and queue</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <ReviewItem label="Asset" value={asset?.name ?? "—"} sub={asset?.target} />
+                    <ReviewItem label="Asset" value={asset?.name ?? "-"} sub={asset?.target} />
                     <ReviewItem label="Method" value={scannerLabel(scannerName)} sub={categoryLabel(category)} />
-                    <ReviewItem label="Authorization" value={selectedAuth?.reference ?? "—"} sub={selectedAuth ? `expires ${formatDateTime(selectedAuth.expires_at)}` : undefined} />
-                    <ReviewItem label="Approved by" value={selectedAuth?.approved_by_name ?? "—"} sub={selectedAuth?.intrusive_allowed ? "Intrusive testing permitted" : "Non-intrusive only"} />
+                    <ReviewItem label="Authorization" value={selectedAuth?.reference ?? "-"} sub={selectedAuth ? `expires ${formatDateTime(selectedAuth.expires_at)}` : undefined} />
+                    <ReviewItem label="Approved by" value={selectedAuth?.approved_by_name ?? "-"} sub={selectedAuth?.intrusive_allowed ? "Intrusive testing permitted" : "Non-intrusive only"} />
                   </div>
                   {selectedAuth?.allow_private ? (
-                    <div className="flex items-start gap-2 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2.5 text-[11px] leading-relaxed text-amber-200">
+                    <div className="flex items-start gap-2 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2.5 text-[11px] leading-relaxed text-amber-700">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                       This authorization permits private and internal targets. Confirm the worker runs inside an isolated assessment environment before scanning internal infrastructure.
                     </div>
@@ -430,7 +430,7 @@ export function ScanNewPage() {
                         {scannerLabel(scannerName)} sends attack traffic that can modify data, trigger lockouts or disrupt the service. Run it only in an approved window.
                       </p>
                       {!canIntrusive ? (
-                        <p className="mt-2 rounded border border-red-500/25 bg-red-500/10 px-2 py-1.5 text-[10.5px] text-red-200">
+                        <p className="mt-2 rounded border border-red-500/25 bg-red-500/10 px-2 py-1.5 text-[10.5px] text-red-700">
                           This requires the scans:intrusive permission and an authorization that permits intrusive testing.
                         </p>
                       ) : (
@@ -442,16 +442,16 @@ export function ScanNewPage() {
                     </div>
                   ) : null}
                   <div className="rounded-lg border border-ink-700 bg-ink-900/50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-500">Scope snapshot</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-400">Scope snapshot</p>
                     <div className="mt-2 grid gap-1.5 font-mono text-[10.5px] text-ink-300">
-                      <span>target: {asset?.target ?? "—"}</span>
-                      <span>scanner: {scannerName || "—"}</span>
+                      <span>target: {asset?.target ?? "-"}</span>
+                      <span>scanner: {scannerName || "-"}</span>
                       <span>profile: {profiles.data?.items.find((item) => item.id === profileId)?.name ?? "scanner defaults"}</span>
                       <span>intrusive: {String(isIntrusive)}</span>
                       <span>allow_private: {String(selectedAuth?.allow_private ?? false)}</span>
                     </div>
                   </div>
-                  {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-200">{error}</div> : null}
+                  {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
                 </CardContent>
               </Card>
             ) : null}
@@ -487,7 +487,7 @@ export function ScanNewPage() {
                 </div>
               ) : null}
               <div className="pt-1">
-                <div className="mb-1.5 flex items-center justify-between text-[10px] text-ink-500"><span>Configuration progress</span><span>{Math.round(((step + 1) / 4) * 100)}%</span></div>
+                <div className="mb-1.5 flex items-center justify-between text-[10px] text-ink-400"><span>Configuration progress</span><span>{Math.round(((step + 1) / 4) * 100)}%</span></div>
                 <Progress value={((step + 1) / 4) * 100} />
               </div>
             </CardContent>
@@ -498,8 +498,8 @@ export function ScanNewPage() {
               <p>Jobs are queued in Redis and claimed by an isolated worker. Progress is streamed from the worker, not simulated.</p>
               <p>The worker revalidates the authorization expiry, intrusive approval and target resolution before it starts a scanner.</p>
               <p>Findings are normalized, fingerprinted and deduplicated against the existing register.</p>
-              <div className="pt-1 text-[10px] text-ink-500">
-                <Link to="/integrations" className="text-amber-300 hover:text-amber-200">Check scanner availability</Link>
+              <div className="pt-1 text-[10px] text-ink-400">
+                <Link to="/integrations" className="text-amber-700 hover:text-amber-700">Check scanner availability</Link>
               </div>
             </CardContent>
           </Card>
@@ -514,9 +514,9 @@ export function ScanNewPage() {
 function SummaryRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-2.5">
-      <span className="mt-0.5 text-ink-500">{icon}</span>
+      <span className="mt-0.5 text-ink-400">{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className="text-[9.5px] uppercase tracking-[0.12em] text-ink-500">{label}</p>
+        <p className="text-[9.5px] uppercase tracking-[0.12em] text-ink-400">{label}</p>
         <p className="mt-0.5 truncate text-[11.5px] text-ink-200">{value}</p>
       </div>
     </div>
@@ -526,7 +526,7 @@ function SummaryRow({ icon, label, value }: { icon: React.ReactNode; label: stri
 function ReviewItem({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="rounded-lg border border-ink-700 bg-ink-900/40 px-3 py-2.5">
-      <p className="text-[9.5px] uppercase tracking-[0.12em] text-ink-500">{label}</p>
+      <p className="text-[9.5px] uppercase tracking-[0.12em] text-ink-400">{label}</p>
       <p className="mt-1 truncate text-[12px] font-medium text-ink-100">{value}</p>
       {sub ? <p className="mt-0.5 truncate text-[10px] text-ink-400">{sub}</p> : null}
     </div>
@@ -581,7 +581,7 @@ function ParamControl({
                 onClick={() => onChange(active ? list.filter((item) => item !== option) : [...list, option])}
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-[10.5px] transition-colors",
-                  active ? "border-amber-500/40 bg-amber-500/10 text-amber-200" : "border-ink-600 bg-ink-900 text-ink-400 hover:text-ink-200",
+                  active ? "border-amber-500/40 bg-amber-500/10 text-amber-700" : "border-ink-600 bg-ink-900 text-ink-400 hover:text-ink-200",
                 )}
               >
                 {option}
@@ -589,7 +589,7 @@ function ParamControl({
             );
           })}
         </div>
-        <p className="mt-1 text-[10px] text-ink-500">{schema.description}</p>
+        <p className="mt-1 text-[10px] text-ink-400">{schema.description}</p>
       </div>
     );
   }

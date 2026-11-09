@@ -42,7 +42,7 @@ export function CategoryPage({
 
       {warning ? (
         <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-amber-500/25 bg-amber-500/[0.045] px-4 py-3 text-[11.5px] leading-relaxed text-amber-100">
-          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+          <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
           {warning}
         </div>
       ) : null}
@@ -50,7 +50,7 @@ export function CategoryPage({
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Tools available" value={`${online}/${available.length}`} hint="Live heartbeat from scanner workers" icon={<ShieldCheck className="h-4 w-4" />} tone={online === available.length && available.length > 0 ? "good" : "warn"} loading={scanners.isLoading} />
         <StatCard label="Profiles" value={categoryProfiles.length} hint={`${categoryProfiles.filter((profile) => profile.is_system).length} system presets`} icon={<FileSearch className="h-4 w-4" />} loading={profiles.isLoading} />
-        <StatCard label="Assessments" value={scans.data?.total ?? "—"} hint="All time in this category" icon={<Radar className="h-4 w-4" />} loading={scans.isLoading} />
+        <StatCard label="Assessments" value={scans.data?.total ?? "-"} hint="All time in this category" icon={<Radar className="h-4 w-4" />} loading={scans.isLoading} />
         <StatCard label="Active" value={(scans.data?.items ?? []).filter((scan) => ["queued", "initializing", "running"].includes(scan.status)).length} hint="Currently queued or executing" icon={<Radar className="h-4 w-4" />} loading={scans.isLoading} />
       </div>
 
@@ -68,14 +68,14 @@ export function CategoryPage({
               return (
                 <div key={capability.title} className="flex items-start gap-3 px-5 py-3.5">
                   <div className="mt-0.5">
-                    {scanner && scanner.status !== "available" ? <CircleSlash className="h-4 w-4 text-ink-500" /> : <CheckCircle2 className="h-4 w-4 text-lime-400/80" />}
+                    {scanner && scanner.status !== "available" ? <CircleSlash className="h-4 w-4 text-ink-400" /> : <CheckCircle2 className="h-4 w-4 text-lime-600/80" />}
                   </div>
                   <div className="min-w-0">
                     <p className="text-[12px] font-medium text-ink-100">{capability.title}</p>
                     <p className="mt-0.5 text-[11px] leading-relaxed text-ink-400">{capability.text}</p>
                   </div>
                   {capability.scanner ? (
-                    <span className={`ml-auto shrink-0 text-[9.5px] ${scanner?.status === "available" ? "text-ink-500" : "text-orange-400/80"}`}>
+                    <span className={`ml-auto shrink-0 text-[9.5px] ${scanner?.status === "available" ? "text-ink-400" : "text-orange-400/80"}`}>
                       {scannerLabel(capability.scanner)}
                     </span>
                   ) : null}
@@ -99,13 +99,13 @@ export function CategoryPage({
                   <div key={scanner.name} className="px-5 py-3">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-[12px] font-medium text-ink-100">{scanner.label}</span>
-                      <span className={`inline-flex items-center gap-1.5 text-[9.5px] uppercase tracking-wider ${scanner.status === "available" ? "text-lime-300" : scanner.status === "offline" ? "text-ink-500" : "text-orange-300"}`}>
+                      <span className={`inline-flex items-center gap-1.5 text-[9.5px] uppercase tracking-wider ${scanner.status === "available" ? "text-lime-700" : scanner.status === "offline" ? "text-ink-400" : "text-orange-700"}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${scanner.status === "available" ? "bg-lime-400" : scanner.status === "offline" ? "bg-ink-500" : "bg-orange-400"}`} />
                         {scanner.status}
                       </span>
                     </div>
                     <p className="mt-1 text-[10.5px] leading-relaxed text-ink-400">{scanner.detail}</p>
-                    {scanner.version ? <p className="mt-1 truncate font-mono text-[9.5px] text-ink-500">{scanner.version}</p> : null}
+                    {scanner.version ? <p className="mt-1 truncate font-mono text-[9.5px] text-ink-400">{scanner.version}</p> : null}
                   </div>
                 ))
               )}
@@ -129,7 +129,7 @@ export function CategoryPage({
                 <tbody>
                   {scans.data?.items.map((scan) => (
                     <tr key={scan.id}>
-                      <td><Link to={`/scans/${scan.id}`} className="text-[12px] font-medium text-ink-100 hover:text-amber-300">{scan.asset_name}</Link><div className="mt-0.5 max-w-[300px] truncate font-mono text-[10px] text-ink-500">{scan.target}</div></td>
+                      <td><Link to={`/scans/${scan.id}`} className="text-[12px] font-medium text-ink-100 hover:text-amber-700">{scan.asset_name}</Link><div className="mt-0.5 max-w-[300px] truncate font-mono text-[10px] text-ink-400">{scan.target}</div></td>
                       <td className="text-[11.5px] text-ink-300">{scannerLabel(scan.scanner)}</td>
                       <td><ScanStatusBadge status={scan.status} /></td>
                       <td><div className="w-24"><Progress value={scan.progress} tone={scan.status === "failed" ? "red" : scan.status === "completed" ? "lime" : "amber"} /></div></td>

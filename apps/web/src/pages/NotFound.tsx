@@ -8,7 +8,7 @@ export function NotFoundPage() {
       <div className="w-full max-w-md rounded-xl border border-ink-650 bg-ink-850">
         <EmptyState
           icon={<Radar className="h-4 w-4" />}
-          title="404 — route not found"
+          title="404 - route not found"
           description="This page does not exist in the King Malhare console. Check the address or return to the overview."
           action={<Link to="/dashboard"><Button><ArrowLeft className="h-3.5 w-3.5" /> Back to overview</Button></Link>}
         />

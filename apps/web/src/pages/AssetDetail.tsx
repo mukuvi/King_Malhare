@@ -83,7 +83,7 @@ export function AssetDetailPage() {
         <Badge>{data.environment}</Badge>
         {data.tags.map((tag) => <Badge key={tag}><span className="text-ink-400">#</span>{tag}</Badge>)}
         <AuthorizationStatus authorizations={auths} />
-        {data.status === "archived" ? <Badge className="border-orange-500/30 bg-orange-500/10 text-orange-300">archived</Badge> : null}
+        {data.status === "archived" ? <Badge className="border-orange-500/30 bg-orange-500/10 text-orange-700">archived</Badge> : null}
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -139,7 +139,7 @@ export function AssetDetailPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-mono text-[12px] text-ink-200">{scan.findings}</p>
-                        <p className="text-[9px] uppercase tracking-wider text-ink-500">findings</p>
+                        <p className="text-[9px] uppercase tracking-wider text-ink-400">findings</p>
                       </div>
                     </Link>
                   ))}
@@ -154,19 +154,19 @@ export function AssetDetailPage() {
               <CardContent>
                 {activeAuth ? (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-[12px] text-lime-300"><ShieldCheck className="h-4 w-4" /> Active authorization</div>
+                    <div className="flex items-center gap-2 text-[12px] text-lime-700"><ShieldCheck className="h-4 w-4" /> Active authorization</div>
                     <div className="space-y-2 text-[11.5px]">
                       <div className="flex justify-between gap-3"><span className="text-ink-400">Reference</span><span className="font-mono text-ink-100">{activeAuth.reference}</span></div>
                       <div className="flex justify-between gap-3"><span className="text-ink-400">Approved by</span><span className="text-ink-100">{activeAuth.approved_by_name}</span></div>
                       <div className="flex justify-between gap-3"><span className="text-ink-400">Expires</span><span className="text-ink-100">{formatDateTime(activeAuth.expires_at)}</span></div>
-                      <div className="flex justify-between gap-3"><span className="text-ink-400">Intrusive</span><span className={activeAuth.intrusive_allowed ? "text-orange-300" : "text-ink-300"}>{activeAuth.intrusive_allowed ? "Permitted" : "Not permitted"}</span></div>
-                      <div className="flex justify-between gap-3"><span className="text-ink-400">Private ranges</span><span className={activeAuth.allow_private ? "text-amber-300" : "text-ink-300"}>{activeAuth.allow_private ? "Permitted" : "Not permitted"}</span></div>
+                      <div className="flex justify-between gap-3"><span className="text-ink-400">Intrusive</span><span className={activeAuth.intrusive_allowed ? "text-orange-700" : "text-ink-300"}>{activeAuth.intrusive_allowed ? "Permitted" : "Not permitted"}</span></div>
+                      <div className="flex justify-between gap-3"><span className="text-ink-400">Private ranges</span><span className={activeAuth.allow_private ? "text-amber-700" : "text-ink-300"}>{activeAuth.allow_private ? "Permitted" : "Not permitted"}</span></div>
                     </div>
                     {activeAuth.scope_notes ? <p className="rounded border border-ink-700 bg-ink-900/50 p-2 text-[11px] leading-relaxed text-ink-300">{activeAuth.scope_notes}</p> : null}
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-[12px] text-amber-300"><KeyRound className="h-4 w-4" /> No active authorization</div>
+                    <div className="flex items-center gap-2 text-[12px] text-amber-700"><KeyRound className="h-4 w-4" /> No active authorization</div>
                     <p className="text-[11.5px] leading-relaxed text-ink-400">Assessments cannot be queued until a current approval is recorded. Expired approvals remain visible for audit.</p>
                     <Button size="sm" onClick={() => setAuthOpen(true)}>Record authorization</Button>
                   </div>
@@ -188,7 +188,7 @@ export function AssetDetailPage() {
                 <tbody>
                   {scans.data?.items.map((scan) => (
                     <tr key={scan.id}>
-                      <td><Link to={`/scans/${scan.id}`} className="font-medium text-ink-100 hover:text-amber-300">{scannerLabel(scan.scanner)}</Link><div className="mt-0.5 text-[10.5px] text-ink-400">{categoryLabel(scan.category)}</div></td>
+                      <td><Link to={`/scans/${scan.id}`} className="font-medium text-ink-100 hover:text-amber-700">{scannerLabel(scan.scanner)}</Link><div className="mt-0.5 text-[10.5px] text-ink-400">{categoryLabel(scan.category)}</div></td>
                       <td><ScanStatusBadge status={scan.status} /></td>
                       <td><div className="w-24"><Progress value={scan.progress} tone={scan.status === "failed" ? "red" : scan.status === "completed" ? "lime" : "amber"} /><span className="mt-1 block font-mono text-[9.5px] text-ink-400">{scan.phase}</span></div></td>
                       <td className="font-mono text-[11.5px]">{scan.findings}</td>
@@ -211,7 +211,7 @@ export function AssetDetailPage() {
                 <tbody>
                   {findings.data?.items.map((finding) => (
                     <tr key={finding.id}>
-                      <td><Link to={`/findings/${finding.id}`} className="font-medium text-ink-100 hover:text-amber-300">{finding.title}</Link><div className="mt-0.5 text-[10px] text-ink-500">{finding.cve ?? finding.cwe ?? "No external reference"}</div></td>
+                      <td><Link to={`/findings/${finding.id}`} className="font-medium text-ink-100 hover:text-amber-700">{finding.title}</Link><div className="mt-0.5 text-[10px] text-ink-400">{finding.cve ?? finding.cwe ?? "No external reference"}</div></td>
                       <td><SeverityBadge severity={finding.severity} /></td>
                       <td className="text-[11px] capitalize text-ink-300">{finding.status.replace(/_/g, " ")}</td>
                       <td className="max-w-[280px] truncate font-mono text-[10.5px] text-ink-400">{finding.endpoint}</td>
@@ -232,9 +232,9 @@ export function AssetDetailPage() {
         <div className="mt-10 flex items-center justify-between rounded-lg border border-ink-700 bg-ink-850/50 px-4 py-3">
           <div>
             <p className="text-[11.5px] font-medium text-ink-200">Archive asset</p>
-            <p className="mt-0.5 text-[10.5px] text-ink-500">Archived assets keep their findings and reports but cannot be assessed.</p>
+            <p className="mt-0.5 text-[10.5px] text-ink-400">Archived assets keep their findings and reports but cannot be assessed.</p>
           </div>
-          <Button variant="ghost" size="sm" className="text-ink-400 hover:text-red-300" onClick={() => { if (window.confirm(`Archive ${data.name}?`)) archive.mutate(); }} loading={archive.isPending}>
+          <Button variant="ghost" size="sm" className="text-ink-400 hover:text-red-700" onClick={() => { if (window.confirm(`Archive ${data.name}?`)) archive.mutate(); }} loading={archive.isPending}>
             Archive
           </Button>
         </div>
@@ -246,7 +246,7 @@ export function AssetDetailPage() {
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-500">{label}</div>
+      <div className="text-[9.5px] font-semibold uppercase tracking-[0.13em] text-ink-400">{label}</div>
       <div className={cn("mt-1 text-[12px] text-ink-200", label === "Description" && "whitespace-pre-wrap leading-relaxed")}>{value}</div>
     </div>
   );

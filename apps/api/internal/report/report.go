@@ -203,7 +203,7 @@ const htmlTemplate = `<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{.Title}} — King Malhare</title>
+<title>{{.Title}} - King Malhare</title>
 <style>
   :root { --ink:#17150f; --muted:#6b665c; --line:#ded8cc; --paper:#faf7f0; --accent:#b45309; --critical:#b91c1c; --high:#c2410c; --medium:#a16207; --low:#3f6212; --info:#475569; }
   * { box-sizing: border-box; }
@@ -293,11 +293,11 @@ const htmlTemplate = `<!DOCTYPE html>
     <tr><td class="num">12</td><td>Conclusion</td></tr>
     <tr><td class="num">13</td><td>Appendix</td></tr>
   </table>
-  <div class="footer"><span>King Malhare — {{.Title}}</span><span>Page 2</span></div>
+  <div class="footer"><span>King Malhare - {{.Title}}</span><span>Page 2</span></div>
 </section>
 
 <section>
-  <div class="kicker">01 — Executive summary</div>
+  <div class="kicker">01 - Executive summary</div>
   <h2>What the assessment found</h2>
   <div class="rule"></div>
   <p class="lede">{{.RiskStatement}}</p>
@@ -310,12 +310,12 @@ const htmlTemplate = `<!DOCTYPE html>
   </div>
   <p><strong>Security posture score:</strong> {{.PostureScore}}/100. This score weights open findings against the number of assessed assets and is intended for trend comparison, not as a certification of security.</p>
   <p><strong>Assessment scope:</strong> {{len .Scope}} authorized target{{if ne (len .Scope) 1}}s{{end}}{{if .Scan}} assessed with the {{.Scan.Scanner}} profile ({{.Scan.Category}}){{end}}. Testing was performed only within the recorded authorization window and target list.</p>
-  {{if .Scan}}<p><strong>Primary target:</strong> {{.Scan.AssetName}} — {{.Scan.Target}}<br><strong>Authorization:</strong> {{.Scan.AuthRef}} (approved by {{.Scan.Approver}}, expires {{.Scan.AuthExpires}})</p>{{end}}
+  {{if .Scan}}<p><strong>Primary target:</strong> {{.Scan.AssetName}} - {{.Scan.Target}}<br><strong>Authorization:</strong> {{.Scan.AuthRef}} (approved by {{.Scan.Approver}}, expires {{.Scan.AuthExpires}})</p>{{end}}
   <p>The technical sections contain reproduction steps and evidence for every finding. Findings marked <em>info</em> are observations rather than vulnerabilities. Items that could not be verified were excluded.</p>
 </section>
 
 <section>
-  <div class="kicker">02 — Objectives</div>
+  <div class="kicker">02 - Objectives</div>
   <h2>Assessment objectives</h2>
   <div class="rule"></div>
   <p>The engagement was designed to answer four questions within the authorized scope:</p>
@@ -329,7 +329,7 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">03 — Scope</div>
+  <div class="kicker">03 - Scope</div>
   <h2>Scope and authorized targets</h2>
   <div class="rule"></div>
   <table>
@@ -344,14 +344,14 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">04 — Methodology</div>
+  <div class="kicker">04 - Methodology</div>
   <h2>Methodology</h2>
   <div class="rule"></div>
   <ul>{{range .Methodology}}<li>{{.}}</li>{{end}}</ul>
 </section>
 
 <section>
-  <div class="kicker">05 — Tools</div>
+  <div class="kicker">05 - Tools</div>
   <h2>Tools used</h2>
   <div class="rule"></div>
   <p>Only tools that produced the findings in this report are listed. Scanner availability and versions are recorded by the platform at execution time.</p>
@@ -359,7 +359,7 @@ const htmlTemplate = `<!DOCTYPE html>
     <thead><tr><th>Tool</th><th>Purpose</th><th>Execution</th></tr></thead>
     <tbody>
     {{range .Executions}}
-      <tr><td>{{.Scanner}}</td><td>{{.Command}}</td><td>{{.Status}}{{if .Finished}} — finished {{.Finished}}{{end}}</td></tr>
+      <tr><td>{{.Scanner}}</td><td>{{.Command}}</td><td>{{.Status}}{{if .Finished}} - finished {{.Finished}}{{end}}</td></tr>
     {{else}}
       {{range .Tools}}<tr><td>{{.}}</td><td>Evidence collection and vulnerability detection</td><td>Completed</td></tr>{{end}}
     {{end}}
@@ -368,7 +368,7 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">06 — Timeline</div>
+  <div class="kicker">06 - Timeline</div>
   <h2>Assessment timeline</h2>
   <div class="rule"></div>
   <table>
@@ -380,7 +380,7 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">07 — Vulnerability summary</div>
+  <div class="kicker">07 - Vulnerability summary</div>
   <h2>Vulnerability summary</h2>
   <div class="rule"></div>
   {{if .Findings}}
@@ -396,7 +396,7 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">08 — Detailed findings</div>
+  <div class="kicker">08 - Detailed findings</div>
   <h2>Detailed technical findings</h2>
   <div class="rule"></div>
   {{range $i, $f := .Findings}}
@@ -409,7 +409,7 @@ const htmlTemplate = `<!DOCTYPE html>
       <div><span>Affected asset</span>{{if $.Scan}}{{$.Scan.AssetName}}{{end}}</div>
       <div><span>Endpoint</span>{{$f.Endpoint}}</div>
       <div><span>CVSS</span>{{if $f.CVSS}}{{$f.CVSS}}{{else}}Not scored{{end}}</div>
-      <div><span>CVE / CWE</span>{{if $f.CVE}}{{$f.CVE}}{{else}}—{{end}} / {{if $f.CWE}}{{$f.CWE}}{{else}}—{{end}}</div>
+      <div><span>CVE / CWE</span>{{if $f.CVE}}{{$f.CVE}}{{else}}-{{end}} / {{if $f.CWE}}{{$f.CWE}}{{else}}-{{end}}</div>
       <div><span>First seen</span>{{$f.FirstSeen}}</div>
       <div><span>Status</span>{{$f.Status}}</div>
     </div>
@@ -426,22 +426,22 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">09 — Evidence and screenshots</div>
+  <div class="kicker">09 - Evidence and screenshots</div>
   <h2>Evidence and screenshots</h2>
   <div class="rule"></div>
   <p>Evidence captured during testing is listed below. Attachments are retained in the King Malhare evidence store with SHA-256 integrity hashes and access controlled to this organization.</p>
   {{range $i, $f := .Findings}}{{if $f.EvidenceFiles}}
-    <h3>KM-{{printf "%03d" (add $i 1)}} — {{$f.Title}}</h3>
+    <h3>KM-{{printf "%03d" (add $i 1)}} - {{$f.Title}}</h3>
     <div class="screens">
     {{range $f.EvidenceFiles}}{{if .DataURI}}<figure style="margin:0"><img src="{{.DataURI}}" alt="{{.Filename}}"><figcaption class="scope-note">{{.Filename}}</figcaption></figure>{{end}}{{end}}
     </div>
-    <ul>{{range $f.EvidenceFiles}}<li>{{.Filename}} — {{.ContentType}}, {{.SizeBytes}} bytes, SHA-256 {{.SHA256}}</li>{{end}}</ul>
+    <ul>{{range $f.EvidenceFiles}}<li>{{.Filename}} - {{.ContentType}}, {{.SizeBytes}} bytes, SHA-256 {{.SHA256}}</li>{{end}}</ul>
   {{end}}{{end}}
   <p class="scope-note">Evidence JSON excerpts are embedded in each detailed finding. Binary attachments remain available from the finding record.</p>
 </section>
 
 <section>
-  <div class="kicker">10 — Risk analysis</div>
+  <div class="kicker">10 - Risk analysis</div>
   <h2>Risk analysis</h2>
   <div class="rule"></div>
   <p>{{.RiskStatement}}</p>
@@ -459,21 +459,21 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">11 — Remediation recommendations</div>
+  <div class="kicker">11 - Remediation recommendations</div>
   <h2>Remediation recommendations</h2>
   <div class="rule"></div>
-  <h3>Immediate (0–7 days)</h3>
+  <h3>Immediate (0-7 days)</h3>
   <p>Remediate all critical findings and any high finding exposed to the public internet. Where a fix is not immediately available, apply compensating controls such as restricting access, disabling the affected feature, or adding a virtual patch at the edge.</p>
-  <h3>Short term (7–30 days)</h3>
+  <h3>Short term (7-30 days)</h3>
   <p>Address high and medium findings, prioritising authentication, access control and injection classes. Re-run the assessment after changes and compare results against this baseline.</p>
-  <h3>Planned (30–90 days)</h3>
+  <h3>Planned (30-90 days)</h3>
   <p>Resolve low and informational findings, remove unnecessary services, tighten TLS and header configuration, and add regression checks to CI where the issue class can be tested automatically.</p>
   <h3>Verification</h3>
   <p>Every fixed finding should be retested. A finding is closed only when the same test no longer reproduces the condition and the retest is recorded in the platform.</p>
 </section>
 
 <section>
-  <div class="kicker">12 — Conclusion</div>
+  <div class="kicker">12 - Conclusion</div>
   <h2>Conclusion</h2>
   <div class="rule"></div>
   <p>{{.Conclusion}}</p>
@@ -481,7 +481,7 @@ const htmlTemplate = `<!DOCTYPE html>
 </section>
 
 <section>
-  <div class="kicker">13 — Appendix</div>
+  <div class="kicker">13 - Appendix</div>
   <h2>Appendix</h2>
   <div class="rule"></div>
   <h3>Authorization and scope</h3>
@@ -799,7 +799,7 @@ func severeRGB(sev string) (int, int, int) {
 
 func ascii(s string) string {
 	replacer := strings.NewReplacer(
-		"—", "-", "–", "-", "’", "'", "‘", "'", "“", `"`, "”", `"`,
+		"-", "-", "-", "-", "’", "'", "‘", "'", "“", `"`, "”", `"`,
 		"…", "...", "·", "-", "•", "-", "→", "->", "≥", ">=", "≤", "<=", "®", "(R)", "©", "(C)",
 	)
 	out := replacer.Replace(s)

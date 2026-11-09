@@ -68,7 +68,7 @@ export function NotificationsPage() {
                   const Icon = icons[notification.type] ?? Bell;
                   return (
                     <button key={notification.id} onClick={() => openNotification(notification)} className={`flex w-full items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-ink-800/60 ${notification.read ? "" : "bg-amber-500/[0.025]"}`}>
-                      <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${notification.read ? "border-ink-600 bg-ink-800 text-ink-400" : "border-amber-500/25 bg-amber-500/10 text-amber-300"}`}>
+                      <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${notification.read ? "border-ink-600 bg-ink-800 text-ink-400" : "border-amber-500/25 bg-amber-500/10 text-amber-700"}`}>
                         <Icon className="h-3.5 w-3.5" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -77,7 +77,7 @@ export function NotificationsPage() {
                           {!notification.read ? <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> : null}
                         </div>
                         <p className="mt-1 text-[11.5px] leading-relaxed text-ink-400">{notification.body}</p>
-                        <p className="mt-1.5 text-[9.5px] text-ink-500">{formatDateTime(notification.created_at)} · {relativeTime(notification.created_at)}</p>
+                        <p className="mt-1.5 text-[9.5px] text-ink-400">{formatDateTime(notification.created_at)} · {relativeTime(notification.created_at)}</p>
                       </div>
                       <Badge className="mt-0.5 hidden sm:inline-flex">{notification.type}</Badge>
                     </button>
@@ -88,7 +88,7 @@ export function NotificationsPage() {
           </TableShell>
         </QueryState>
       </div>
-      <p className="mt-4 text-[10.5px] text-ink-500">Notification delivery is in-app only. Email and webhook delivery are not configured in this deployment.</p>
+      <p className="mt-4 text-[10.5px] text-ink-400">Notification delivery is in-app only. Email and webhook delivery are not configured in this deployment.</p>
     </PageTransition>
   );
 }

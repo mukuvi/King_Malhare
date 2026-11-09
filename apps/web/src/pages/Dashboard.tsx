@@ -111,7 +111,7 @@ export function DashboardPage() {
               <Card className="border-amber-500/25 bg-amber-500/[0.035]">
                 <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-700">
                       <Target className="h-4 w-4" />
                     </div>
                     <div>
@@ -134,7 +134,7 @@ export function DashboardPage() {
                       <CircleAlert className="h-4 w-4" />
                       {data.assets.without_authorization} active asset{data.assets.without_authorization === 1 ? "" : "s"} cannot be assessed until an authorization is recorded.
                     </div>
-                    <ArrowRight className="h-3.5 w-3.5 text-orange-300" />
+                    <ArrowRight className="h-3.5 w-3.5 text-orange-700" />
                   </CardContent>
                 </Card>
               </Link>
@@ -168,7 +168,7 @@ export function DashboardPage() {
                     {severityOrder.map((severity) => (
                       <Link key={severity} to={`/findings?severity=${severity}`} className="group text-center">
                         <div className="text-[12px] font-semibold text-ink-100">{data.findings[severity]}</div>
-                        <div className="mt-0.5 text-[8.5px] uppercase tracking-wider text-ink-500 group-hover:text-ink-300">{severity}</div>
+                        <div className="mt-0.5 text-[8.5px] uppercase tracking-wider text-ink-400 group-hover:text-ink-300">{severity}</div>
                       </Link>
                     ))}
                   </div>
@@ -177,7 +177,7 @@ export function DashboardPage() {
             </div>
 
             <div className="grid gap-4 xl:grid-cols-[1.55fr_1fr]">
-              <div>
+              <div className="min-w-0">
                 <div className="mb-2.5 flex items-center justify-between">
                   <h2 className="text-[13px] font-semibold text-ink-100">Recent assessments</h2>
                   <Link to="/scans" className="text-[11px] text-ink-400 hover:text-ink-100">Scan center</Link>
@@ -187,7 +187,7 @@ export function DashboardPage() {
                     <EmptyState icon={<Radar className="h-4 w-4" />} title="No assessments yet" description="Once an authorized scan runs, its real progress and findings appear here." action={<Link to="/scans/new"><Button size="sm">Start an assessment</Button></Link>} />
                   ) : (
                     <table className="table-base">
-                      <thead><tr><th>Assessment</th><th>Status</th><th>Findings</th><th>Started</th></tr></thead>
+                      <thead><tr><th>Assessment</th><th>Status</th><th>Findings</th><th className="hidden sm:table-cell">Started</th></tr></thead>
                       <tbody>
                         {data.recent_scans.map((scan) => (
                           <tr key={scan.id}>
@@ -202,7 +202,7 @@ export function DashboardPage() {
                               {scan.status === "running" || scan.status === "queued" ? <div className="mt-1.5 w-20"><Progress value={scan.progress} /></div> : null}
                             </td>
                             <td className="font-mono text-[11.5px] text-ink-200">{scan.findings}</td>
-                            <td className="text-[11px] text-ink-400">{relativeTime(scan.created_at)}</td>
+                            <td className="hidden text-[11px] text-ink-400 sm:table-cell">{relativeTime(scan.created_at)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -211,7 +211,7 @@ export function DashboardPage() {
                 </TableShell>
               </div>
 
-              <Card>
+              <Card className="min-w-0">
                 <CardHeader>
                   <CardTitle subtitle="Audit events across the workspace">Recent activity</CardTitle>
                   <Link to="/audit" className="text-[11px] text-ink-400 hover:text-ink-100">Audit</Link>
@@ -226,7 +226,7 @@ export function DashboardPage() {
                           <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-amber-400/70" />
                           <div className="min-w-0">
                             <p className="truncate text-[11.5px] text-ink-200">{humanizeAction(event.action)}</p>
-                            <p className="mt-0.5 text-[10px] text-ink-500">{event.actor ?? "System"} · {relativeTime(event.created_at)}</p>
+                            <p className="mt-0.5 text-[10px] text-ink-400">{event.actor ?? "System"} · {relativeTime(event.created_at)}</p>
                           </div>
                         </div>
                       ))}
@@ -252,7 +252,7 @@ export function DashboardPage() {
                   <div>
                     <p className="text-[12px] font-medium text-ink-100">{data.reports} report{data.reports === 1 ? "" : "s"} generated</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-ink-400">Reports preserve the scope, methodology and evidence for the assessment that produced them.</p>
-                    <Link to="/reports" className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-amber-200">Report center <ArrowRight className="h-3 w-3" /></Link>
+                    <Link to="/reports" className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-700">Report center <ArrowRight className="h-3 w-3" /></Link>
                   </div>
                 </CardContent>
               </Card>
@@ -262,13 +262,13 @@ export function DashboardPage() {
                   <div>
                     <p className="text-[12px] font-medium text-ink-100">Scanner fleet</p>
                     <p className="mt-1 text-[11px] leading-relaxed text-ink-400">Tool availability comes from worker heartbeats. Missing binaries are reported honestly, never simulated.</p>
-                    <Link to="/integrations" className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-amber-200">Check integrations <ArrowRight className="h-3 w-3" /></Link>
+                    <Link to="/integrations" className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-700">Check integrations <ArrowRight className="h-3 w-3" /></Link>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {data.scans.last_at ? <p className="text-[10.5px] text-ink-500">Last assessment queued {formatDateTime(data.scans.last_at)} · last data refresh {formatDate(new Date().toISOString())}</p> : null}
+            {data.scans.last_at ? <p className="text-[10.5px] text-ink-400">Last assessment queued {formatDateTime(data.scans.last_at)} · last data refresh {formatDate(new Date().toISOString())}</p> : null}
           </div>
         ) : null}
       </QueryState>
@@ -288,11 +288,11 @@ export function DashboardPage() {
         }
       >
         <div className="space-y-4">
-          <div className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] leading-relaxed text-red-200">
+          <div className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] leading-relaxed text-red-700">
             Running scanner processes are terminated by the worker. Partial results already submitted remain in the finding register. This action is audited.
           </div>
           <div>
-            <p className="mb-2 text-[11.5px] text-ink-300">Type <span className="font-mono text-red-300">STOP</span> to confirm.</p>
+            <p className="mb-2 text-[11.5px] text-ink-300">Type <span className="font-mono text-red-700">STOP</span> to confirm.</p>
             <Input value={confirmText} onChange={(event) => setConfirmText(event.target.value.toUpperCase())} placeholder="STOP" autoFocus />
           </div>
         </div>

@@ -34,10 +34,10 @@ export function FindingsPage() {
       />
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Open findings" value={overview.data?.findings.open ?? "—"} hint="Excludes fixed, false positive, accepted risk" icon={<ShieldAlert className="h-4 w-4" />} loading={overview.isLoading} />
-        <StatCard label="Critical" value={overview.data?.findings.critical ?? "—"} hint="Immediate remediation recommended" tone={(overview.data?.findings.critical ?? 0) > 0 ? "danger" : "default"} icon={<AlertTriangle className="h-4 w-4" />} loading={overview.isLoading} />
-        <StatCard label="High" value={overview.data?.findings.high ?? "—"} hint="Prioritise in the current cycle" tone={(overview.data?.findings.high ?? 0) > 0 ? "warn" : "default"} icon={<ShieldAlert className="h-4 w-4" />} loading={overview.isLoading} />
-        <StatCard label="Total recorded" value={overview.data?.findings.total ?? "—"} hint="Includes fixed and accepted items" icon={<AlertTriangle className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Open findings" value={overview.data?.findings.open ?? "-"} hint="Excludes fixed, false positive, accepted risk" icon={<ShieldAlert className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Critical" value={overview.data?.findings.critical ?? "-"} hint="Immediate remediation recommended" tone={(overview.data?.findings.critical ?? 0) > 0 ? "danger" : "default"} icon={<AlertTriangle className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="High" value={overview.data?.findings.high ?? "-"} hint="Prioritise in the current cycle" tone={(overview.data?.findings.high ?? 0) > 0 ? "warn" : "default"} icon={<ShieldAlert className="h-4 w-4" />} loading={overview.isLoading} />
+        <StatCard label="Total recorded" value={overview.data?.findings.total ?? "-"} hint="Includes fixed and accepted items" icon={<AlertTriangle className="h-4 w-4" />} loading={overview.isLoading} />
       </div>
 
       <div className="mt-6">
@@ -63,7 +63,7 @@ export function FindingsPage() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5">
-            <Filter className="h-3.5 w-3.5 text-ink-500" />
+            <Filter className="h-3.5 w-3.5 text-ink-400" />
             <Select value={status} onChange={(event) => { setStatus(event.target.value); if (event.target.value) params.set("status", event.target.value); else params.delete("status"); setParams(params, { replace: true }); }} className="w-auto border-ink-700 bg-ink-900">
               <option value="">All statuses</option>
               {(["open", "confirmed", "in_progress", "fixed", "retest_required", "accepted_risk", "false_positive"] as FindingStatus[]).map((item) => <option key={item} value={item}>{item.replace(/_/g, " ")}</option>)}
@@ -100,7 +100,7 @@ export function FindingsPage() {
                     <tr key={finding.id}>
                       <td>
                         <Link to={`/findings/${finding.id}`} className="block max-w-[430px]">
-                          <span className="block truncate text-[12.5px] font-medium text-ink-100 hover:text-amber-300">{finding.title}</span>
+                          <span className="block truncate text-[12.5px] font-medium text-ink-100 hover:text-amber-700">{finding.title}</span>
                           <span className="mt-0.5 block truncate font-mono text-[10px] text-ink-400">{finding.endpoint}</span>
                           <span className="mt-1 flex flex-wrap items-center gap-1.5">
                             {finding.cve ? <Badge className="text-[9px]">{finding.cve}</Badge> : null}
@@ -113,7 +113,7 @@ export function FindingsPage() {
                       <td><Link to={`/assets/${finding.asset_id}`} className="text-[11.5px] text-ink-300 hover:text-ink-100">{finding.asset_name}</Link></td>
                       <td><SeverityBadge severity={finding.severity} /></td>
                       <td><FindingStatusBadge status={finding.status} /></td>
-                      <td>{finding.assignee_name ? <span className="flex items-center gap-1.5 text-[11px] text-ink-300"><UserRound className="h-3 w-3" />{finding.assignee_name}</span> : <span className="text-[11px] text-ink-500">Unassigned</span>}</td>
+                      <td>{finding.assignee_name ? <span className="flex items-center gap-1.5 text-[11px] text-ink-300"><UserRound className="h-3 w-3" />{finding.assignee_name}</span> : <span className="text-[11px] text-ink-400">Unassigned</span>}</td>
                       <td className="whitespace-nowrap text-[11px] text-ink-400">{formatDate(finding.last_seen)}</td>
                     </tr>
                   ))}

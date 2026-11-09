@@ -7,9 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(value?: string, options?: Intl.DateTimeFormatOptions): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
@@ -19,9 +19,9 @@ export function formatDate(value?: string, options?: Intl.DateTimeFormatOptions)
 }
 
 export function formatDateTime(value?: string): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
@@ -33,9 +33,9 @@ export function formatDateTime(value?: string): string {
 }
 
 export function relativeTime(value?: string): string {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value).getTime();
-  if (Number.isNaN(date)) return "—";
+  if (Number.isNaN(date)) return "-";
   const diff = date - Date.now();
   const abs = Math.abs(diff);
   const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
@@ -53,7 +53,7 @@ export function relativeTime(value?: string): string {
       return formatter.format(Math.round(diff / ms), unit);
     }
   }
-  return "—";
+  return "-";
 }
 
 export function initials(name?: string): string {
@@ -75,19 +75,19 @@ export const severityLabel: Record<Severity, string> = {
 };
 
 export const severityStyles: Record<Severity, string> = {
-  critical: "border-red-500/30 bg-red-500/10 text-red-300",
-  high: "border-orange-500/30 bg-orange-500/10 text-orange-300",
-  medium: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  low: "border-lime-500/25 bg-lime-500/10 text-lime-300",
-  info: "border-sky-500/25 bg-sky-500/10 text-sky-300",
+  critical: "border-red-500/25 bg-red-500/10 text-red-700",
+  high: "border-orange-500/25 bg-orange-500/10 text-orange-700",
+  medium: "border-amber-500/30 bg-amber-500/10 text-amber-700",
+  low: "border-lime-600/25 bg-lime-500/10 text-lime-700",
+  info: "border-sky-500/25 bg-sky-500/10 text-sky-700",
 };
 
 export const severityHex: Record<Severity, string> = {
-  critical: "#ef4444",
-  high: "#f97316",
-  medium: "#f5b025",
-  low: "#84cc16",
-  info: "#64748b",
+  critical: "#D96B6B",
+  high: "#E39A6A",
+  medium: "#E3C06A",
+  low: "#8FC9A8",
+  info: "#8EA6C9",
 };
 
 export const severityOrder: Severity[] = ["critical", "high", "medium", "low", "info"];
@@ -143,7 +143,7 @@ export function scannerLabel(name?: string): string {
     "aws-posture": "AWS posture",
     "auth-baseline": "Auth baseline",
   };
-  return name ? labels[name] ?? name : "—";
+  return name ? labels[name] ?? name : "-";
 }
 
 export function formatBytes(bytes: number): string {
@@ -163,10 +163,10 @@ export function truncate(value: string, length: number): string {
 }
 
 export function riskTone(score: number): string {
-  if (score >= 80) return "text-lime-300";
-  if (score >= 60) return "text-amber-300";
-  if (score >= 40) return "text-orange-300";
-  return "text-red-300";
+  if (score >= 80) return "text-lime-700";
+  if (score >= 60) return "text-amber-700";
+  if (score >= 40) return "text-orange-700";
+  return "text-red-700";
 }
 
 export function postureScoreLabel(score: number): string {

@@ -6,14 +6,14 @@ export function PostureGauge({ score, size = 148 }: { score: number; size?: numb
   const radius = (size - 14) / 2;
   const circumference = Math.PI * radius;
   const offset = circumference - (Math.min(100, Math.max(0, score)) / 100) * circumference;
-  const color = score >= 80 ? "#a3e635" : score >= 60 ? "#f5b025" : score >= 40 ? "#fb923c" : "#f87171";
+  const color = score >= 80 ? "#4FAF85" : score >= 60 ? "#E3A92F" : score >= 40 ? "#E38456" : "#D96B6B";
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size / 2 + 20 }}>
       <svg width={size} height={size / 2 + 14} viewBox={`0 0 ${size} ${size / 2 + 14}`} className="overflow-visible">
         <path
           d={`M 7 ${size / 2} A ${radius} ${radius} 0 0 1 ${size - 7} ${size / 2}`}
           fill="none"
-          stroke="#232329"
+          stroke="#EDE5D7"
           strokeWidth="9"
           strokeLinecap="round"
         />
@@ -67,8 +67,8 @@ export function SeverityDonut({
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ background: "#18181c", border: "1px solid #2a2a31", borderRadius: 8, fontSize: 12 }}
-            itemStyle={{ color: "#e9e4d8" }}
+            contentStyle={{ background: "#FFFDF9", border: "1px solid #E7DED0", borderRadius: 10, fontSize: 12, boxShadow: "0 18px 40px -30px rgba(31,27,22,0.35)" }}
+            itemStyle={{ color: "#2E2923" }}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -87,22 +87,22 @@ export function TrendChart({ data, loading }: { data: Array<Record<string, strin
     <div className="h-[250px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} barCategoryGap="22%" margin={{ top: 8, right: 8, left: -22, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="#232329" />
+          <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="#EDE5D7" />
           <XAxis
             dataKey="label"
-            tick={{ fill: "#8a8a96", fontSize: 10 }}
+            tick={{ fill: "#8C8477", fontSize: 10 }}
             tickLine={false}
-            axisLine={{ stroke: "#2a2a31" }}
+            axisLine={{ stroke: "#E7DED0" }}
             interval="preserveStartEnd"
             minTickGap={30}
           />
-          <YAxis tick={{ fill: "#8a8a96", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+          <YAxis tick={{ fill: "#8C8477", fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip
-            cursor={{ fill: "rgba(245,176,37,0.05)" }}
-            contentStyle={{ background: "#18181c", border: "1px solid #2a2a31", borderRadius: 8, fontSize: 12 }}
-            labelStyle={{ color: "#ddd8cc" }}
+            cursor={{ fill: "rgba(232,168,162,0.12)" }}
+            contentStyle={{ background: "#FFFDF9", border: "1px solid #E7DED0", borderRadius: 10, fontSize: 12, boxShadow: "0 18px 40px -30px rgba(31,27,22,0.35)" }}
+            labelStyle={{ color: "#4C463D" }}
           />
-          <Legend wrapperStyle={{ fontSize: 10, color: "#8a8a96", paddingTop: 8 }} />
+          <Legend wrapperStyle={{ fontSize: 10, color: "#8C8477", paddingTop: 8 }} />
           {(["critical", "high", "medium", "low"] as const).map((severity) => (
             <Bar key={severity} dataKey={severity} stackId="findings" fill={severityHex[severity]} radius={severity === "low" ? [2, 2, 0, 0] : undefined} maxBarSize={18} />
           ))}

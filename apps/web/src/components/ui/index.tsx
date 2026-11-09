@@ -22,13 +22,13 @@ type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 export function buttonStyles(variant: ButtonVariant = "primary", size: ButtonSize = "md", className?: string) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900";
+    "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150 disabled:pointer-events-none disabled:opacity-45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950";
   const variants: Record<ButtonVariant, string> = {
-    primary: "bg-amber-400 text-ink-950 hover:bg-amber-300 active:bg-amber-500 shadow-[0_1px_0_rgba(255,255,255,0.25)_inset]",
-    secondary: "border border-ink-600 bg-ink-800 text-ink-100 hover:border-ink-500 hover:bg-ink-750",
-    ghost: "text-ink-200 hover:bg-ink-800 hover:text-ink-50",
-    danger: "bg-red-500/15 text-red-300 border border-red-500/30 hover:bg-red-500/25",
-    outline: "border border-amber-500/40 text-amber-300 hover:bg-amber-500/10",
+    primary: "bg-amber-300 text-ink-50 shadow-soft hover:bg-amber-200 active:bg-amber-400",
+    secondary: "border border-ink-600 bg-ink-850 text-ink-100 hover:border-ink-500 hover:bg-ink-800",
+    ghost: "text-ink-300 hover:bg-ink-800 hover:text-ink-50",
+    danger: "border border-red-500/25 bg-red-500/10 text-red-700 hover:bg-red-500/15",
+    outline: "border border-amber-500/50 text-amber-700 hover:bg-amber-500/10",
   };
   const sizes: Record<ButtonSize, string> = {
     sm: "h-8 px-2.5 text-[12px]",
@@ -130,17 +130,17 @@ export function SeverityBadge({ severity, className }: { severity: Severity; cla
 
 export function ScanStatusBadge({ status }: { status: ScanStatus }) {
   const tone: Record<ScanStatus, string> = {
-    pending: "border-ink-500 bg-ink-800 text-ink-200",
-    queued: "border-sky-500/25 bg-sky-500/10 text-sky-300",
-    initializing: "border-sky-500/25 bg-sky-500/10 text-sky-300",
-    running: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-    completed: "border-lime-500/25 bg-lime-500/10 text-lime-300",
-    failed: "border-red-500/30 bg-red-500/10 text-red-300",
+    pending: "border-ink-500 bg-ink-800 text-ink-300",
+    queued: "border-sky-500/25 bg-sky-500/10 text-sky-700",
+    initializing: "border-sky-500/25 bg-sky-500/10 text-sky-700",
+    running: "border-amber-500/30 bg-amber-500/10 text-amber-700",
+    completed: "border-lime-600/25 bg-lime-500/10 text-lime-700",
+    failed: "border-red-500/30 bg-red-500/10 text-red-700",
     cancelled: "border-ink-500 bg-ink-800 text-ink-300",
   };
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]", tone[status])}>
-      <span className={cn("h-1.5 w-1.5 rounded-full", status === "running" && "animate-pulse bg-amber-400", status === "queued" && "bg-sky-400", status === "completed" && "bg-lime-400", status === "failed" && "bg-red-400", status === "cancelled" && "bg-ink-400", status === "initializing" && "bg-sky-400")} />
+      <span className={cn("h-1.5 w-1.5 rounded-full", status === "running" && "animate-pulse bg-amber-500", status === "queued" && "bg-sky-500", status === "completed" && "bg-lime-500", status === "failed" && "bg-red-500", status === "cancelled" && "bg-ink-400", status === "initializing" && "bg-sky-500")} />
       {scanStatusLabel[status]}
     </span>
   );
@@ -148,11 +148,11 @@ export function ScanStatusBadge({ status }: { status: ScanStatus }) {
 
 export function FindingStatusBadge({ status }: { status: FindingStatus }) {
   const tone: Record<FindingStatus, string> = {
-    open: "border-red-500/25 bg-red-500/8 text-red-300",
-    confirmed: "border-orange-500/25 bg-orange-500/8 text-orange-300",
-    in_progress: "border-amber-500/25 bg-amber-500/8 text-amber-300",
-    fixed: "border-lime-500/25 bg-lime-500/8 text-lime-300",
-    retest_required: "border-sky-500/25 bg-sky-500/8 text-sky-300",
+    open: "border-red-500/25 bg-red-500/10 text-red-700",
+    confirmed: "border-orange-500/25 bg-orange-500/10 text-orange-700",
+    in_progress: "border-amber-500/25 bg-amber-500/10 text-amber-700",
+    fixed: "border-lime-600/25 bg-lime-500/10 text-lime-700",
+    retest_required: "border-sky-500/25 bg-sky-500/10 text-sky-700",
     accepted_risk: "border-ink-500 bg-ink-800 text-ink-300",
     false_positive: "border-ink-500 bg-ink-800 text-ink-300",
   };
@@ -177,7 +177,7 @@ export function Field({ label, hint, error, children, htmlFor }: { label: string
     <div>
       <Label htmlFor={htmlFor} hint={hint}>{label}</Label>
       {children}
-      {error ? <p className="mt-1.5 text-[11.5px] text-red-300">{error}</p> : null}
+      {error ? <p className="mt-1.5 text-[11.5px] text-red-700">{error}</p> : null}
     </div>
   );
 }
@@ -192,7 +192,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
 
 export function Select({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select className={cn("input-base appearance-none bg-[length:14px] bg-[right_10px_center] bg-no-repeat pr-8", className)} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a8a96' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...props}>
+    <select className={cn("input-base appearance-none bg-[length:14px] bg-[right_10px_center] bg-no-repeat pr-8", className)} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238C8477' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...props}>
       {children}
     </select>
   );
@@ -237,7 +237,7 @@ export function Modal({
     <AnimatePresence>
       {open ? (
         <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-6">
-          <motion.div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
+          <motion.div className="absolute inset-0 bg-ink-50/35 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -302,7 +302,7 @@ export function Drawer({
     <AnimatePresence>
       {open ? (
         <div className="fixed inset-0 z-[70] flex justify-end">
-          <motion.div className="absolute inset-0 bg-black/65 backdrop-blur-[1px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
+          <motion.div className="absolute inset-0 bg-ink-50/30 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.aside
             role="dialog"
             aria-modal="true"
@@ -355,9 +355,9 @@ export function StatCard({
 }) {
   const tones = {
     default: "text-ink-50",
-    warn: "text-amber-300",
-    danger: "text-red-300",
-    good: "text-lime-300",
+    warn: "text-amber-700",
+    danger: "text-red-700",
+    good: "text-lime-700",
   };
   const body = (
     <div className={cn("panel panel-hover flex h-full flex-col justify-between gap-4 p-4 sm:p-5", to && "cursor-pointer")}>
@@ -380,15 +380,15 @@ export function StatCard({
 
 export function Toggle({ checked, onChange, label, description }: { checked: boolean; onChange: (value: boolean) => void; label: string; description?: string }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-ink-600 bg-ink-900/40 p-3 transition-colors hover:border-ink-500">
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-ink-600 bg-ink-900/50 p-3 transition-colors hover:border-ink-500 hover:bg-ink-850">
       <button
         type="button"
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className={`mt-0.5 h-4 w-7 shrink-0 rounded-full border transition-colors ${checked ? "border-amber-400 bg-amber-400/80" : "border-ink-500 bg-ink-700"}`}
+        className={`mt-0.5 h-4 w-7 shrink-0 rounded-full border transition-colors ${checked ? "border-amber-500 bg-amber-300" : "border-ink-500 bg-ink-700"}`}
       >
-        <span className={`block h-3 w-3 rounded-full bg-ink-950 transition-transform ${checked ? "translate-x-3.5" : "translate-x-0.5"}`} />
+        <span className={`block h-3 w-3 rounded-full bg-ink-850 shadow-sm transition-transform ${checked ? "translate-x-3.5" : "translate-x-0.5"}`} />
       </button>
       <span>
         <span className="block text-[12px] font-medium text-ink-100">{label}</span>
@@ -431,7 +431,7 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center px-6 py-16 text-center", className)}>
-      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-ink-300">{icon}</div>
+      <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-ink-600 bg-ink-800 text-teal-700">{icon}</div>
       <h3 className="text-[14px] font-semibold text-ink-50">{title}</h3>
       <p className="mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-ink-300">{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}
@@ -456,7 +456,7 @@ export function QueryState({
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-        <AlertTriangle className="mb-3 h-5 w-5 text-red-300" />
+        <AlertTriangle className="mb-3 h-5 w-5 text-red-600" />
         <p className="text-[13px] font-medium text-ink-100">Could not load this data</p>
         <p className="mt-1 max-w-md text-[12px] text-ink-400">{error instanceof Error ? error.message : "An unexpected error occurred."}</p>
         {onRetry ? (
@@ -471,7 +471,7 @@ export function QueryState({
 }
 
 export function Progress({ value, className, tone = "amber" }: { value: number; className?: string; tone?: "amber" | "lime" | "red" | "sky" }) {
-  const colors = { amber: "bg-amber-400", lime: "bg-lime-400", red: "bg-red-400", sky: "bg-sky-400" };
+  const colors = { amber: "bg-amber-400", lime: "bg-lime-500", red: "bg-red-500", sky: "bg-sky-500" };
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-ink-700", className)}>
       <div className={cn("h-full rounded-full transition-[width] duration-500", colors[tone])} style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
@@ -496,8 +496,8 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: Array<
           )}
         >
           {tab.label}
-          {typeof tab.count === "number" ? <span className="ml-1.5 rounded bg-ink-700 px-1.5 py-0.5 text-[10px] text-ink-300">{tab.count}</span> : null}
-          {value === tab.value ? <motion.div layoutId="tab-underline" className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-amber-400" /> : null}
+          {typeof tab.count === "number" ? <span className="ml-1.5 rounded-md bg-ink-700 px-1.5 py-0.5 text-[10px] text-ink-300">{tab.count}</span> : null}
+          {value === tab.value ? <motion.div layoutId="tab-underline" className="absolute inset-x-1 -bottom-px h-0.5 rounded-full bg-amber-500" /> : null}
         </button>
       ))}
     </div>
@@ -512,7 +512,7 @@ export function Pagination({ page, perPage, total, onPage }: { page: number; per
   return (
     <div className="flex flex-col items-center justify-between gap-3 border-t border-ink-700 px-4 py-3 sm:flex-row">
       <p className="text-[11.5px] text-ink-400">
-        Showing <span className="text-ink-200">{start}–{end}</span> of <span className="text-ink-200">{total}</span>
+        Showing <span className="text-ink-200">{start}-{end}</span> of <span className="text-ink-200">{total}</span>
       </p>
       <div className="flex items-center gap-1.5">
         <Button variant="secondary" size="icon" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="Previous page">

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Bell, ChevronDown, LogOut, Menu, Plus, Search, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Bell, ChevronDown, LogOut, Menu, Plus, Settings } from "lucide-react";
 import { useMe, useLogout, useNotifications } from "@/hooks/queries";
 import { useUIStore } from "@/stores/ui";
 import { initials } from "@/lib/utils";
 import { buttonStyles } from "@/components/ui";
+import { GlobalSearch } from "./GlobalSearch";
 import { Logo } from "./Logo";
 
 export function Topbar() {
@@ -13,28 +14,15 @@ export function Topbar() {
   const canScan = Boolean(me?.permissions.includes("scans:write"));
   const { data: notifications } = useNotifications();
   const logout = useLogout();
-  const navigate = useNavigate();
-  const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
-        event.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
     const onClick = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(false);
     };
-    window.addEventListener("keydown", onKey);
     window.addEventListener("mousedown", onClick);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("mousedown", onClick);
-    };
+    return () => window.removeEventListener("mousedown", onClick);
   }, []);
 
   return (
@@ -46,24 +34,7 @@ export function Topbar() {
         <Logo compact />
       </Link>
 
-      <form
-        className="relative hidden max-w-md flex-1 md:block"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (query.trim()) navigate(`/findings?search=${encodeURIComponent(query.trim())}`);
-        }}
-      >
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-400" />
-        <input
-          ref={searchRef}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search findings, assets, CVEs"
-          className="h-9 w-full rounded-xl border border-ink-700 bg-ink-850/90 pl-9 pr-12 text-[12.5px] text-ink-100 placeholder:text-ink-400 transition-all hover:border-ink-500 focus:border-amber-500/60 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
-          aria-label="Search findings, assets and CVEs"
-        />
-        <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[9px] text-ink-400">/</span>
-      </form>
+      <GlobalSearch />
 
       <div className="ml-auto flex items-center gap-2">
         {canScan ? (

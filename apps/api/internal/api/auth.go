@@ -23,11 +23,12 @@ type loginRequest struct {
 }
 
 type meResponse struct {
-	User        userDTO  `json:"user"`
-	Org         orgDTO   `json:"org"`
-	Role        string   `json:"role"`
-	Permissions []string `json:"permissions"`
-	CSRFToken   string   `json:"csrf_token,omitempty"`
+	User          userDTO  `json:"user"`
+	Org           orgDTO   `json:"org"`
+	Role          string   `json:"role"`
+	Permissions   []string `json:"permissions"`
+	PlatformAdmin bool     `json:"platform_admin"`
+	CSRFToken     string   `json:"csrf_token,omitempty"`
 }
 
 type userDTO struct {
@@ -276,7 +277,7 @@ func (s *Server) meResponse(w http.ResponseWriter, r *http.Request, ac *AuthCont
 	for p := range ac.Permissions {
 		perms = append(perms, p)
 	}
-	writeJSON(w, http.StatusOK, meResponse{User: u, Org: o, Role: ac.Role, Permissions: perms, CSRFToken: ac.CSRF})
+	writeJSON(w, http.StatusOK, meResponse{User: u, Org: o, Role: ac.Role, Permissions: perms, PlatformAdmin: ac.PlatformAdmin, CSRFToken: ac.CSRF})
 }
 
 type changePasswordRequest struct {

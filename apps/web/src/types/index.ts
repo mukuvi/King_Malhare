@@ -61,7 +61,64 @@ export interface Me {
   org: Organization;
   role: string;
   permissions: string[];
+  platform_admin: boolean;
   csrf_token?: string;
+}
+
+export interface PlatformOverview {
+  organizations: number;
+  users: number;
+  active_users: number;
+  platform_admins: number;
+  assets: number;
+  scans: number;
+  running_scans: number;
+  findings: number;
+  high_risk_findings: number;
+}
+
+export interface PlatformOrganization {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+  member_count: number;
+  asset_count: number;
+  scan_count: number;
+  open_findings: number;
+  owner_name: string;
+  owner_email: string;
+}
+
+export interface PlatformMembership {
+  org_id: string;
+  org_name: string;
+  role_id: string;
+  role_name: string;
+}
+
+export interface PlatformUser {
+  id: string;
+  name: string;
+  email: string;
+  is_active: boolean;
+  is_platform_admin: boolean;
+  last_login_at?: string;
+  created_at: string;
+  memberships: PlatformMembership[];
+}
+
+export interface PlatformActivity {
+  id: string;
+  org_id?: string;
+  org_name?: string;
+  action: string;
+  resource_type: string;
+  resource_id?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  actor?: string;
+  actor_email?: string;
 }
 
 export interface Asset {

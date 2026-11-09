@@ -138,6 +138,16 @@ func (s *Server) PublicRouter() http.Handler {
 			r.Delete("/schedules/{scheduleID}", s.requirePerm("integrations:manage", s.handleDeleteSchedule))
 
 			r.Patch("/me", s.handleUpdateMe)
+
+			r.Route("/platform", func(r chi.Router) {
+				r.Use(s.requirePlatformAdmin)
+				r.Get("/overview", s.handlePlatformOverview)
+				r.Get("/organizations", s.handlePlatformOrganizations)
+				r.Get("/organizations/{orgID}", s.handlePlatformOrganization)
+				r.Get("/users", s.handlePlatformUsers)
+				r.Patch("/users/{userID}", s.handlePlatformUpdateUser)
+				r.Get("/activity", s.handlePlatformActivity)
+			})
 		})
 	})
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {

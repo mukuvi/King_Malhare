@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ArrowUpRight, BookOpenCheck, Search } from "lucide-react";
 import { useCVELookup, useCWEs, useRecentIntel } from "@/hooks/queries";
 import { ApiError } from "@/lib/api";
@@ -7,6 +8,8 @@ import type { CVE, Severity } from "@/types";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, EmptyState, Input, PageHeader, PageTransition, QueryState, SeverityBadge, Skeleton } from "@/components/ui";
 
 export function IntelPage() {
+  const [params] = useSearchParams();
+  const requestedCve = params.get("cve");
   const [query, setQuery] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [cweQuery, setCweQuery] = useState("");
@@ -14,6 +17,14 @@ export function IntelPage() {
   const recent = useRecentIntel();
   const cwes = useCWEs();
   const result = lookup.data;
+
+  useEffect(() => {
+    if (!requestedCve) return;
+    const value = requestedCve.trim().toUpperCase();
+    if (!value) return;
+    setQuery(value);
+    lookup.mutate(value);
+  }, [requestedCve, lookup.mutate]);
 
   const submit = (id?: string) => {
     const value = (id ?? query).trim().toUpperCase();

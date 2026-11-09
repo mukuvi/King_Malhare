@@ -37,6 +37,8 @@ func main() {
 		})
 	case "create-admin":
 		createAdmin()
+	case "platform-admin":
+		setPlatformAdmin()
 	case "version":
 		fmt.Println("King Malhare API 1.0.0")
 	default:
@@ -140,6 +142,38 @@ func createAdmin() {
 	})
 }
 
+func setPlatformAdmin() {
+	fs := flag.NewFlagSet("platform-admin", flag.ExitOnError)
+	email := fs.String("email", "", "user email address")
+	revoke := fs.Bool("revoke", false, "remove platform admin access instead of granting it")
+	_ = fs.Parse(os.Args[2:])
+	if *email == "" {
+		fmt.Fprintln(os.Stderr, "--email is required")
+		os.Exit(1)
+	}
+	*email = strings.ToLower(strings.TrimSpace(*email))
+	if !security.ValidEmail(*email) {
+		fmt.Fprintln(os.Stderr, "invalid email")
+		os.Exit(1)
+	}
+	withDB(func(ctx context.Context, cfg *config.Config, p *pgxpool.Pool) {
+		var userID string
+		if err := p.QueryRow(ctx, `SELECT id::text FROM users WHERE lower(email)=lower($1)`, *email).Scan(&userID); err != nil {
+			fmt.Fprintln(os.Stderr, "user not found:", err)
+			os.Exit(1)
+		}
+		if _, err := p.Exec(ctx, `UPDATE users SET is_platform_admin=$1 WHERE id=$2`, !*revoke, userID); err != nil {
+			fmt.Fprintln(os.Stderr, "update platform admin:", err)
+			os.Exit(1)
+		}
+		if *revoke {
+			fmt.Println("Platform admin access revoked for", *email)
+		} else {
+			fmt.Println("Platform admin access granted to", *email)
+		}
+	})
+}
+
 func usage() {
 	fmt.Println(`King Malhare control utility
 
@@ -147,5 +181,6 @@ Usage:
   kmctl migrate
   kmctl seed
   kmctl create-admin --email you@example.com --org "Your Org" [--password ...] [--name ...]
+  kmctl platform-admin --email you@example.com [--revoke]
   kmctl version`)
 }

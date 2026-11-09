@@ -25,6 +25,7 @@ import { AuditPage } from "@/pages/Audit";
 import { IntegrationsPage } from "@/pages/Integrations";
 import { SettingsPage } from "@/pages/Settings";
 import { OrganizationPage } from "@/pages/Organization";
+import { PlatformPage } from "@/pages/Platform";
 import { ApiDocsPage } from "@/pages/ApiDocs";
 import { NotFoundPage } from "@/pages/NotFound";
 
@@ -87,6 +88,7 @@ export function App() {
             <Route path="/integrations" element={<IntegrationsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/organization" element={<OrganizationPage />} />
+            <Route path="/platform" element={<PlatformPage />} />
             <Route path="/api-docs" element={<ApiDocsPage />} />
             <Route path="/dashboard/*" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFoundPage />} />

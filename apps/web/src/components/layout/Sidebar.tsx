@@ -7,6 +7,7 @@ import {
   Boxes,
   Cloud,
   Code2,
+  Crown,
   FileText,
   Globe2,
   KeyRound,
@@ -81,6 +82,10 @@ export function Sidebar() {
     setSidebarOpen(false);
   }, [location.pathname, setSidebarOpen]);
 
+  const navigation = me?.platform_admin
+    ? [{ label: "Platform", items: [{ to: "/platform", label: "Super admin", icon: Crown }] }, ...groups]
+    : groups;
+
   const content = (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-ink-700/80 px-4">
@@ -93,7 +98,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2.5 py-4">
-        {groups.map((group) => (
+        {navigation.map((group) => (
           <div key={group.label} className="mb-5">
             <div className="px-2.5 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.17em] text-ink-400">{group.label}</div>
             <div className="space-y-0.5">

@@ -26,11 +26,12 @@ type AuthContext struct {
 	Name        string
 	OrgID       string
 	OrgName     string
-	Role        string
-	Permissions map[string]bool
-	SessionID   string
-	CSRF        string
-	ViaAPIKey   bool
+	Role          string
+	Permissions   map[string]bool
+	PlatformAdmin bool
+	SessionID     string
+	CSRF          string
+	ViaAPIKey     bool
 }
 
 func (a *AuthContext) Can(perm string) bool { return a != nil && a.Permissions[perm] }
@@ -184,7 +185,7 @@ func (s *Server) loadSessionAuth(ctx context.Context, tokenHash []byte) (*AuthCo
 	var ac AuthContext
 	var perms []string
 	err := s.db.QueryRow(ctx, `
-		SELECT s.id::text, s.csrf_token, u.id::text, u.email, u.name,
+		SELECT s.id::text, s.csrf_token, u.id::text, u.email, u.name, u.is_platform_admin,
 		       s.org_id::text, o.name, m.role_id,
 		       COALESCE(array_agg(rp.permission_id) FILTER (WHERE rp.permission_id IS NOT NULL), '{}')
 		FROM sessions s
@@ -194,7 +195,7 @@ func (s *Server) loadSessionAuth(ctx context.Context, tokenHash []byte) (*AuthCo
 		LEFT JOIN role_permissions rp ON rp.role_id = m.role_id
 		WHERE s.token_hash = $1 AND s.revoked_at IS NULL AND s.expires_at > now()
 		GROUP BY s.id, u.id, o.id, m.role_id`, tokenHash).
-		Scan(&ac.SessionID, &ac.CSRF, &ac.UserID, &ac.Email, &ac.Name, &ac.OrgID, &ac.OrgName, &ac.Role, &perms)
+		Scan(&ac.SessionID, &ac.CSRF, &ac.UserID, &ac.Email, &ac.Name, &ac.PlatformAdmin, &ac.OrgID, &ac.OrgName, &ac.Role, &perms)
 	if err != nil {
 		return nil, err
 	}
@@ -211,13 +212,13 @@ func (s *Server) loadAPIKeyAuth(ctx context.Context, tokenHash []byte) (*AuthCon
 	var ac AuthContext
 	var scopes []string
 	err := s.db.QueryRow(ctx, `
-		SELECT c.id::text, c.user_id::text, u.email, u.name, c.org_id::text, o.name, c.scopes
+		SELECT c.id::text, c.user_id::text, u.email, u.name, u.is_platform_admin, c.org_id::text, o.name, c.scopes
 		FROM api_credentials c
 		JOIN users u ON u.id = c.user_id AND u.is_active
 		JOIN organizations o ON o.id = c.org_id
 		WHERE c.token_hash = $1 AND c.revoked_at IS NULL
 		  AND (c.expires_at IS NULL OR c.expires_at > now())`, tokenHash).
-		Scan(&ac.SessionID, &ac.UserID, &ac.Email, &ac.Name, &ac.OrgID, &ac.OrgName, &scopes)
+		Scan(&ac.SessionID, &ac.UserID, &ac.Email, &ac.Name, &ac.PlatformAdmin, &ac.OrgID, &ac.OrgName, &scopes)
 	if err != nil {
 		return nil, err
 	}
@@ -262,6 +263,17 @@ func (s *Server) requirePerm(perm string, next http.HandlerFunc) http.HandlerFun
 		}
 		next(w, r)
 	}
+}
+
+func (s *Server) requirePlatformAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ac := actor(r)
+		if ac == nil || !ac.PlatformAdmin {
+			writeError(w, http.StatusForbidden, "platform_admin_required", "This area is restricted to platform administrators.", nil)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) rateLimit(limit int, window time.Duration, prefix string) func(http.Handler) http.Handler {

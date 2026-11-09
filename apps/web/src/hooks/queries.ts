@@ -17,6 +17,10 @@ import type {
   Organization,
   Overview,
   Paginated,
+  PlatformActivity,
+  PlatformOrganization,
+  PlatformOverview,
+  PlatformUser,
   Report,
   Scan,
   ScanDetail,
@@ -51,6 +55,11 @@ export const queryKeys = {
   apiKeys: ["api-keys"] as const,
   schedules: ["schedules"] as const,
   cloud: ["cloud-connections"] as const,
+  platformOverview: ["platform", "overview"] as const,
+  platformOrganizations: ["platform", "organizations"] as const,
+  platformOrganization: (id: string) => ["platform", "organization", id] as const,
+  platformUsers: ["platform", "users"] as const,
+  platformActivity: ["platform", "activity"] as const,
 };
 
 export function useMe() {
@@ -241,6 +250,47 @@ export function useCreateReport() {
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ["reports"] });
     },
+  });
+}
+
+export function usePlatformOverview() {
+  return useQuery({
+    queryKey: queryKeys.platformOverview,
+    queryFn: () => api.get<PlatformOverview>("/platform/overview"),
+    retry: false,
+  });
+}
+
+export function usePlatformOrganizations() {
+  return useQuery({
+    queryKey: queryKeys.platformOrganizations,
+    queryFn: () => api.get<{ items: PlatformOrganization[] }>("/platform/organizations"),
+    retry: false,
+  });
+}
+
+export function usePlatformOrganization(id: string) {
+  return useQuery({
+    queryKey: queryKeys.platformOrganization(id),
+    queryFn: () => api.get<{ organization: PlatformOrganization; members: Member[]; recent_scans: Array<{ id: string; scanner: string; category: string; status: string; progress: number; created_at: string }> }>(`/platform/organizations/${id}`),
+    enabled: Boolean(id),
+    retry: false,
+  });
+}
+
+export function usePlatformUsers() {
+  return useQuery({
+    queryKey: queryKeys.platformUsers,
+    queryFn: () => api.get<{ items: PlatformUser[] }>("/platform/users"),
+    retry: false,
+  });
+}
+
+export function usePlatformActivity() {
+  return useQuery({
+    queryKey: queryKeys.platformActivity,
+    queryFn: () => api.get<{ items: PlatformActivity[] }>("/platform/activity"),
+    retry: false,
   });
 }
 

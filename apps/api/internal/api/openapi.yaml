@@ -12,6 +12,10 @@ info:
     Every scan requires an active authorization record bound to the asset. Intrusive
     scanners additionally require the `scans:intrusive` permission, an authorization
     that permits intrusive testing, and `confirm_intrusive: true`.
+
+    Self-registration is disabled once the deployment has users. The first account
+    creates the organization and becomes its owner. Everyone else is added through
+    `POST /org/members`.
 servers:
   - url: /api/v1
 security:
@@ -19,19 +23,53 @@ security:
   - bearerAuth: []
 tags:
   - name: Authentication
+  - name: Platform
+  - name: Organization
   - name: Assets
   - name: Authorization
   - name: Scans
   - name: Findings
   - name: Intelligence
   - name: Reports
-  - name: Organization
   - name: Operations
 paths:
+  /health:
+    get:
+      tags: [Operations]
+      summary: Liveness
+      security: []
+      responses:
+        "200": { description: OK }
+  /ready:
+    get:
+      tags: [Operations]
+      summary: Readiness (PostgreSQL and Redis)
+      security: []
+      responses:
+        "200": { description: Ready }
+        "503": { $ref: '#/components/responses/Error' }
+  /openapi.yaml:
+    get:
+      tags: [Operations]
+      summary: This OpenAPI document
+      security: []
+      responses:
+        "200": { description: OpenAPI 3.1 YAML }
+  /docs:
+    get:
+      tags: [Operations]
+      summary: Human readable API reference
+      security: []
+      responses:
+        "200": { description: HTML documentation }
   /auth/register:
     post:
       tags: [Authentication]
       summary: Create the first organization and owner account
+      description: |
+        Succeeds only while the deployment has no users. Once an account exists,
+        self-registration returns 403 `registration_disabled` and new members must be
+        invited through `POST /org/members`.
       security: []
       requestBody:
         required: true
@@ -46,9 +84,11 @@ paths:
                 email: { type: string, format: email }
                 password: { type: string, minLength: 12 }
       responses:
-        "200": { description: Session created }
+        "200": { description: Session created and owner signed in }
         "403": { $ref: '#/components/responses/Error' }
+        "409": { $ref: '#/components/responses/Error' }
         "422": { $ref: '#/components/responses/Error' }
+        "429": { $ref: '#/components/responses/Error' }
   /auth/login:
     post:
       tags: [Authentication]
@@ -90,6 +130,7 @@ paths:
                   org: { type: object }
                   role: { type: string, enum: [owner, admin, analyst, viewer, api] }
                   permissions: { type: array, items: { type: string } }
+                  platform_admin: { type: boolean, description: Cross-organization super admin access }
   /auth/change-password:
     post:
       tags: [Authentication]
@@ -107,6 +148,206 @@ paths:
       responses:
         "200": { description: Password changed }
         "403": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /me:
+    patch:
+      tags: [Authentication]
+      summary: Update your own display name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+      responses:
+        "200": { description: Updated }
+        "422": { $ref: '#/components/responses/Error' }
+  /platform/overview:
+    get:
+      tags: [Platform]
+      summary: Deployment totals across every organization
+      description: Requires a platform administrator account.
+      responses:
+        "200":
+          description: Organization, user, asset, scan and finding totals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organizations: { type: integer }
+                  users: { type: integer }
+                  active_users: { type: integer }
+                  platform_admins: { type: integer }
+                  assets: { type: integer }
+                  scans: { type: integer }
+                  running_scans: { type: integer }
+                  findings: { type: integer }
+                  high_risk_findings: { type: integer }
+        "403": { $ref: '#/components/responses/Error' }
+  /platform/organizations:
+    get:
+      tags: [Platform]
+      summary: List every organization with counts and owner
+      responses:
+        "200": { description: Organizations }
+        "403": { $ref: '#/components/responses/Error' }
+  /platform/organizations/{orgId}:
+    get:
+      tags: [Platform]
+      summary: Organization detail with members and recent assessments
+      parameters:
+        - { in: path, name: orgId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Organization, members and recent scans }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+  /platform/users:
+    get:
+      tags: [Platform]
+      summary: List every user with their organization memberships
+      responses:
+        "200": { description: Users }
+        "403": { $ref: '#/components/responses/Error' }
+  /platform/users/{userId}:
+    patch:
+      tags: [Platform]
+      summary: Activate, deactivate or grant platform admin access
+      description: |
+        Platform administrators cannot deactivate themselves or remove their own
+        platform admin access.
+      parameters:
+        - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active: { type: boolean }
+                is_platform_admin: { type: boolean }
+      responses:
+        "200": { description: Updated }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /platform/activity:
+    get:
+      tags: [Platform]
+      summary: Recent audit events across every organization
+      responses:
+        "200": { description: Activity items }
+        "403": { $ref: '#/components/responses/Error' }
+  /stats/overview:
+    get:
+      tags: [Operations]
+      summary: Dashboard statistics computed from PostgreSQL
+      responses:
+        "200": { description: Asset, scan, finding and posture statistics }
+  /stats/trends:
+    get:
+      tags: [Operations]
+      summary: Daily finding and scan trends
+      parameters:
+        - { in: query, name: days, schema: { type: integer, minimum: 7, maximum: 180, default: 30 } }
+      responses:
+        "200": { description: Daily series }
+  /stats/activity:
+    get:
+      tags: [Operations]
+      summary: Recent organization activity derived from the audit trail
+      responses:
+        "200": { description: Recent activity items }
+  /org:
+    get:
+      tags: [Organization]
+      summary: Organization profile, member count and asset count
+      responses:
+        "200": { description: Organization }
+    patch:
+      tags: [Organization]
+      summary: Update organization name or retention window
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                retention_days: { type: integer, minimum: 30, maximum: 3650 }
+      responses:
+        "200": { description: Updated }
+        "422": { $ref: '#/components/responses/Error' }
+  /org/members:
+    get:
+      tags: [Organization]
+      summary: List members with role, status and open finding counts
+      responses:
+        "200": { description: Member list }
+    post:
+      tags: [Organization]
+      summary: Add a member or invite a new person
+      description: |
+        Existing accounts are added to the organization. A new email creates a user
+        with a one-time `temporary_password` that is returned in the response and
+        never shown again. The `owner` role cannot be granted through this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string, minLength: 2 }
+                email: { type: string, format: email }
+                role_id: { type: string, enum: [admin, analyst, viewer], default: analyst }
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id: { type: string, format: uuid }
+                  created: { type: boolean }
+                  temporary_password: { type: string, description: Returned once when a new account is created }
+        "403": { $ref: '#/components/responses/Error' }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /org/members/{userId}:
+    parameters:
+      - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Organization]
+      summary: Change a member role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role_id]
+              properties:
+                role_id: { type: string, enum: [admin, analyst, viewer] }
+      responses:
+        "200": { description: Role changed }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Organization]
+      summary: Remove a member from the organization
+      responses:
+        "200": { description: Member removed }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
   /assets:
     get:
       tags: [Assets]
@@ -125,6 +366,10 @@ paths:
     post:
       tags: [Assets]
       summary: Register an asset
+      description: |
+        Any provider's server can be assessed by registering it as a `server`,
+        `website`, `ip` or `network` asset. Native cloud posture checks additionally
+        need a cloud connection for AWS, Azure or GCP.
       requestBody:
         required: true
         content:
@@ -224,12 +469,26 @@ paths:
                 reason: { type: string }
       responses:
         "200": { description: Revoked }
-  /scanners:
+  /assets/{assetId}/scans:
     get:
-      tags: [Scans]
-      summary: Scanner catalogue and live worker availability
+      tags: [Assets]
+      summary: List assessments for an asset
+      parameters:
+        - { in: path, name: assetId, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
       responses:
-        "200": { description: Scanner status, worker heartbeats and queue depth }
+        "200": { description: Paginated assessments }
+  /assets/{assetId}/findings:
+    get:
+      tags: [Assets]
+      summary: List findings for an asset
+      parameters:
+        - { in: path, name: assetId, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
+      responses:
+        "200": { description: Paginated findings }
   /scan-profiles:
     get:
       tags: [Scans]
@@ -247,15 +506,52 @@ paths:
               type: object
               required: [name, scanner]
               properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                category: { type: string, enum: [web, network, cloud, authentication, infrastructure] }
+                scanner: { type: string }
+                description: { type: string }
+                config: { type: object }
+                key: { type: string, description: Stable profile key. Generated from the name when omitted. }
+      responses:
+        "201": { description: Created }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /scan-profiles/{profileId}:
+    parameters:
+      - { in: path, name: profileId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Scans]
+      summary: Update a custom scan profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, scanner]
+              properties:
                 name: { type: string }
                 category: { type: string, enum: [web, network, cloud, authentication, infrastructure] }
                 scanner: { type: string }
                 description: { type: string }
                 config: { type: object }
-                key: { type: string }
       responses:
-        "201": { description: Created }
+        "200": { description: Updated }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
         "422": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Scans]
+      summary: Delete a custom scan profile
+      responses:
+        "200": { description: Deleted }
+        "404": { $ref: '#/components/responses/Error' }
+  /scanners:
+    get:
+      tags: [Scans]
+      summary: Scanner catalogue and live worker availability
+      responses:
+        "200": { description: Scanner status, worker heartbeats and queue depth }
   /scans:
     get:
       tags: [Scans]
@@ -266,6 +562,7 @@ paths:
         - { in: query, name: scanner, schema: { type: string } }
         - { in: query, name: asset_id, schema: { type: string, format: uuid } }
         - { in: query, name: page, schema: { type: integer } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
       responses:
         "200": { description: Paginated assessments }
     post:
@@ -292,12 +589,22 @@ paths:
                 params: { type: object }
                 confirm_intrusive: { type: boolean, default: false }
                 cloud_connection_id: { type: string, format: uuid }
+                test_account_password: { type: string, description: Used only by authentication scanners }
                 idempotency_key: { type: string }
       responses:
         "202": { description: Queued }
         "403": { $ref: '#/components/responses/Error' }
         "422": { $ref: '#/components/responses/Error' }
         "429": { $ref: '#/components/responses/Error' }
+  /scans/compare:
+    get:
+      tags: [Scans]
+      summary: Compare two assessments by finding fingerprint
+      parameters:
+        - { in: query, name: base, required: true, schema: { type: string, format: uuid } }
+        - { in: query, name: compare, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: New, resolved and persisting findings }
   /scans/{scanId}:
     get:
       tags: [Scans]
@@ -327,6 +634,14 @@ paths:
           content:
             text/event-stream:
               schema: { type: string }
+  /scans/{scanId}/executions:
+    get:
+      tags: [Scans]
+      summary: List scanner execution records for an assessment
+      parameters:
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Execution records }
   /scans/{scanId}/results:
     get:
       tags: [Scans]
@@ -335,15 +650,14 @@ paths:
         - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
       responses:
         "200": { description: Results }
-  /scans/compare:
+  /scans/{scanId}/findings:
     get:
       tags: [Scans]
-      summary: Compare two assessments by finding fingerprint
+      summary: List findings produced by an assessment
       parameters:
-        - { in: query, name: base, required: true, schema: { type: string, format: uuid } }
-        - { in: query, name: compare, required: true, schema: { type: string, format: uuid } }
+        - { in: path, name: scanId, required: true, schema: { type: string, format: uuid } }
       responses:
-        "200": { description: New, resolved and persisting findings }
+        "200": { description: Findings }
   /scans/emergency-stop:
     post:
       tags: [Scans]
@@ -367,6 +681,7 @@ paths:
         - { in: query, name: assigned_to, schema: { type: string, format: uuid } }
         - { in: query, name: search, schema: { type: string } }
         - { in: query, name: page, schema: { type: integer } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
         - { in: query, name: sort, schema: { type: string, enum: [last_seen, first_seen, severity, status, title] } }
       responses:
         "200": { description: Paginated findings }
@@ -409,6 +724,27 @@ paths:
         - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
       responses:
         "200": { description: Verified }
+  /findings/{findingId}/remediation:
+    post:
+      tags: [Findings]
+      summary: Record a remediation action for a finding
+      parameters:
+        - { in: path, name: findingId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, maxLength: 500 }
+                notes: { type: string, maxLength: 5000 }
+                deadline: { type: string, format: date-time }
+      responses:
+        "201": { description: Remediation recorded }
+        "404": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
   /findings/{findingId}/evidence:
     get:
       tags: [Findings]
@@ -469,6 +805,11 @@ paths:
     get:
       tags: [Reports]
       summary: List generated reports
+      parameters:
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { in: query, name: status, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
       responses:
         "200": { description: Paginated reports }
     post:
@@ -492,6 +833,21 @@ paths:
       responses:
         "201": { description: Report ready }
         "422": { $ref: '#/components/responses/Error' }
+  /reports/{reportId}:
+    parameters:
+      - { in: path, name: reportId, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Reports]
+      summary: Report detail
+      responses:
+        "200": { description: Report }
+        "404": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Reports]
+      summary: Delete a report
+      responses:
+        "200": { description: Deleted }
+        "404": { $ref: '#/components/responses/Error' }
   /reports/{reportId}/html:
     get:
       tags: [Reports]
@@ -508,30 +864,50 @@ paths:
         - { in: path, name: reportId, required: true, schema: { type: string, format: uuid } }
       responses:
         "200": { description: PDF report }
-  /stats/overview:
-    get:
-      tags: [Operations]
-      summary: Dashboard statistics computed from PostgreSQL
-      responses:
-        "200": { description: Asset, scan, finding and posture statistics }
-  /stats/trends:
-    get:
-      tags: [Operations]
-      summary: Daily finding and scan trends
-      parameters:
-        - { in: query, name: days, schema: { type: integer, minimum: 7, maximum: 180, default: 30 } }
-      responses:
-        "200": { description: Daily series }
   /notifications:
     get:
       tags: [Operations]
-      summary: List notifications
+      summary: List notifications visible to the current user
+      parameters:
+        - { in: query, name: unread, schema: { type: boolean, default: false } }
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
       responses:
-        "200": { description: Notifications and unread count }
+        "200": { description: Notifications, total and unread count }
+    delete:
+      tags: [Operations]
+      summary: Clear the current user inbox
+      description: |
+        Personal notifications are deleted. Organization-wide notifications are
+        dismissed for the current user only, so other members keep them.
+      responses:
+        "200": { description: Inbox cleared }
+  /notifications/read:
+    post:
+      tags: [Operations]
+      summary: Mark notifications as read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids: { type: array, items: { type: string, format: uuid }, maxItems: 200 }
+                all: { type: boolean, default: false }
+      responses:
+        "200": { description: Updated }
+        "422": { $ref: '#/components/responses/Error' }
   /audit-events:
     get:
       tags: [Operations]
       summary: Organization audit trail
+      parameters:
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { in: query, name: action, schema: { type: string } }
+        - { in: query, name: resource_type, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
       responses:
         "200": { description: Paginated audit events }
   /integrations:
@@ -549,6 +925,14 @@ paths:
     post:
       tags: [Operations]
       summary: Store encrypted read-only cloud credentials
+      description: |
+        Native posture checks require provider credentials. Server-level assessment
+        of any provider, including Contabo, works through assets instead.
+
+        AWS requires `access_key_id`, `secret_access_key` and `region`. Optional
+        fields are `session_token`, `role_arn` and `external_id`.
+        Azure requires `tenant_id`, `client_id`, `client_secret` and `subscription_id`.
+        GCP requires `service_account_json`.
       requestBody:
         required: true
         content:
@@ -558,13 +942,32 @@ paths:
               required: [provider, name, credentials]
               properties:
                 provider: { type: string, enum: [aws, azure, gcp] }
-                name: { type: string }
+                name: { type: string, minLength: 2, maxLength: 120 }
                 account_id: { type: string }
                 credentials:
                   type: object
                   additionalProperties: { type: string }
       responses:
         "201": { description: Stored encrypted }
+        "422": { $ref: '#/components/responses/Error' }
+  /cloud-connections/{connectionId}:
+    parameters:
+      - { in: path, name: connectionId, required: true, schema: { type: string, format: uuid } }
+    delete:
+      tags: [Operations]
+      summary: Delete a cloud connection
+      responses:
+        "200": { description: Deleted }
+        "404": { $ref: '#/components/responses/Error' }
+  /cloud-connections/{connectionId}/validate:
+    post:
+      tags: [Operations]
+      summary: Re-check stored credentials and update verification status
+      parameters:
+        - { in: path, name: connectionId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Validation result }
+        "404": { $ref: '#/components/responses/Error' }
         "422": { $ref: '#/components/responses/Error' }
   /api-keys:
     get:
@@ -583,11 +986,22 @@ paths:
               type: object
               required: [name]
               properties:
-                name: { type: string }
-                scopes: { type: array, items: { type: string } }
-                expires_in_days: { type: integer, maximum: 730 }
+                name: { type: string, minLength: 2, maxLength: 120 }
+                scopes: { type: array, items: { type: string }, maxItems: 30, description: Defaults to every permission the caller holds }
+                expires_in_days: { type: integer, minimum: 1, maximum: 730 }
       responses:
         "201": { description: Token issued }
+        "403": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /api-keys/{keyId}:
+    delete:
+      tags: [Operations]
+      summary: Revoke an API key
+      parameters:
+        - { in: path, name: keyId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Revoked }
+        "404": { $ref: '#/components/responses/Error' }
   /schedules:
     get:
       tags: [Operations]
@@ -597,6 +1011,9 @@ paths:
     post:
       tags: [Operations]
       summary: Schedule a non-intrusive assessment (five-field cron, UTC)
+      description: |
+        Intrusive scanners and cloud assessments cannot be scheduled. The asset and
+        authorization must exist, belong to the organization, and be active.
       requestBody:
         required: true
         content:
@@ -612,22 +1029,33 @@ paths:
                 profile_id: { type: string, format: uuid }
                 config: { type: object }
                 cron: { type: string, example: "0 3 * * 1" }
+                enabled: { type: boolean, default: true }
       responses:
         "201": { description: Scheduled }
         "422": { $ref: '#/components/responses/Error' }
-  /health:
-    get:
-      summary: Liveness
-      security: []
+  /schedules/{scheduleId}:
+    parameters:
+      - { in: path, name: scheduleId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Operations]
+      summary: Update a schedule cron or enabled state
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cron: { type: string }
+                enabled: { type: boolean }
       responses:
-        "200": { description: OK }
-  /ready:
-    get:
-      summary: Readiness (PostgreSQL and Redis)
-      security: []
+        "200": { description: Updated }
+        "422": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Operations]
+      summary: Delete a schedule
       responses:
-        "200": { description: Ready }
-        "503": { $ref: '#/components/responses/Error' }
+        "200": { description: Deleted }
+        "404": { $ref: '#/components/responses/Error' }
 components:
   securitySchemes:
     sessionCookie:

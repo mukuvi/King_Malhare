@@ -164,7 +164,9 @@ export function useNotifications(unreadOnly = false, page = 1) {
   return useQuery({
     queryKey: queryKeys.notifications(qs),
     queryFn: () => api.get<{ items: Notification[]; total: number; unread: number; page: number; per_page: number }>(`/notifications${qs}`),
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

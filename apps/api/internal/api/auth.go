@@ -87,6 +87,10 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		s.writeValidation(w, "Provide a valid organization name, your name and email address.")
 		return
 	}
+	if security.IsFreeEmailDomain(req.Email) {
+		writeError(w, http.StatusUnprocessableEntity, "organization_email_required", "Use your organization email address. Free email providers cannot create an organization. Team members are invited by their organization.", nil)
+		return
+	}
 	if err := security.ValidatePassword(req.Password); err != nil {
 		s.writeValidation(w, err.Error())
 		return
@@ -195,6 +199,9 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.auditSystem(r.Context(), orgID, "auth.login", "user", userID, map[string]any{"ip": clientIP(r)})
+	var orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, orgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), userID, "Member signed in", req.Email+" signed in from "+clientIP(r)+" in "+orgName+".", "/platform?tab=activity")
 	s.meResponse(w, r, ac)
 }
 

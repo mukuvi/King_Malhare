@@ -16,6 +16,7 @@ import {
   Search,
   ShieldAlert,
   Trash2,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { api, ApiError, queryString } from "@/lib/api";
@@ -338,6 +339,7 @@ export function PlatformPage() {
 
 function OrganizationRow({ org, defaultOpen = false, onEdit }: { org: PlatformOrganization; defaultOpen?: boolean; onEdit: () => void }) {
   const [open, setOpen] = useState(defaultOpen);
+  const [addOpen, setAddOpen] = useState(false);
   const detail = usePlatformOrganization(open ? org.id : "");
   const client = useQueryClient();
   const invalidate = () => void client.invalidateQueries({ queryKey: ["platform"] });
@@ -390,7 +392,10 @@ function OrganizationRow({ org, defaultOpen = false, onEdit }: { org: PlatformOr
             <QueryState loading={detail.isLoading} error={detail.error} skeleton={<div className="space-y-2 p-3"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div>}>
               <div className="grid gap-4 p-3 lg:grid-cols-2">
                 <div>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">Members</p>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-400">Members</p>
+                    <Button variant="secondary" size="sm" onClick={() => setAddOpen(true)}><UserPlus className="h-3.5 w-3.5" /> Add member</Button>
+                  </div>
                   <div className="space-y-1.5">
                     {detail.data?.members.map((member) => (
                       <div key={member.user_id} className="flex flex-col gap-2 rounded-lg border border-ink-700 bg-ink-850 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
@@ -441,10 +446,78 @@ function OrganizationRow({ org, defaultOpen = false, onEdit }: { org: PlatformOr
                 </div>
               </div>
             </QueryState>
+            {addOpen ? <AddMemberModal org={org} onClose={() => setAddOpen(false)} /> : null}
           </td>
         </tr>
       ) : null}
     </>
+  );
+}
+
+function AddMemberModal({ org, onClose }: { org: PlatformOrganization; onClose: () => void }) {
+  const client = useQueryClient();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("analyst");
+  const [tempPassword, setTempPassword] = useState("");
+
+  const add = useMutation({
+    mutationFn: () => api.post<{ user_id: string; created: boolean; temporary_password?: string }>(`/platform/organizations/${org.id}/members`, {
+      name: name.trim(), email: email.trim(), role_id: role,
+    }),
+    onSuccess: (data) => {
+      void client.invalidateQueries({ queryKey: ["platform"] });
+      if (data.temporary_password) {
+        setTempPassword(data.temporary_password);
+        toast.success("Member added");
+      } else {
+        toast.success("Member added to the organization");
+        onClose();
+      }
+    },
+    onError: (error) => toast.error(error instanceof ApiError ? error.message : "Could not add the member."),
+  });
+
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Could not copy. Select the password manually.");
+    }
+  };
+
+  return (
+    <Modal open onClose={onClose} title="Add member" description={org.name} width="max-w-lg">
+      {tempPassword ? (
+        <div className="space-y-4">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-3">
+            <p className="text-[11px] font-medium text-amber-800">Temporary password, shown once</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <code className="rounded border border-ink-600 bg-ink-900 px-2 py-1 font-mono text-[12px] text-ink-100">{tempPassword}</code>
+              <Button variant="secondary" size="sm" onClick={() => void copy(tempPassword)}><Copy className="h-3.5 w-3.5" /> Copy</Button>
+            </div>
+            <p className="mt-2 text-[10px] text-ink-400">Share it with {email} through a secure channel. It will not be shown again.</p>
+          </div>
+          <div className="flex justify-end"><Button onClick={onClose}>Done</Button></div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <Field label="Name"><Input value={name} onChange={(event) => setName(event.target.value)} /></Field>
+          <Field label="Email address"><Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+          <Field label="Role">
+            <Select value={role} onChange={(event) => setRole(event.target.value)}>
+              {["owner", "admin", "analyst", "viewer"].map((value) => <option key={value} value={value}>{value}</option>)}
+            </Select>
+          </Field>
+          <p className="text-[10.5px] text-ink-400">New emails receive a one-time temporary password. Existing accounts are added directly.</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={onClose}>Cancel</Button>
+            <Button onClick={() => add.mutate()} loading={add.isPending} disabled={!name.trim() || !email.trim()}><UserPlus className="h-3.5 w-3.5" /> Add member</Button>
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 }
 

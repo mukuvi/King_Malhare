@@ -101,6 +101,26 @@ func ValidEmail(email string) bool {
 	return len(email) <= 254 && passwordEmailRe.MatchString(email)
 }
 
+var freeEmailDomains = map[string]struct{}{
+	"gmail.com": {}, "googlemail.com": {}, "yahoo.com": {}, "yahoo.co.uk": {},
+	"outlook.com": {}, "hotmail.com": {}, "live.com": {}, "msn.com": {},
+	"icloud.com": {}, "me.com": {}, "aol.com": {}, "proton.me": {},
+	"protonmail.com": {}, "pm.me": {}, "gmx.com": {}, "gmx.net": {},
+	"mail.com": {}, "yandex.com": {}, "yandex.ru": {}, "zoho.com": {},
+	"tutanota.com": {}, "tuta.io": {}, "fastmail.com": {}, "hey.com": {},
+}
+
+// IsFreeEmailDomain reports whether the address belongs to a consumer mailbox
+// provider. Organization signup requires a domain the organization controls.
+func IsFreeEmailDomain(email string) bool {
+	at := strings.LastIndex(email, "@")
+	if at < 0 || at == len(email)-1 {
+		return false
+	}
+	_, ok := freeEmailDomains[strings.ToLower(email[at+1:])]
+	return ok
+}
+
 func RandomToken(n int) (string, error) {
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {

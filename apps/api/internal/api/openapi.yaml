@@ -65,11 +65,13 @@ paths:
   /auth/register:
     post:
       tags: [Authentication]
-      summary: Create the first organization and owner account
+      summary: Create a new organization and owner account
       description: |
-        Succeeds only while the deployment has no users. Once an account exists,
-        self-registration returns 403 `registration_disabled` and new members must be
-        invited through `POST /org/members`.
+        Creates a new organization and its owner account. The email must use a
+        domain the organization controls. Free consumer mailbox providers such as
+        Gmail, Outlook and Yahoo are rejected with `organization_email_required`.
+        Team members are invited by the organization through `POST /org/members`
+        or the platform console.
       security: []
       requestBody:
         required: true
@@ -224,6 +226,32 @@ paths:
                 emergency_stop: { type: boolean }
       responses:
         "200": { description: Updated }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /platform/organizations/{orgId}/members:
+    post:
+      tags: [Platform]
+      summary: Add a member to an organization
+      description: |
+        Existing accounts are added directly. New emails are created with a
+        one-time temporary password returned once.
+      parameters:
+        - { in: path, name: orgId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string, minLength: 2 }
+                email: { type: string, format: email }
+                role_id: { type: string, enum: [owner, admin, analyst, viewer], default: analyst }
+      responses:
+        "201": { description: Member added }
         "403": { $ref: '#/components/responses/Error' }
         "404": { $ref: '#/components/responses/Error' }
         "409": { $ref: '#/components/responses/Error' }

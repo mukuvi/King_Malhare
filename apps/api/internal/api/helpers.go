@@ -129,6 +129,50 @@ func (s *Server) notify(ctx context.Context, orgID string, userID *string, typ, 
 	}
 }
 
+// notifyPlatformAdmins sends a notification to every active platform admin
+// except the actor. Each admin receives it in their primary organization so it
+// appears in the normal notifications inbox regardless of which org triggered
+// the event. Identical events within two minutes are collapsed.
+func (s *Server) notifyPlatformAdmins(ctx context.Context, excludeUserID, title, body, link string) {
+	rows, err := s.db.Query(ctx, `
+		SELECT u.id::text,
+		       (SELECT m.org_id::text FROM memberships m WHERE m.user_id=u.id
+		        ORDER BY (SELECT rank FROM roles WHERE id=m.role_id) DESC LIMIT 1)
+		FROM users u
+		WHERE u.is_platform_admin AND u.is_active AND u.id <> $1`, excludeUserID)
+	if err != nil {
+		s.log.Error("platform admin lookup failed", "error", err)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var userID string
+		var orgID *string
+		if err := rows.Scan(&userID, &orgID); err != nil {
+			s.log.Error("platform admin scan failed", "error", err)
+			return
+		}
+		if orgID == nil {
+			continue
+		}
+		var exists bool
+		_ = s.db.QueryRow(ctx, `
+			SELECT EXISTS(
+				SELECT 1 FROM notifications
+				WHERE user_id=$1 AND org_id=$2 AND title=$3 AND body=$4
+				  AND created_at > now() - interval '2 minutes')`,
+			userID, *orgID, title, body).Scan(&exists)
+		if exists {
+			continue
+		}
+		if _, err := s.db.Exec(ctx, `
+			INSERT INTO notifications (org_id, user_id, type, title, body, link)
+			VALUES ($1,$2,'system',$3,$4,$5)`, *orgID, userID, title, body, link); err != nil {
+			s.log.Error("platform admin notification failed", "error", err)
+		}
+	}
+}
+
 func truncate(s string, n int) string {
 	if len(s) <= n {
 		return s

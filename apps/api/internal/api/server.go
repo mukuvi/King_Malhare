@@ -146,6 +146,7 @@ func (s *Server) PublicRouter() http.Handler {
 				r.Get("/organizations", s.handlePlatformOrganizations)
 				r.Get("/organizations/{orgID}", s.handlePlatformOrganization)
 				r.Patch("/organizations/{orgID}", s.handlePlatformUpdateOrganization)
+				r.Post("/organizations/{orgID}/members", s.handlePlatformAddMember)
 				r.Patch("/organizations/{orgID}/members/{userID}", s.handlePlatformUpdateMember)
 				r.Delete("/organizations/{orgID}/members/{userID}", s.handlePlatformRemoveMember)
 				r.Get("/users", s.handlePlatformUsers)

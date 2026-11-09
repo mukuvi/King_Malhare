@@ -185,6 +185,9 @@ func (s *Server) handleCreateMember(w http.ResponseWriter, r *http.Request) {
 	}
 	s.audit(r, "member.added", "user", userID, map[string]any{"role": req.RoleID, "email": req.Email, "invited": created})
 	s.notify(r.Context(), ac.OrgID, nil, "system", "New team member", req.Name+" joined as "+req.RoleID+".", "/settings")
+	var orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, ac.OrgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), ac.UserID, "Member added", req.Email+" was added to "+orgName+" as "+req.RoleID+".", "/platform?tab=users")
 	resp := map[string]any{"user_id": userID, "created": created}
 	if created {
 		resp["temporary_password"] = tempPassword
@@ -238,6 +241,10 @@ func (s *Server) handleUpdateMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.audit(r, "member.role_changed", "user", targetID, map[string]any{"from": currentRole, "to": req.RoleID})
+	var email, orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT email FROM users WHERE id=$1`, targetID).Scan(&email)
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, ac.OrgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), ac.UserID, "Member role changed", email+" changed from "+currentRole+" to "+req.RoleID+" in "+orgName+".", "/platform?tab=users")
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
@@ -267,6 +274,10 @@ func (s *Server) handleRemoveMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.audit(r, "member.removed", "user", targetID, nil)
+	var email, orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT email FROM users WHERE id=$1`, targetID).Scan(&email)
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, ac.OrgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), ac.UserID, "Member removed", email+" was removed from "+orgName+".", "/platform?tab=users")
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 

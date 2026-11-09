@@ -244,6 +244,85 @@ func (s *Server) handlePlatformUpdateOrganization(w http.ResponseWriter, r *http
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
+func (s *Server) handlePlatformAddMember(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Name   string `json:"name"`
+		Email  string `json:"email"`
+		RoleID string `json:"role_id"`
+	}
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+	orgID := chiURLParam(r, "orgID")
+	if !validUUID(orgID) {
+		writeError(w, http.StatusBadRequest, "invalid_id", "Invalid organization id.", nil)
+		return
+	}
+	req.Name = strings.TrimSpace(req.Name)
+	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
+	req.RoleID = strings.TrimSpace(req.RoleID)
+	if !security.ValidEmail(req.Email) || utf8.RuneCountInString(req.Name) < 2 {
+		s.writeValidation(w, "Provide a valid name and email address.")
+		return
+	}
+	if req.RoleID == "" {
+		req.RoleID = "analyst"
+	}
+	if !validRole(req.RoleID) {
+		s.writeValidation(w, "Unknown role.")
+		return
+	}
+	var orgExists bool
+	_ = s.db.QueryRow(r.Context(), `SELECT EXISTS(SELECT 1 FROM organizations WHERE id=$1)`, orgID).Scan(&orgExists)
+	if !orgExists {
+		writeError(w, http.StatusNotFound, "not_found", "Organization not found.", nil)
+		return
+	}
+	var userID string
+	var created bool
+	var tempPassword string
+	err := s.db.QueryRow(r.Context(), `SELECT id::text FROM users WHERE lower(email)=lower($1)`, req.Email).Scan(&userID)
+	if isNotFound(err) {
+		tempPassword = "Km1!" + mustToken(16)
+		hash, herr := security.HashPassword(tempPassword)
+		if herr != nil {
+			writeError(w, http.StatusInternalServerError, "hash_failed", "Could not create the member.", nil)
+			return
+		}
+		err = s.db.QueryRow(r.Context(), `
+			INSERT INTO users (email, name, password_hash) VALUES ($1,$2,$3) RETURNING id::text`,
+			req.Email, req.Name, hash).Scan(&userID)
+		if err != nil {
+			s.dbError(w, err, "user")
+			return
+		}
+		created = true
+	} else if err != nil {
+		s.dbError(w, err, "user")
+		return
+	}
+	var count int
+	_ = s.db.QueryRow(r.Context(), `SELECT count(*) FROM memberships WHERE org_id=$1 AND user_id=$2`, orgID, userID).Scan(&count)
+	if count > 0 {
+		writeError(w, http.StatusConflict, "already_member", "This person is already a member of the organization.", nil)
+		return
+	}
+	if _, err := s.db.Exec(r.Context(), `INSERT INTO memberships (org_id,user_id,role_id) VALUES ($1,$2,$3)`, orgID, userID, req.RoleID); err != nil {
+		s.dbError(w, err, "membership")
+		return
+	}
+	s.auditSystem(r.Context(), orgID, "platform.member_added", "user", userID, map[string]any{"role": req.RoleID, "email": req.Email, "invited": created})
+	s.notify(r.Context(), orgID, nil, "system", "New team member", req.Name+" joined as "+req.RoleID+".", "/settings")
+	var orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, orgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), actor(r).UserID, "Member added", req.Email+" was added to "+orgName+" as "+req.RoleID+".", "/platform?tab=users")
+	resp := map[string]any{"user_id": userID, "created": created}
+	if created {
+		resp["temporary_password"] = tempPassword
+	}
+	writeJSON(w, http.StatusCreated, resp)
+}
+
 func (s *Server) handlePlatformUpdateMember(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		RoleID string `json:"role_id"`
@@ -285,6 +364,10 @@ func (s *Server) handlePlatformUpdateMember(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	s.auditSystem(r.Context(), orgID, "platform.member_role_changed", "user", userID, map[string]any{"from": current, "to": roleID})
+	var email, orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT email FROM users WHERE id=$1`, userID).Scan(&email)
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, orgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), actor(r).UserID, "Member role changed", email+" changed from "+current+" to "+roleID+" in "+orgName+".", "/platform?tab=users")
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 
@@ -318,6 +401,10 @@ func (s *Server) handlePlatformRemoveMember(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	s.auditSystem(r.Context(), orgID, "platform.member_removed", "user", userID, map[string]any{"role": current})
+	var email, orgName string
+	_ = s.db.QueryRow(r.Context(), `SELECT email FROM users WHERE id=$1`, userID).Scan(&email)
+	_ = s.db.QueryRow(r.Context(), `SELECT name FROM organizations WHERE id=$1`, orgID).Scan(&orgName)
+	s.notifyPlatformAdmins(r.Context(), actor(r).UserID, "Member removed", email+" was removed from "+orgName+".", "/platform?tab=users")
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 

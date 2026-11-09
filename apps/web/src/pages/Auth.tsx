@@ -8,6 +8,20 @@ import type { Me } from "@/types";
 import { Button, Field, Input } from "@/components/ui";
 import { Logo, LogoMark } from "@/components/layout/Logo";
 
+const freeEmailDomains = new Set([
+  "gmail.com", "googlemail.com", "yahoo.com", "yahoo.co.uk",
+  "outlook.com", "hotmail.com", "live.com", "msn.com",
+  "icloud.com", "me.com", "aol.com", "proton.me",
+  "protonmail.com", "pm.me", "gmx.com", "gmx.net",
+  "mail.com", "yandex.com", "yandex.ru", "zoho.com",
+  "tutanota.com", "tuta.io", "fastmail.com", "hey.com",
+]);
+
+function isOrganizationEmail(email: string) {
+  const domain = email.split("@")[1]?.trim().toLowerCase();
+  return Boolean(domain) && !freeEmailDomains.has(domain);
+}
+
 function AuthPanel({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1fr_0.9fr]">
@@ -155,7 +169,8 @@ export function RegisterPage() {
     lower: /[a-z]/.test(password),
     digit: /\d/.test(password),
   };
-  const valid = Object.values(checks).every(Boolean) && password === confirm && authorized;
+  const organizationEmail = isOrganizationEmail(email);
+  const valid = Object.values(checks).every(Boolean) && password === confirm && authorized && organizationEmail;
 
   const mutation = useMutation({
     mutationFn: () => api.post<Me>("/auth/register", { org_name: orgName.trim(), name: name.trim(), email: email.trim(), password }),
@@ -169,8 +184,8 @@ export function RegisterPage() {
   return (
     <AuthPanel>
       <div className="mb-7">
-        <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-ink-50">Create your workspace</h1>
-        <p className="mt-2 text-[13px] text-ink-300">The first account becomes the organization owner.</p>
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em] text-ink-50">Create your organization workspace</h1>
+        <p className="mt-2 text-[13px] text-ink-300">Use your organization email. The first account becomes the owner, and members join by invitation.</p>
       </div>
       <form
         onSubmit={(event) => {
@@ -188,10 +203,11 @@ export function RegisterPage() {
           <Field label="Your name">
             <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Mukuvi Ngandu" autoComplete="name" required />
           </Field>
-          <Field label="Email">
-            <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required />
+          <Field label="Email" hint="Use your organization email. Free providers are not accepted.">
+            <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@yourcompany.com" autoComplete="email" required />
           </Field>
         </div>
+        {email && !organizationEmail ? <p className="text-[11px] text-red-700">Use your organization email. Gmail, Outlook, Yahoo and similar free providers cannot create an organization.</p> : null}
         <Field label="Password" hint="Minimum 12 characters">
           <div className="relative">
             <Input type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required className="pr-10" />
@@ -222,6 +238,9 @@ export function RegisterPage() {
             I will only register and assess systems I own or have explicit, documented permission to test. I understand that intrusive testing can disrupt services.
           </span>
         </label>
+        <p className="text-[10.5px] leading-relaxed text-ink-400">
+          Creating a workspace is free. Team members do not self-register. After you sign in, invite them from Organization.
+        </p>
         {error ? <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-700">{error}</div> : null}
         <Button type="submit" size="lg" className="w-full" loading={mutation.isPending} disabled={!valid}>
           Create workspace <ArrowRight className="h-4 w-4" />

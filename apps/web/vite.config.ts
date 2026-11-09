@@ -14,7 +14,7 @@ function seoFiles(siteUrl: string): Plugin {
       const outDir = resolve(process.cwd(), "dist");
       mkdirSync(outDir, { recursive: true });
       const today = new Date().toISOString().slice(0, 10);
-      const publicUrls = ["/", "/login", "/register", "/privacy", "/terms", "/api-docs", "/api/v1/docs", "/api/v1/openapi.yaml"];
+      const publicUrls = ["/", "/login", "/register", "/privacy", "/terms", "/api-docs"];
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${publicUrls
@@ -29,7 +29,17 @@ ${publicUrls
   .join("\n")}
 </urlset>
 `;
+      const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${base}/sitemap-pages.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>
+`;
       writeFileSync(resolve(outDir, "sitemap.xml"), sitemap);
+      writeFileSync(resolve(outDir, "sitemap-pages.xml"), sitemap);
+      writeFileSync(resolve(outDir, "sitemap_index.xml"), sitemapIndex);
       const robots = `User-agent: *
 Allow: /
 Allow: /privacy
@@ -53,6 +63,7 @@ Disallow: /network-security
 Disallow: /cloud-security
 Disallow: /auth-testing
 Sitemap: ${base}/sitemap.xml
+Sitemap: ${base}/sitemap_index.xml
 `;
       writeFileSync(resolve(outDir, "robots.txt"), robots);
     },

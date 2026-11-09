@@ -22,9 +22,13 @@ RUN apt-get update \
        kali-tools-sniffing-spoofing \
        kali-tools-top10 \
        nmap nikto sqlmap gobuster whatweb trivy nuclei ffuf subfinder syft gitleaks \
-       amass sublist3r whois arp-scan dirsearch paramspider xsstrike exploitdb dalfox \
-       assetfinder trufflehog arjun bandit \
     && rm -rf /var/lib/apt/lists/*
+
+# Kali ships nmap with file capabilities. The worker runs with
+# no-new-privileges, so those capabilities are blocked. A plain copy has no
+# file capabilities and runs a normal TCP connect scan as the scanner user.
+RUN cp /usr/lib/nmap/nmap /usr/local/bin/nmap-real \
+    && chmod 0755 /usr/local/bin/nmap-real
 
 # Tools that are not packaged in Kali, pinned to released upstream builds.
 RUN curl -fsSL -o /tmp/httpx.zip "https://github.com/projectdiscovery/httpx/releases/download/v${HTTPX_VERSION}/httpx_${HTTPX_VERSION}_linux_amd64.zip" \
@@ -51,7 +55,7 @@ COPY requirements.txt .
 RUN python3 -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir --upgrade pip \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt \
-       wafw00f sslyze semgrep schemathesis droopescan kube-hunter
+       wafw00f sslyze semgrep schemathesis
 
 # Prowler, ScoutSuite and Checkov are intentionally left to a derived image:
 # their large cloud SDK dependency graphs conflict with the core worker venv.
@@ -68,6 +72,7 @@ RUN useradd --system --uid 10001 --create-home --shell /usr/sbin/nologin scanner
 USER scanner
 ENV PATH="/opt/venv/bin:$PATH" \
     HTTPX_PATH=/usr/local/bin/httpx \
+    NMAP_PATH=/usr/local/bin/nmap-real \
     PYTHONUNBUFFERED=1 \
     SCANNER_WORK_DIR=/tmp/king-malhare-work \
     WORKER_HTTP_PORT=8090 \

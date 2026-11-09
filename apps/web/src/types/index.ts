@@ -75,6 +75,7 @@ export interface PlatformOverview {
   running_scans: number;
   findings: number;
   high_risk_findings: number;
+  active_sessions: number;
 }
 
 export interface PlatformOrganization {
@@ -82,6 +83,8 @@ export interface PlatformOrganization {
   name: string;
   slug: string;
   created_at: string;
+  emergency_stop: boolean;
+  retention_days: number;
   member_count: number;
   asset_count: number;
   scan_count: number;
@@ -116,9 +119,52 @@ export interface PlatformActivity {
   resource_type: string;
   resource_id?: string;
   metadata?: Record<string, unknown>;
+  ip?: string;
   created_at: string;
   actor?: string;
   actor_email?: string;
+}
+
+export interface PlatformSession {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  org_id: string;
+  org_name: string;
+  ip: string;
+  user_agent: string;
+  created_at: string;
+  last_seen_at: string;
+  expires_at: string;
+}
+
+export interface PlatformUserDetail {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_color: string;
+    is_active: boolean;
+    is_platform_admin: boolean;
+    last_login_at?: string;
+    created_at: string;
+  };
+  memberships: Array<{
+    org_id: string;
+    org_name: string;
+    role_id: string;
+    role_name: string;
+    joined_at: string;
+  }>;
+  counts: {
+    assets_owned: number;
+    findings_assigned: number;
+    scans_started: number;
+    reports_created: number;
+  };
+  sessions: PlatformSession[];
+  activity: PlatformActivity[];
 }
 
 export interface Asset {

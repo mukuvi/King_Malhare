@@ -187,6 +187,7 @@ paths:
                   running_scans: { type: integer }
                   findings: { type: integer }
                   high_risk_findings: { type: integer }
+                  active_sessions: { type: integer }
         "403": { $ref: '#/components/responses/Error' }
   /platform/organizations:
     get:
@@ -205,6 +206,57 @@ paths:
         "200": { description: Organization, members and recent scans }
         "403": { $ref: '#/components/responses/Error' }
         "404": { $ref: '#/components/responses/Error' }
+    patch:
+      tags: [Platform]
+      summary: Update an organization record
+      parameters:
+        - { in: path, name: orgId, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                slug: { type: string, pattern: '^[a-z0-9-]{2,80}$' }
+                retention_days: { type: integer, minimum: 30, maximum: 3650 }
+                emergency_stop: { type: boolean }
+      responses:
+        "200": { description: Updated }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /platform/organizations/{orgId}/members/{userId}:
+    parameters:
+      - { in: path, name: orgId, required: true, schema: { type: string, format: uuid } }
+      - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
+    patch:
+      tags: [Platform]
+      summary: Change a member role inside an organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role_id]
+              properties:
+                role_id: { type: string, enum: [owner, admin, analyst, viewer] }
+      responses:
+        "200": { description: Role changed }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [Platform]
+      summary: Remove a member from an organization
+      responses:
+        "200": { description: Member removed }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
   /platform/users:
     get:
       tags: [Platform]
@@ -213,12 +265,45 @@ paths:
         "200": { description: Users }
         "403": { $ref: '#/components/responses/Error' }
   /platform/users/{userId}:
+    parameters:
+      - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Platform]
+      summary: User detail with memberships, counts, sessions and activity
+      responses:
+        "200": { description: User detail }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
     patch:
       tags: [Platform]
-      summary: Activate, deactivate or grant platform admin access
+      summary: Update a user name, email, status or platform admin access
       description: |
-        Platform administrators cannot deactivate themselves or remove their own
-        platform admin access.
+        Platform administrators cannot suspend themselves or remove their own
+        platform admin access. Suspending a user revokes all their sessions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                email: { type: string, format: email }
+                is_active: { type: boolean }
+                is_platform_admin: { type: boolean }
+      responses:
+        "200": { description: Updated }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+        "409": { $ref: '#/components/responses/Error' }
+        "422": { $ref: '#/components/responses/Error' }
+  /platform/users/{userId}/reset-password:
+    post:
+      tags: [Platform]
+      summary: Reset a user password and revoke their sessions
+      description: |
+        Returns a generated temporary password once. The password is never
+        stored in plain text and is not shown again.
       parameters:
         - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
       requestBody:
@@ -228,19 +313,52 @@ paths:
             schema:
               type: object
               properties:
-                is_active: { type: boolean }
-                is_platform_admin: { type: boolean }
+                password: { type: string, description: Optional explicit password. Generated when omitted. }
       responses:
-        "200": { description: Updated }
+        "200": { description: Temporary password and revoked session count }
         "403": { $ref: '#/components/responses/Error' }
         "404": { $ref: '#/components/responses/Error' }
         "422": { $ref: '#/components/responses/Error' }
+  /platform/users/{userId}/sign-out:
+    post:
+      tags: [Platform]
+      summary: Revoke every session for a user
+      parameters:
+        - { in: path, name: userId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Sessions revoked }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
+  /platform/sessions:
+    get:
+      tags: [Platform]
+      summary: List every active session across the deployment
+      responses:
+        "200": { description: Active sessions with user, organization, IP and device }
+        "403": { $ref: '#/components/responses/Error' }
+  /platform/sessions/{sessionId}:
+    delete:
+      tags: [Platform]
+      summary: Revoke an active session
+      parameters:
+        - { in: path, name: sessionId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "200": { description: Session revoked }
+        "403": { $ref: '#/components/responses/Error' }
+        "404": { $ref: '#/components/responses/Error' }
   /platform/activity:
     get:
       tags: [Platform]
-      summary: Recent audit events across every organization
+      summary: Audit events across every organization
+      parameters:
+        - { in: query, name: page, schema: { type: integer, minimum: 1 } }
+        - { in: query, name: per_page, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { in: query, name: org_id, schema: { type: string, format: uuid } }
+        - { in: query, name: user_id, schema: { type: string, format: uuid } }
+        - { in: query, name: action, schema: { type: string } }
+        - { in: query, name: search, schema: { type: string } }
       responses:
-        "200": { description: Activity items }
+        "200": { description: Paginated activity items }
         "403": { $ref: '#/components/responses/Error' }
   /stats/overview:
     get:

@@ -20,7 +20,9 @@ import type {
   PlatformActivity,
   PlatformOrganization,
   PlatformOverview,
+  PlatformSession,
   PlatformUser,
+  PlatformUserDetail,
   Report,
   Scan,
   ScanDetail,
@@ -59,7 +61,9 @@ export const queryKeys = {
   platformOrganizations: ["platform", "organizations"] as const,
   platformOrganization: (id: string) => ["platform", "organization", id] as const,
   platformUsers: ["platform", "users"] as const,
-  platformActivity: ["platform", "activity"] as const,
+  platformUser: (id: string) => ["platform", "user", id] as const,
+  platformSessions: ["platform", "sessions"] as const,
+  platformActivity: (params: string) => ["platform", "activity", params] as const,
 };
 
 export function useMe() {
@@ -286,10 +290,28 @@ export function usePlatformUsers() {
   });
 }
 
-export function usePlatformActivity() {
+export function usePlatformUser(id: string) {
   return useQuery({
-    queryKey: queryKeys.platformActivity,
-    queryFn: () => api.get<{ items: PlatformActivity[] }>("/platform/activity"),
+    queryKey: queryKeys.platformUser(id),
+    queryFn: () => api.get<PlatformUserDetail>(`/platform/users/${id}`),
+    enabled: Boolean(id),
+    retry: false,
+  });
+}
+
+export function usePlatformSessions() {
+  return useQuery({
+    queryKey: queryKeys.platformSessions,
+    queryFn: () => api.get<{ items: PlatformSession[] }>("/platform/sessions"),
+    retry: false,
+  });
+}
+
+export function usePlatformActivity(params: Record<string, string | number | undefined> = {}) {
+  const qs = queryString(params);
+  return useQuery({
+    queryKey: queryKeys.platformActivity(qs),
+    queryFn: () => api.get<{ items: PlatformActivity[]; total: number; page: number; per_page: number }>(`/platform/activity${qs}`),
     retry: false,
   });
 }
